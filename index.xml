@@ -117,6 +117,19 @@ Figure&nbsp;1: A line plot on a polar axis
 <p>This is the first post in a Quarto blog. Welcome!</p>
 <p><img src="https://cstorm125.github.io/posts/welcome/thumbnail.jpg" class="img-fluid"></p>
 <p>Since this post doesn’t specify an explicit <code>image</code>, the first image in the post will be used in the listing page of posts.</p>
+<div id="d48fefcc" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hello Japan"</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hello Japan</code></pre>
+</div>
+</div>
 
 
 
