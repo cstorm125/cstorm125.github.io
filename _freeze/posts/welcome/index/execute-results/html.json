@@ -1,10 +1,10 @@
 {
-  "hash": "5f6272db7b6a7e22a9bab138e4f91454",
+  "hash": "858d7991587ff59e27e78196311fd5a1",
   "result": {
     "engine": "jupyter",
-    "markdown": "---\ntitle: \"Welcome To My Blog\"\nauthor: \"Tristan O'Malley\"\ndate: \"2024-10-24\"\ncategories: [news]\nformat:\n  html:\n    code-fold: true\njupyter: python3\n---\n\n\nThis is the first post in a Quarto blog. Welcome!\n\n![](thumbnail.jpg)\n\nSince this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.\n\n::: {#d48fefcc .cell execution_count=1}\n``` {.python .cell-code}\nprint(\"Hello Japan\")\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nHello Japan\n```\n:::\n:::\n\n\n",
+    "markdown": "---\ntitle: \"Welcome To My Blog\"\nauthor: \"Tristan O'Malley\"\ndate: \"2024-10-24\"\ncategories: [news]\nformat:\n  html:\n    code-fold: true\njupyter: python3\n---\n\n\nThis is the first post in a Quarto blog. Welcome!\n\n![](thumbnail.jpg)\n\nSince this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.\n\n::: {#38107e54 .cell execution_count=1}\n``` {.python .cell-code}\nprint(\"Hello Americaa\")\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nHello Americaa\n```\n:::\n:::\n\n\n",
     "supporting": [
-      "index_files"
+      "index_files/figure-html"
     ],
     "filters": [],
     "includes": {}
