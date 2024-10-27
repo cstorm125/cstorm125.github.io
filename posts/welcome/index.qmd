@@ -3,6 +3,10 @@ title: "Welcome To My Blog"
 author: "Tristan O'Malley"
 date: "2024-10-24"
 categories: [news]
+format:
+  html:
+    code-fold: true
+jupyter: python3
 ---
 
 This is the first post in a Quarto blog. Welcome!
