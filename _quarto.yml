@@ -1,7 +1,7 @@
 project:
   type: website
 website:
-  title: "chariblog in _quarto.yml"
+  title: "chariblog"
   site-url: https://cstorm125.github.io
   description: "A collection of technical writings on applied science"
   navbar:
