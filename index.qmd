@@ -1,13 +1,17 @@
 ---
-title: "chariblog - a collection of technical writings in applied science"
+title: "A collection of technical writings in applied science"
 listing:
   contents: posts
-  sort: "date desc"
+  sort: 
+    - "date desc"
+    - "title desc"
   type: default
   categories: true
-  sort-ui: false
-  filter-ui: false
+  sort-ui: true
+  filter-ui: true
   feed: true
+  date-format: "YYYY-MM-DD"
+  page-size: 10
 page-layout: full
 title-block-banner: true
 ---
