@@ -1,5 +1,5 @@
 ---
-title: "A collection of technical writings in applied science"
+title: "chariblog - a collection of technical writings in applied science"
 listing:
   contents: posts
   sort: 
