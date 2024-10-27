@@ -1,7 +1,7 @@
 project:
   type: website
 website:
-  title: "chariblog"
+  title: "chariblog in _quarto.yml"
   site-url: https://cstorm125.github.io
   description: "A collection of technical writings on applied science"
   navbar:
@@ -11,6 +11,8 @@ website:
         href: https://github.com/cstorm125
       - icon: linkedin
         href: https://www.linkedin.com/in/cstorm125/
+      - icon: google
+        href: https://scholar.google.com/citations?user=UX36NGkAAAAJ
 format:
   html:
     theme: litera
