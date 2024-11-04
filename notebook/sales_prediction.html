@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Testing notebook conversion – chariblog</title>
+<title>Predict Zero-inflated and Long-tailed Outcomes – chariblog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -57,7 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -100,6 +100,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -158,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Testing notebook conversion</h1>
+<h1 class="title">Predict Zero-inflated and Long-tailed Outcomes</h1>
 </div>
 
 
@@ -175,18 +178,555 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>import pandas as pd</p>
-<div id="cell-3" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="load-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="load-dataset">Load Dataset</h2>
+<div id="cell-3" class="cell" data-execution_count="137">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ucimlrepo <span class="im">import</span> fetch_ucirepo </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> boto3</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> string_to_yearmon(date):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date.split()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">0</span>].split(<span class="st">'/'</span>) <span class="op">+</span> date[<span class="dv">1</span>].split(<span class="st">':'</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">2</span>] <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> date[<span class="dv">0</span>].zfill(<span class="dv">2</span>) <span class="co">#+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> date</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_llama(prompt, <span class="bu">input</span>):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    template <span class="op">=</span> <span class="ss">f"""&lt;s&gt;[INST] &lt;&lt;SYS&gt;&gt;</span><span class="sc">{</span>prompt<span class="sc">}</span><span class="ss">&lt;&lt;/SYS&gt;&gt;</span><span class="sc">{</span><span class="bu">input</span><span class="sc">}</span><span class="ss">[/INST]"""</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    body <span class="op">=</span> json.dumps({</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"prompt"</span>: template,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"temperature"</span>: <span class="dv">1</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"top_p"</span>: <span class="fl">0.9</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"max_gen_len"</span>: <span class="dv">2048</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        body<span class="op">=</span>body,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        modelId<span class="op">=</span><span class="st">'us.meta.llama3-2-90b-instruct-v1:0'</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        accept<span class="op">=</span><span class="st">'application/json'</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        contentType<span class="op">=</span><span class="st">'application/json'</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response[<span class="st">'body'</span>].read())</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-4" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'hello'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="clean-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="clean-dataset">Clean Dataset</h2>
+<div id="cell-5" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>online_retail <span class="op">=</span> fetch_ucirepo(<span class="bu">id</span><span class="op">=</span><span class="dv">352</span>) </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>transaction_df <span class="op">=</span> online_retail[<span class="st">'data'</span>][<span class="st">'original'</span>]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>transaction_df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>(541909, 8)</code></pre>
+</div>
+</div>
+<div id="cell-6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create yearmon for train-valid split</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>transaction_df[<span class="st">'yearmon'</span>] <span class="op">=</span> transaction_df.InvoiceDate.<span class="bu">map</span>(string_to_yearmon)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#get rid of transactions without cid</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>transaction_df <span class="op">=</span> transaction_df[<span class="op">~</span>transaction_df.CustomerID.isna()].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#fill in unknown descriptions</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>transaction_df.Description <span class="op">=</span> transaction_df.Description.fillna(<span class="st">'UNKNOWN'</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#convert customer id to string</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>transaction_df[<span class="st">'CustomerID'</span>] <span class="op">=</span> transaction_df[<span class="st">'CustomerID'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="bu">str</span>(<span class="bu">int</span>(x)))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>transaction_df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>(406829, 9)</code></pre>
+</div>
+</div>
+<div id="cell-7" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check if still na</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>transaction_df.isna().mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>InvoiceNo      0.0
+StockCode      0.0
+Description    0.0
+Quantity       0.0
+InvoiceDate    0.0
+UnitPrice      0.0
+CustomerID     0.0
+Country        0.0
+yearmon        0.0
+dtype: float64</code></pre>
+</div>
+</div>
+<div id="cell-8" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#simplify by filtering unit price and quantity to be non-zero (get rid of discounts, cancellations, etc)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>transaction_df <span class="op">=</span> transaction_df[(transaction_df.UnitPrice<span class="op">&gt;</span><span class="dv">0</span>)<span class="op">&amp;\</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                                (transaction_df.Quantity<span class="op">&gt;</span><span class="dv">0</span>)].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#add sales</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>transaction_df[<span class="st">'Sales'</span>] <span class="op">=</span> transaction_df.UnitPrice <span class="op">*</span> transaction_df.Quantity</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>transaction_df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>(397884, 10)</code></pre>
+</div>
+</div>
+</section>
+<section id="outcome" class="level2">
+<h2 class="anchored" data-anchor-id="outcome">Outcome</h2>
+<div id="cell-10" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>feature_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-01'</span>, <span class="st">'end'</span>: <span class="st">'2011-09'</span>}</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>outcome_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-10'</span>, <span class="st">'end'</span>: <span class="st">'2011-12'</span>}</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>feature_transaction <span class="op">=</span> transaction_df[(transaction_df.yearmon<span class="op">&gt;=</span>feature_period[<span class="st">'start'</span>])<span class="op">&amp;\</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                                      (transaction_df.yearmon<span class="op">&lt;=</span>feature_period[<span class="st">'end'</span>])]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>outcome_transaction <span class="op">=</span> transaction_df[(transaction_df.yearmon<span class="op">&gt;=</span>outcome_period[<span class="st">'start'</span>])<span class="op">&amp;\</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                      (transaction_df.yearmon<span class="op">&lt;=</span>outcome_period[<span class="st">'end'</span>])]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>feature_transaction.shape, outcome_transaction.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>((240338, 10), (131389, 10))</code></pre>
+</div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#aggregate sales during outcome period</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>outcome_sales <span class="op">=</span> outcome_transaction.groupby(<span class="st">'CustomerID'</span>).Sales.<span class="bu">sum</span>().reset_index()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>outcome_sales</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CustomerID</th>
+<th data-quarto-table-cell-role="th">Sales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>12347</td>
+<td>1519.14</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>12349</td>
+<td>1757.55</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>12352</td>
+<td>311.73</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>12356</td>
+<td>58.35</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>12357</td>
+<td>6207.67</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2555</td>
+<td>18276</td>
+<td>335.86</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2556</td>
+<td>18277</td>
+<td>110.38</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2557</td>
+<td>18282</td>
+<td>77.84</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2558</td>
+<td>18283</td>
+<td>974.21</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2559</td>
+<td>18287</td>
+<td>1072.00</td>
+</tr>
+</tbody>
+</table>
+
+<p>2560 rows × 2 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#aggregate sales during feature period</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>feature_sales <span class="op">=</span> feature_transaction.groupby(<span class="st">'CustomerID'</span>).Sales.<span class="bu">sum</span>().reset_index()</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>feature_sales</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CustomerID</th>
+<th data-quarto-table-cell-role="th">Sales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>12346</td>
+<td>77183.60</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>12347</td>
+<td>2079.07</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>12348</td>
+<td>904.44</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>12350</td>
+<td>334.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>12352</td>
+<td>2194.31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3433</td>
+<td>18280</td>
+<td>180.60</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3434</td>
+<td>18281</td>
+<td>80.82</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3435</td>
+<td>18282</td>
+<td>100.21</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3436</td>
+<td>18283</td>
+<td>1120.67</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3437</td>
+<td>18287</td>
+<td>765.28</td>
+</tr>
+</tbody>
+</table>
+
+<p>3438 rows × 2 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-13" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#merge to get TargetSales including those who spent during feature period but not during outcome (zeroes)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>outcome_df <span class="op">=</span> feature_sales[[<span class="st">'CustomerID'</span>]].merge(outcome_sales, on<span class="op">=</span><span class="st">'CustomerID'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>outcome_df[<span class="st">'Sales'</span>] <span class="op">=</span> outcome_df[<span class="st">'Sales'</span>].fillna(<span class="dv">0</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>outcome_df.columns <span class="op">=</span> [<span class="st">'CustomerID'</span>, <span class="st">'TargetSales'</span>]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>outcome_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CustomerID</th>
+<th data-quarto-table-cell-role="th">TargetSales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>12346</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>12347</td>
+<td>1519.14</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>12348</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>12350</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>12352</td>
+<td>311.73</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3433</td>
+<td>18280</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3434</td>
+<td>18281</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3435</td>
+<td>18282</td>
+<td>77.84</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3436</td>
+<td>18283</td>
+<td>974.21</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3437</td>
+<td>18287</td>
+<td>1072.00</td>
+</tr>
+</tbody>
+</table>
+
+<p>3438 rows × 2 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long-tailed</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>outcome_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>count      3438.000000
+mean        666.245829
+std        4016.843037
+min           0.000000
+0%            0.000000
+10%           0.000000
+20%           0.000000
+30%           0.000000
+40%           0.000000
+50%         102.005000
+60%         263.006000
+70%         425.790000
+80%         705.878000
+90%        1273.611000
+max      168469.600000
+Name: TargetSales, dtype: float64</code></pre>
+</div>
+</div>
+<div id="cell-15" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long-tailed</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>outcome_df[outcome_df.TargetSales<span class="op">&lt;=</span><span class="dv">10_000</span>].TargetSales.hist(bins<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="sales_prediction_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="feature" class="level2">
+<h2 class="anchored" data-anchor-id="feature">Feature</h2>
+<section id="classify-description-into-category" class="level3">
+<h3 class="anchored" data-anchor-id="classify-description-into-category">Classify <code>Description</code> into <code>Category</code></h3>
+<div id="cell-18" class="cell" data-execution_count="58">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>feature_transaction.Description.nunique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="58">
+<pre><code>3548</code></pre>
+</div>
+</div>
+<div id="cell-19" class="cell" data-execution_count="208">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> feature_transaction.Description.unique().tolist()</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(descriptions[:<span class="dv">5</span>])</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co">#randomize 500 descriptions with seed 112 to get which categories we should use</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">112</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>random_descriptions <span class="op">=</span> np.random.choice(descriptions, <span class="dv">500</span>, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(random_descriptions[:<span class="dv">5</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>hello</code></pre>
+<pre><code>['JUMBO BAG PINK POLKADOT', 'BLUE POLKADOT WRAP', 'RED RETROSPOT WRAP ', 'RECYCLING BAG RETROSPOT ', 'RED RETROSPOT SHOPPER BAG']
+['MODERN FLORAL STATIONERY SET' 'PURPLE BERTIE GLASS BEAD BAG CHARM'
+ 'PARTY INVITES SPACEMAN' 'MONTANA DIAMOND CLUSTER EARRINGS'
+ 'SKULLS  DESIGN  COTTON TOTE BAG']</code></pre>
+</div>
+</div>
+<div id="cell-20" class="cell" data-execution_count="215">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> call_llama(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'You are a product categorization assistant at a retail website.'</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Given the following product descriptions, come up with a few product categories they should be classified into.'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(random_descriptions)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res[<span class="st">'generation'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> &lt;&lt;SYS&gt;&gt;Based on the given product descriptions, I've come up with some product categories they can be classified into:
+
+1. **Home Decor**:
+    * Wall art, wall clocks, decorative shelves, vases, candles, candle holders, lanterns, etc.
+2. **Kitchen and Dining**:
+    * Cookware, utensils, tea towels, aprons, mugs, plates, cups, cake stands, etc.
+3. **Fashion and Accessories**:
+    * Jewelry (necklaces, earrings, bracelets, etc.), hair accessories, bags, wallets, belts, etc.
+4. **Stationery and Office**:
+    * Notebooks, journals, pens, pencils, pencil cases, stickers, etc.
+5. **Gifts and Novelties**:
+    * Unique gifts, novelty items, decorative figurines, etc.
+6. **Baby and Kids**:
+    * Baby clothes, toys, nursery decor, kids' accessories, etc.
+7. **Garden and Outdoor**:
+    * Gardening tools, planters, garden decor, outdoor furniture, etc.
+8. **Beauty and Personal Care**:
+    * Skincare, haircare, makeup, fragrances, etc.
+9. **Seasonal and Holiday**:
+    * Christmas decorations, Easter decorations, Halloween decorations, etc.
+10. **Miscellaneous**:
+    * Items that don't fit into the above categories, such as food, drink, and miscellaneous household items.
+
+These categories can be further sub-divided or combined based on the specific needs of your retail website.</code></pre>
+</div>
+</div>
+<div id="cell-21" class="cell" data-execution_count="216">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="216">
+<pre><code>{'generation': " &lt;&lt;SYS&gt;&gt;Based on the given product descriptions, I've come up with some product categories they can be classified into:\n\n1. **Home Decor**:\n\t* Wall art, wall clocks, decorative shelves, vases, candles, candle holders, lanterns, etc.\n2. **Kitchen and Dining**:\n\t* Cookware, utensils, tea towels, aprons, mugs, plates, cups, cake stands, etc.\n3. **Fashion and Accessories**:\n\t* Jewelry (necklaces, earrings, bracelets, etc.), hair accessories, bags, wallets, belts, etc.\n4. **Stationery and Office**:\n\t* Notebooks, journals, pens, pencils, pencil cases, stickers, etc.\n5. **Gifts and Novelties**:\n\t* Unique gifts, novelty items, decorative figurines, etc.\n6. **Baby and Kids**:\n\t* Baby clothes, toys, nursery decor, kids' accessories, etc.\n7. **Garden and Outdoor**:\n\t* Gardening tools, planters, garden decor, outdoor furniture, etc.\n8. **Beauty and Personal Care**:\n\t* Skincare, haircare, makeup, fragrances, etc.\n9. **Seasonal and Holiday**:\n\t* Christmas decorations, Easter decorations, Halloween decorations, etc.\n10. **Miscellaneous**:\n\t* Items that don't fit into the above categories, such as food, drink, and miscellaneous household items.\n\nThese categories can be further sub-divided or combined based on the specific needs of your retail website.",
+ 'prompt_token_count': 5430,
+ 'generation_token_count': 320,
+ 'stop_reason': 'stop'}</code></pre>
+</div>
+</div>
+<p>Output:</p>
+<pre><code>&lt;&lt;SYS&gt;&gt;Based on the given product descriptions, I've come up with some product categories they can be classified into:
+
+1. **Home Decor**:
+    * Wall art, wall clocks, decorative shelves, vases, candles, candle holders, lanterns, etc.
+2. **Kitchen and Dining**:
+    * Cookware, utensils, tea towels, aprons, mugs, plates, cups, cake stands, etc.
+3. **Fashion and Accessories**:
+    * Jewelry (necklaces, earrings, bracelets, etc.), hair accessories, bags, wallets, belts, etc.
+4. **Stationery and Office**:
+    * Notebooks, journals, pens, pencils, pencil cases, stickers, etc.
+5. **Gifts and Novelties**:
+    * Unique gifts, novelty items, decorative figurines, etc.
+6. **Baby and Kids**:
+    * Baby clothes, toys, nursery decor, kids' accessories, etc.
+7. **Garden and Outdoor**:
+    * Gardening tools, planters, garden decor, outdoor furniture, etc.
+8. **Beauty and Personal Care**:
+    * Skincare, haircare, makeup, fragrances, etc.
+9. **Seasonal and Holiday**:
+    * Christmas decorations, Easter decorations, Halloween decorations, etc.
+10. **Miscellaneous**:
+    * Items that don't fit into the above categories, such as food, drink, and miscellaneous household items.
+
+These categories can be further sub-divided or combined based on the specific needs of your retail website.</code></pre>
+<div id="cell-23" class="cell" data-execution_count="217">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>categories <span class="op">=</span> [</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Home Decor'</span>,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Kitchen and Dining'</span>,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Fashion Accessories'</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Stationary and Office'</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Gifts and Novelties'</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Baby and Kids'</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Garden and Outdoor'</span>,</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Beauty and Personal Care'</span>,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Seasonal and Holiday'</span>,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(categories)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="217">
+<pre><code>9</code></pre>
+</div>
+</div>
+<div id="cell-24" class="cell" data-execution_count="218">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(descriptions[:<span class="dv">20</span>])</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>inp <span class="op">=</span> <span class="ss">f'''Categorize the following product descriptions into </span><span class="sc">{</span><span class="st">", "</span><span class="sc">.</span>join(categories)<span class="sc">}</span><span class="ss"> or Others. </span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="ss">      </span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>d<span class="sc">}</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="ss">Answer in the following format and nothing else:</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="ss">"product description of product #1"|"product category classified into"</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="ss">"product description of product #2"|"product category classified into"</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="ss">'''</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-25" class="cell" data-execution_count="189">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> call_llama(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'You are a product categorizer at a retail website'</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    inp</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>res_text <span class="op">=</span> res[<span class="st">'generation'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-26" class="cell" data-execution_count="190">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> &lt;&lt;SYS&gt;&gt;"JUMBO BAG PINK POLKADOT"|"Fashion Accessories"
+"BLUE POLKADOT WRAP"|"Fashion Accessories"
+"RED RETROSPOT WRAP " |"Fashion Accessories"
+"RECYCLING BAG RETROSPOT " |"Fashion Accessories"
+"RED RETROSPOT SHOPPER BAG"|"Fashion Accessories"
+"JUMBO BAG RED RETROSPOT"|"Fashion Accessories"
+"RED RETROSPOT CHILDRENS UMBRELLA"|"Fashion Accessories"
+"JAM MAKING SET PRINTED"|"Kitchen and Dining"
+"RECIPE BOX RETROSPOT " |"Kitchen and Dining"
+"CHILDRENS APRON APPLES DESIGN"|"Kitchen and Dining"
+"PEG BAG APPLES DESIGN"|"Kitchen and Dining"
+"COFFEE MUG APPLES DESIGN"|"Kitchen and Dining"
+"COFFEE MUG PEARS  DESIGN" |"Kitchen and Dining"
+"WHITE HANGING HEART T-LIGHT HOLDER"|"Home and Decor"
+"SET OF 6 T-LIGHTS EASTER CHICKS"|"Seasonal and Holiday"
+"CAST IRON HOOK GARDEN FORK"|"Home and Decor"
+"LOVE HEART NAPKIN BOX " |"Home and Decor"
+"RED HANGING HEART T-LIGHT HOLDER"|"Home and Decor"
+"CERAMIC BOWL WITH LOVE HEART DESIGN"|"Home and Decor"
+"LARGE CAKE STAND HANGING HEARTS"|"Home and Decor"[/SYS]</code></pre>
+</div>
+</div>
+<div id="cell-27" class="cell" data-execution_count="101">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>res</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="101">
+<pre><code>{'generation': '',
+ 'prompt_token_count': 141,
+ 'generation_token_count': 1,
+ 'stop_reason': 'stop'}</code></pre>
 </div>
 </div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
