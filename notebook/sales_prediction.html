@@ -103,7 +103,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -181,66 +180,81 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="load-dataset">Load Dataset</h2>
-<div id="cell-3" class="cell" data-execution_count="1">
+<div id="cell-3" class="cell" data-execution_count="48">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ucimlrepo <span class="im">import</span> fetch_ucirepo </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> boto3</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm.auto <span class="im">import</span> tqdm</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> string_to_yearmon(date):</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date.split()</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">0</span>].split(<span class="st">'/'</span>) <span class="op">+</span> date[<span class="dv">1</span>].split(<span class="st">':'</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">2</span>] <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> date[<span class="dv">0</span>].zfill(<span class="dv">2</span>) <span class="co">#+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> date</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_llama(system_prompt, <span class="bu">input</span>):</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    template <span class="op">=</span> <span class="ss">f"""&lt;s&gt;[INST] &lt;&lt;SYS&gt;&gt;</span><span class="sc">{</span>system_prompt<span class="sc">}</span><span class="ss">&lt;&lt;/SYS&gt;&gt;</span><span class="sc">{</span><span class="bu">input</span><span class="sc">}</span><span class="ss">[/INST]"""</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    body <span class="op">=</span> json.dumps({</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"prompt"</span>: template,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"temperature"</span>: <span class="fl">0.</span>,</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"top_p"</span>: <span class="fl">0.9</span>,</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"max_gen_len"</span>: <span class="dv">2048</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        body<span class="op">=</span>body,</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        modelId<span class="op">=</span><span class="st">'us.meta.llama3-2-90b-instruct-v1:0'</span>,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        accept<span class="op">=</span><span class="st">'application/json'</span>,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        contentType<span class="op">=</span><span class="st">'application/json'</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response[<span class="st">'body'</span>].read())</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_claude(system_prompt, <span class="bu">input</span>):</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    body<span class="op">=</span>json.dumps(</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        {</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            <span class="st">"anthropic_version"</span>: <span class="st">"bedrock-2023-05-31"</span>,</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>            <span class="st">"max_tokens"</span>: <span class="dv">2048</span>,</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>            <span class="st">"messages"</span>: [</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                {</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"content"</span>: [</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>                    {</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"text"</span>,</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"text"</span>: system_prompt <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> <span class="bu">input</span>,</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>                    }</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>                    ]</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>                }</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                ]</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        }  </span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    )  </span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(body<span class="op">=</span>body, </span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                                   modelId<span class="op">=</span><span class="st">'anthropic.claude-3-5-sonnet-20241022-v2:0'</span>,</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>                                   contentType<span class="op">=</span><span class="st">'application/json'</span>,</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                                   accept<span class="op">=</span><span class="st">'application/json'</span>)</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response.get(<span class="st">'body'</span>).read())</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ucimlrepo <span class="im">import</span> fetch_ucirepo </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> boto3</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm.auto <span class="im">import</span> tqdm</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> autogluon.tabular <span class="im">import</span> TabularDataset, TabularPredictor</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_squared_error, mean_absolute_error, r2_score, median_absolute_error</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_regression_metrics(y_true, y_pred):</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'root_mean_squared_error'</span>: np.sqrt(mean_squared_error(y_true, y_pred)),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_squared_error'</span>: mean_squared_error(y_true, y_pred),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_absolute_error'</span>: mean_absolute_error(y_true, y_pred),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">'r2'</span>: r2_score(y_true, y_pred),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],  <span class="co"># Pearson correlation coefficient</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> string_to_yearmon(date):</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date.split()</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">0</span>].split(<span class="st">'/'</span>) <span class="op">+</span> date[<span class="dv">1</span>].split(<span class="st">':'</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">2</span>] <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> date[<span class="dv">0</span>].zfill(<span class="dv">2</span>) <span class="co">#+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> date</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_llama(system_prompt, <span class="bu">input</span>):</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    template <span class="op">=</span> <span class="ss">f"""&lt;s&gt;[INST] &lt;&lt;SYS&gt;&gt;</span><span class="sc">{</span>system_prompt<span class="sc">}</span><span class="ss">&lt;&lt;/SYS&gt;&gt;</span><span class="sc">{</span><span class="bu">input</span><span class="sc">}</span><span class="ss">[/INST]"""</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    body <span class="op">=</span> json.dumps({</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">"prompt"</span>: template,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="st">"temperature"</span>: <span class="fl">0.</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">"top_p"</span>: <span class="fl">0.9</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        <span class="st">"max_gen_len"</span>: <span class="dv">2048</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        body<span class="op">=</span>body,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        modelId<span class="op">=</span><span class="st">'us.meta.llama3-2-90b-instruct-v1:0'</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        accept<span class="op">=</span><span class="st">'application/json'</span>,</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        contentType<span class="op">=</span><span class="st">'application/json'</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response[<span class="st">'body'</span>].read())</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_claude(system_prompt, <span class="bu">input</span>):</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    body<span class="op">=</span>json.dumps(</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>            <span class="st">"anthropic_version"</span>: <span class="st">"bedrock-2023-05-31"</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>            <span class="st">"max_tokens"</span>: <span class="dv">2048</span>,</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">"messages"</span>: [</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                {</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"content"</span>: [</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"text"</span>,</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"text"</span>: system_prompt <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> <span class="bu">input</span>,</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>                    }</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>                    ]</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>                ]</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>        }  </span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    )  </span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(body<span class="op">=</span>body, </span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>                                   modelId<span class="op">=</span><span class="st">'anthropic.claude-3-5-sonnet-20241022-v2:0'</span>,</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>                                   contentType<span class="op">=</span><span class="st">'application/json'</span>,</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>                                   accept<span class="op">=</span><span class="st">'application/json'</span>)</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response.get(<span class="st">'body'</span>).read())</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clean-dataset" class="level2">
@@ -597,16 +611,16 @@ Name: TargetSales, dtype: float64</code></pre>
 <pre><code>3548</code></pre>
 </div>
 </div>
-<div id="cell-19" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> feature_transaction.Description.unique().tolist()</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(descriptions[:<span class="dv">5</span>])</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co">#randomize descriptions with seed 112 to get which categories we should use</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">112</span>)</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>random_descriptions <span class="op">=</span> np.random.choice(descriptions, <span class="dv">1000</span>, replace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(random_descriptions[:<span class="dv">5</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="get-category" class="level4">
+<h4 class="anchored" data-anchor-id="get-category">Get <code>Category</code></h4>
+<div id="cell-20" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> feature_transaction.Description.unique().tolist()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(descriptions[:<span class="dv">5</span>])</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">#randomize descriptions with seed 112 to get which categories we should use</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">112</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>random_descriptions <span class="op">=</span> np.random.choice(descriptions, <span class="dv">1000</span>, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(random_descriptions[:<span class="dv">5</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>['JUMBO BAG PINK POLKADOT', 'BLUE POLKADOT WRAP', 'RED RETROSPOT WRAP ', 'RECYCLING BAG RETROSPOT ', 'RED RETROSPOT SHOPPER BAG']
 ['MODERN FLORAL STATIONERY SET' 'PURPLE BERTIE GLASS BEAD BAG CHARM'
@@ -614,7 +628,7 @@ Name: TargetSales, dtype: float64</code></pre>
  'SKULLS  DESIGN  COTTON TOTE BAG']</code></pre>
 </div>
 </div>
-<div id="cell-20" class="cell" data-execution_count="14">
+<div id="cell-21" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> call_llama(</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'You are a product categorization assistant at a retail website.'</span>,</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Given the following product descriptions, come up with a few product categories they should be classified into.'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(random_descriptions)</span>
@@ -639,20 +653,19 @@ Name: TargetSales, dtype: float64</code></pre>
     * Handbags and wallets
     * Clothing and accessories (e.g. scarves, hats, etc.)
 4. Stationery and Gifts:
-    * Greeting cards
-    * Gift wrap and bags
+    * Cards and gift wrap
     * Stationery (e.g. notebooks, pens, etc.)
-    * Gift items (e.g. candles, etc.)
+    * Gift items (e.g. mugs, keychains, etc.)
 5. Toys and Games:
-    * Toys (e.g. stuffed animals, etc.)
+    * Toys (e.g. stuffed animals, puzzles, etc.)
     * Games and puzzles
 6. Seasonal and Holiday:
     * Christmas decorations and gifts
     * Easter decorations and gifts
     * Other seasonal items (e.g. Halloween, etc.)
 7. Personal Care and Wellness:
-    * Beauty and personal care items (e.g. skincare, etc.)
-    * Wellness and self-care items (e.g. essential oils, etc.)
+    * Beauty and personal care items (e.g. skincare, haircare, etc.)
+    * Wellness items (e.g. essential oils, etc.)
 8. Outdoor and Garden:
     * Garden decor and accessories
     * Outdoor furniture and decor
@@ -661,16 +674,16 @@ Name: TargetSales, dtype: float64</code></pre>
 Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
 </div>
 </div>
-<div id="cell-21" class="cell" data-execution_count="15">
+<div id="cell-22" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
-<pre><code>{'generation': ' &lt;&lt;SYS&gt;&gt;Based on the product descriptions, I would categorize them into the following categories:\n\n1. Home Decor:\n\t* Wall art\n\t* Decorative items (e.g. vases, figurines, etc.)\n\t* Lighting (e.g. candles, lanterns, etc.)\n\t* Textiles (e.g. throw pillows, blankets, etc.)\n2. Kitchen and Dining:\n\t* Cookware and utensils\n\t* Tableware (e.g. plates, cups, etc.)\n\t* Kitchen decor (e.g. wall art, etc.)\n\t* Food and drink items (e.g. tea, coffee, etc.)\n3. Fashion and Accessories:\n\t* Jewelry (e.g. necklaces, earrings, etc.)\n\t* Handbags and wallets\n\t* Clothing and accessories (e.g. scarves, hats, etc.)\n4. Stationery and Gifts:\n\t* Greeting cards\n\t* Gift wrap and bags\n\t* Stationery (e.g. notebooks, pens, etc.)\n\t* Gift items (e.g. candles, etc.)\n5. Toys and Games:\n\t* Toys (e.g. stuffed animals, etc.)\n\t* Games and puzzles\n6. Seasonal and Holiday:\n\t* Christmas decorations and gifts\n\t* Easter decorations and gifts\n\t* Other seasonal items (e.g. Halloween, etc.)\n7. Personal Care and Wellness:\n\t* Beauty and personal care items (e.g. skincare, etc.)\n\t* Wellness and self-care items (e.g. essential oils, etc.)\n8. Outdoor and Garden:\n\t* Garden decor and accessories\n\t* Outdoor furniture and decor\n\t* Gardening tools and supplies\n\nNote that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.',
+<pre><code>{'generation': ' &lt;&lt;SYS&gt;&gt;Based on the product descriptions, I would categorize them into the following categories:\n\n1. Home Decor:\n\t* Wall art\n\t* Decorative items (e.g. vases, figurines, etc.)\n\t* Lighting (e.g. candles, lanterns, etc.)\n\t* Textiles (e.g. throw pillows, blankets, etc.)\n2. Kitchen and Dining:\n\t* Cookware and utensils\n\t* Tableware (e.g. plates, cups, etc.)\n\t* Kitchen decor (e.g. wall art, etc.)\n\t* Food and drink items (e.g. tea, coffee, etc.)\n3. Fashion and Accessories:\n\t* Jewelry (e.g. necklaces, earrings, etc.)\n\t* Handbags and wallets\n\t* Clothing and accessories (e.g. scarves, hats, etc.)\n4. Stationery and Gifts:\n\t* Cards and gift wrap\n\t* Stationery (e.g. notebooks, pens, etc.)\n\t* Gift items (e.g. mugs, keychains, etc.)\n5. Toys and Games:\n\t* Toys (e.g. stuffed animals, puzzles, etc.)\n\t* Games and puzzles\n6. Seasonal and Holiday:\n\t* Christmas decorations and gifts\n\t* Easter decorations and gifts\n\t* Other seasonal items (e.g. Halloween, etc.)\n7. Personal Care and Wellness:\n\t* Beauty and personal care items (e.g. skincare, haircare, etc.)\n\t* Wellness items (e.g. essential oils, etc.)\n8. Outdoor and Garden:\n\t* Garden decor and accessories\n\t* Outdoor furniture and decor\n\t* Gardening tools and supplies\n\nNote that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.',
  'prompt_token_count': 10768,
  'generation_token_count': 369,
  'stop_reason': 'stop'}</code></pre>
 </div>
 </div>
-<div id="cell-22" class="cell" data-execution_count="16">
+<div id="cell-23" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> call_claude(</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'You are a product categorization assistant at a retail website.'</span>,</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Given the following product descriptions, come up with a few product categories they should be classified into.'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(random_descriptions)</span>
@@ -678,6 +691,105 @@ Note that some products may fit into multiple categories, but I have assigned th
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res[<span class="st">'content'</span>][<span class="dv">0</span>][<span class="st">'text'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
+<pre><code>Based on these product descriptions, I would suggest the following main categories and subcategories:
+
+1. Home &amp; Garden
+- Kitchen &amp; Dining (e.g., tea sets, mugs, plates, cutlery)
+- Home Decor (e.g., photo frames, clocks, mirrors, signs)
+- Garden (e.g., planters, garden tools, watering cans)
+- Storage &amp; Organization (e.g., storage tins, boxes, baskets)
+- Lighting (e.g., candle holders, lamps, string lights)
+
+2. Fashion &amp; Accessories
+- Jewelry (e.g., necklaces, bracelets, earrings)
+- Bags &amp; Purses (e.g., tote bags, cosmetic bags, shoulder bags)
+- Hair Accessories (e.g., hair bands, combs, slides)
+- Fashion Accessories (e.g., scarves, charms)
+
+3. Gifts &amp; Party Supplies
+- Gift Wrap &amp; Packaging (e.g., gift bags, wrapping paper, tissue paper)
+- Party Supplies (e.g., party invites, decorations, napkins)
+- Greeting Cards
+- Gift Sets
+
+4. Seasonal &amp; Holiday
+- Christmas Decorations
+- Easter Items
+- Holiday Gift Items
+- Seasonal Decor
+
+5. Children's Items
+- Toys &amp; Games
+- Children's Accessories
+- Children's Tableware
+- Children's Room Decor
+
+6. Stationery &amp; Paper Goods
+- Notebooks &amp; Journals
+- Writing Instruments
+- Paper Products
+- Office Accessories
+
+7. Bath &amp; Beauty
+- Bathroom Accessories
+- Beauty Items
+- Personal Care
+
+These categories reflect the vintage, decorative, and gift-oriented nature of the products, with many items featuring retro, floral, and novelty designs.</code></pre>
+</div>
+</div>
+<div id="cell-24" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>res</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>{'id': 'msg_bdrk_01M8dtwKkgVx3Sgh6HfbA8YV',
+ 'type': 'message',
+ 'role': 'assistant',
+ 'model': 'claude-3-5-sonnet-20241022',
+ 'content': [{'type': 'text',
+   'text': "Based on these product descriptions, I would suggest the following main categories and subcategories:\n\n1. Home &amp; Garden\n- Kitchen &amp; Dining (e.g., tea sets, mugs, plates, cutlery)\n- Home Decor (e.g., photo frames, clocks, mirrors, signs)\n- Garden (e.g., planters, garden tools, watering cans)\n- Storage &amp; Organization (e.g., storage tins, boxes, baskets)\n- Lighting (e.g., candle holders, lamps, string lights)\n\n2. Fashion &amp; Accessories\n- Jewelry (e.g., necklaces, bracelets, earrings)\n- Bags &amp; Purses (e.g., tote bags, cosmetic bags, shoulder bags)\n- Hair Accessories (e.g., hair bands, combs, slides)\n- Fashion Accessories (e.g., scarves, charms)\n\n3. Gifts &amp; Party Supplies\n- Gift Wrap &amp; Packaging (e.g., gift bags, wrapping paper, tissue paper)\n- Party Supplies (e.g., party invites, decorations, napkins)\n- Greeting Cards\n- Gift Sets\n\n4. Seasonal &amp; Holiday\n- Christmas Decorations\n- Easter Items\n- Holiday Gift Items\n- Seasonal Decor\n\n5. Children's Items\n- Toys &amp; Games\n- Children's Accessories\n- Children's Tableware\n- Children's Room Decor\n\n6. Stationery &amp; Paper Goods\n- Notebooks &amp; Journals\n- Writing Instruments\n- Paper Products\n- Office Accessories\n\n7. Bath &amp; Beauty\n- Bathroom Accessories\n- Beauty Items\n- Personal Care\n\nThese categories reflect the vintage, decorative, and gift-oriented nature of the products, with many items featuring retro, floral, and novelty designs."}],
+ 'stop_reason': 'end_turn',
+ 'stop_sequence': None,
+ 'usage': {'input_tokens': 11586, 'output_tokens': 423}}</code></pre>
+</div>
+</div>
+<p>LLaMA 3.2 90B Output:</p>
+<pre><code>&lt;&lt;SYS&gt;&gt;Based on the product descriptions, I would categorize them into the following categories:
+
+1. Home Decor:
+    * Wall art
+    * Decorative items (e.g. vases, figurines, etc.)
+    * Lighting (e.g. candles, lanterns, etc.)
+    * Textiles (e.g. throw pillows, blankets, etc.)
+2. Kitchen and Dining:
+    * Cookware and utensils
+    * Tableware (e.g. plates, cups, etc.)
+    * Kitchen decor (e.g. signs, magnets, etc.)
+    * Food and drink items (e.g. tea, coffee, etc.)
+3. Fashion and Accessories:
+    * Jewelry (e.g. necklaces, earrings, etc.)
+    * Handbags and wallets
+    * Clothing and accessories (e.g. scarves, hats, etc.)
+4. Stationery and Gifts:
+    * Cards and gift wrap
+    * Stationery (e.g. notebooks, pens, etc.)
+    * Gift items (e.g. mugs, keychains, etc.)
+5. Toys and Games:
+    * Toys (e.g. stuffed animals, puzzles, etc.)
+    * Games and puzzles
+6. Seasonal and Holiday:
+    * Christmas decorations and gifts
+    * Easter decorations and gifts
+    * Other seasonal items (e.g. Halloween, etc.)
+7. Personal Care and Wellness:
+    * Beauty and personal care items (e.g. skincare, haircare, etc.)
+    * Wellness and self-care items (e.g. essential oils, etc.)
+8. Outdoor and Garden:
+    * Garden decor and accessories
+    * Outdoor furniture and decor
+    * Gardening tools and supplies
+
+Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
+<p>Claude 3.5 v2 Output</p>
 <pre><code>Based on these product descriptions, I would suggest the following main product categories:
 
 1. Home Decor
@@ -750,125 +862,73 @@ Note that some products may fit into multiple categories, but I have assigned th
 - Lanterns
 
 These categories cover the main types of products in the list while providing logical groupings for customers to browse.</code></pre>
-</div>
-</div>
-<div id="cell-23" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>res</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
-<pre><code>{'id': 'msg_bdrk_013qbepKfkB6ws3hWYMnjH2E',
- 'type': 'message',
- 'role': 'assistant',
- 'model': 'claude-3-5-sonnet-20241022',
- 'content': [{'type': 'text',
-   'text': "Based on these product descriptions, I would suggest the following main product categories:\n\n1. Home Decor\n- Candle holders\n- Picture frames\n- Wall art &amp; signs\n- Clocks\n- Cushions &amp; covers\n- Storage items\n- Decorative objects\n\n2. Jewelry &amp; Accessories\n- Necklaces\n- Bracelets\n- Earrings\n- Hair accessories\n- Bag charms\n- Key rings\n\n3. Garden &amp; Outdoor\n- Plant pots\n- Garden tools\n- Outdoor decorations\n- Bird houses\n- Garden markers\n\n4. Kitchen &amp; Dining\n- Tea sets\n- Mugs\n- Kitchen storage\n- Cutlery\n- Baking accessories\n- Tea towels\n\n5. Stationery &amp; Paper Goods\n- Notebooks\n- Gift wrap\n- Cards\n- Paper decorations\n- Writing sets\n\n6. Party &amp; Celebrations\n- Party supplies\n- Gift bags\n- Christmas decorations\n- Easter items\n- Birthday items\n\n7. Children's Items\n- Toys\n- Children's tableware\n- School supplies\n- Kids' accessories\n\n8. Fashion Accessories\n- Bags\n- Purses\n- Scarves\n- Travel accessories\n\n9. Bath &amp; Beauty\n- Bathroom accessories\n- Toiletry bags\n- Beauty items\n\n10. Lighting\n- Lamps\n- String lights\n- Tea lights\n- Lanterns\n\nThese categories cover the main types of products in the list while providing logical groupings for customers to browse."}],
- 'stop_reason': 'end_turn',
- 'stop_sequence': None,
- 'usage': {'input_tokens': 11586, 'output_tokens': 345}}</code></pre>
-</div>
-</div>
-<p>LLaMA 3.2 90B Output:</p>
-<pre><code>&lt;&lt;SYS&gt;&gt;Based on the product descriptions, I would categorize them into the following categories:
-
-1. Home Decor:
-    * Wall art
-    * Decorative items (e.g. vases, figurines, etc.)
-    * Lighting (e.g. candles, lanterns, etc.)
-    * Textiles (e.g. throw pillows, blankets, etc.)
-2. Kitchen and Dining:
-    * Cookware and utensils
-    * Tableware (e.g. plates, cups, etc.)
-    * Kitchen decor (e.g. signs, magnets, etc.)
-    * Food and drink items (e.g. tea, coffee, etc.)
-3. Fashion and Accessories:
-    * Jewelry (e.g. necklaces, earrings, etc.)
-    * Handbags and wallets
-    * Clothing and accessories (e.g. scarves, hats, etc.)
-4. Stationery and Gifts:
-    * Cards and gift wrap
-    * Stationery (e.g. notebooks, pens, etc.)
-    * Gift items (e.g. mugs, keychains, etc.)
-5. Toys and Games:
-    * Toys (e.g. stuffed animals, puzzles, etc.)
-    * Games and puzzles
-6. Seasonal and Holiday:
-    * Christmas decorations and gifts
-    * Easter decorations and gifts
-    * Other seasonal items (e.g. Halloween, etc.)
-7. Personal Care and Wellness:
-    * Beauty and personal care items (e.g. skincare, haircare, etc.)
-    * Wellness and self-care items (e.g. essential oils, etc.)
-8. Outdoor and Garden:
-    * Garden decor and accessories
-    * Outdoor furniture and decor
-    * Gardening tools and supplies
-
-Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
-<div id="cell-25" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>categories <span class="op">=</span> [</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Home Decor'</span>,</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Kitchen and Dining'</span>,</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Fashion Accessories'</span>,</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Stationary and Gifts'</span>,</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Toys and Games'</span>,</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Seasonal and Holiday'</span>,</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Personal Care and Wellness'</span>,</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Outdoor and Garden'</span>,   </span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(categories)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-26" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>categories <span class="op">=</span> [</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Home Decor'</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Kitchen and Dining'</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Fashion Accessories'</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Stationary and Gifts'</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Toys and Games'</span>,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Seasonal and Holiday'</span>,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Personal Care and Wellness'</span>,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Outdoor and Garden'</span>,   </span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(categories)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>8</code></pre>
 </div>
 </div>
-<div id="cell-26" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loop through descriptions in batches of batch_size</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>res_texts <span class="op">=</span> []</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">100</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(descriptions), batch_size)):</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    batch <span class="op">=</span> descriptions[i:i<span class="op">+</span>batch_size]</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(batch)</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    inp <span class="op">=</span> <span class="ss">f'''Categorize the following product descriptions into </span><span class="sc">{</span><span class="st">", "</span><span class="sc">.</span>join(categories)<span class="sc">}</span><span class="ss"> or Others, if they do not fall into any. </span></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="ss">Only answer in the following format:</span></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="ss">"product description of product #1"|"product category classified into"</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="ss">"product description of product #2"|"product category classified into"</span></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="ss">...</span></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="ss">"product description of product #n"|"product category classified into"</span></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="ss">Here are the product descriptions:</span></span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>d<span class="sc">}</span></span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="ss">'''</span></span>
-<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> call_claude(<span class="st">'You are a product categorizer at a retail website'</span>, inp)</span>
-<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># if res['generation_token_count'] &gt; 1: #for llama</span></span>
-<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> res[<span class="st">'usage'</span>][<span class="st">'output_tokens'</span>] <span class="op">&gt;</span> <span class="dv">1</span>:</span>
-<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">'Retrying...'</span>)</span>
-<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>            time.sleep(<span class="dv">2</span>)</span>
-<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    res_text <span class="op">=</span> res[<span class="st">'content'</span>][<span class="dv">0</span>][<span class="st">'text'</span>].strip().split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">#for llama</span></span>
-<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># .replace('[SYS]','').replace('&lt;&lt;SYS&gt;&gt;','')\</span></span>
-<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># .replace('[/SYS]','').replace('&lt;&lt;/SYS&gt;&gt;','')\</span></span>
-<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> res_text<span class="op">!=</span><span class="st">''</span>:</span>
-<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>        res_texts.extend(res_text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"e31996ca1d7e41cc89a73450ec84a4cd","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
+</section>
+<section id="annotate-category-to-description" class="level4">
+<h4 class="anchored" data-anchor-id="annotate-category-to-description">Annotate <code>Category</code> to <code>Description</code></h4>
+<div id="cell-28" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #loop through descriptions in batches of batch_size</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># res_texts = []</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># batch_size = 100</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># for i in tqdm(range(0, len(descriptions), batch_size)):</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     batch = descriptions[i:i+batch_size]</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     d = "\n".join(batch)</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     inp = f'''Categorize the following product descriptions into {", ".join(categories)} or Others, if they do not fall into any. </span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Only answer in the following format:</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co"># "product description of product #1"|"product category classified into"</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="co"># "product description of product #2"|"product category classified into"</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co"># "product description of product #n"|"product category classified into"</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Here are the product descriptions:</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="co"># {d}</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="co"># '''</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     while True:</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a><span class="co">#         res = call_claude('You are a product categorizer at a retail website', inp)</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a><span class="co">#         # if res['generation_token_count'] &gt; 1: #for llama</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="co">#         if res['usage']['output_tokens'] &gt; 1:</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="co">#             break</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="co">#         else:</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a><span class="co">#             print('Retrying...')</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="co">#             time.sleep(2)</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a><span class="co">#     res_text = res['content'][0]['text'].strip().split('\n')</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a><span class="co">#         #for llama</span></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a><span class="co">#         # .replace('[SYS]','').replace('&lt;&lt;SYS&gt;&gt;','')\</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a><span class="co">#         # .replace('[/SYS]','').replace('&lt;&lt;/SYS&gt;&gt;','')\</span></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="co">#     if res_text!='':</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="co">#         res_texts.extend(res_text)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div id="cell-29" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with open('../data/sales_prediction/product_description_category.csv','w') as f:</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co">#     f.write('"product_description"|"category"\n')</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co">#     for i in res_texts:</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co">#         f.write(f'{i}\n')</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-27" class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with open('../data/sales_prediction/product_description_category.csv','w') as f:</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#     f.write('"product_description"|"category"\n')</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">#     for i in res_texts:</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co">#         f.write(f'{i}\n')</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-28" class="cell" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>product_description_category <span class="op">=</span> pd.read_csv(<span class="st">'../data/sales_prediction/product_description_category.csv'</span>,</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                                           sep<span class="op">=</span><span class="st">'|'</span>)</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>product_description_category.category.value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="40">
+<div id="cell-30" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>product_description_category <span class="op">=</span> pd.read_csv(<span class="st">'../data/sales_prediction/product_description_category.csv'</span>,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                                           sep<span class="op">=</span><span class="st">'|'</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co">#clean product_description</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>product_description_category[<span class="st">'Description'</span>] <span class="op">=</span> descriptions</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>product_description_category.category.value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>category
 Home Decor                    0.328636
 Kitchen and Dining            0.195885
@@ -882,9 +942,1119 @@ Others                        0.007892
 Name: proportion, dtype: float64</code></pre>
 </div>
 </div>
-
-
+<div id="cell-31" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>feature_transaction_cat <span class="op">=</span> feature_transaction.merge(product_description_category,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                                                    how<span class="op">=</span><span class="st">'inner'</span>,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>                                                    on <span class="op">=</span> <span class="st">'Description'</span>,)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>feature_transaction.shape, feature_transaction_cat.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>((240338, 10), (240338, 12))</code></pre>
+</div>
+</div>
 </section>
+</section>
+<section id="rfm" class="level3">
+<h3 class="anchored" data-anchor-id="rfm">RFM</h3>
+<div id="cell-33" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#convert invoice date to datetime</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>feature_transaction_cat[<span class="st">'InvoiceDate'</span>] <span class="op">=</span> pd.to_datetime(feature_transaction_cat[<span class="st">'InvoiceDate'</span>])</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># last date in feature set</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>current_date <span class="op">=</span> feature_transaction_cat[<span class="st">'InvoiceDate'</span>].<span class="bu">max</span>()</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co">#rfm</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>customer_features <span class="op">=</span> feature_transaction_cat.groupby(<span class="st">'CustomerID'</span>).agg({</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'InvoiceDate'</span>: [</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'recency'</span>, <span class="kw">lambda</span> x: (current_date <span class="op">-</span> x.<span class="bu">max</span>()).days),</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'first_purchase_date'</span>, <span class="st">'min'</span>),</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'purchase_day'</span>, <span class="st">'nunique'</span>),</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'InvoiceNo'</span>: [(<span class="st">'nb_invoice'</span>, <span class="st">'nunique'</span>)],</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Sales'</span>: [</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'total_sales'</span>, <span class="st">'sum'</span>)</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'StockCode'</span>: [(<span class="st">'nb_product'</span>, <span class="st">'nunique'</span>)],</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'category'</span>: [(<span class="st">'nb_category'</span>, <span class="st">'nunique'</span>)]</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>}).reset_index()</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Flatten column names</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>customer_features.columns <span class="op">=</span> [</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CustomerID'</span>,</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">'recency'</span>,</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">'first_purchase_date'</span>,</span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">'purchase_day'</span>,</span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">'nb_invoice'</span>,</span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">'total_sales'</span>,</span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">'nb_product'</span>,</span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">'nb_category'</span></span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-34" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">#almost always one purchase a day</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>(customer_features.purchase_day<span class="op">==</span>customer_features.nb_invoice).mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>0.977021524141943</code></pre>
+</div>
+</div>
+<div id="cell-35" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>customer_features[<span class="st">'customer_lifetime'</span>] <span class="op">=</span> (current_date <span class="op">-</span> customer_features[<span class="st">'first_purchase_date'</span>]).dt.days</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>customer_features[<span class="st">'avg_purchase_frequency'</span>] <span class="op">=</span> customer_features[<span class="st">'customer_lifetime'</span>] <span class="op">/</span> customer_features[<span class="st">'purchase_day'</span>]</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>customer_features[<span class="st">'avg_purchase_value'</span>] <span class="op">=</span> customer_features[<span class="st">'total_sales'</span>] <span class="op">/</span> customer_features[<span class="st">'purchase_day'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="category-preference" class="level3">
+<h3 class="anchored" data-anchor-id="category-preference">Category Preference</h3>
+<div id="cell-37" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#category preference</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>category_sales <span class="op">=</span> feature_transaction_cat.pivot_table(</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    values<span class="op">=</span><span class="st">'Sales'</span>, </span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span><span class="st">'CustomerID'</span>, </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="st">'category'</span>, </span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    aggfunc<span class="op">=</span><span class="st">'sum'</span>, </span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    fill_value<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>category_sales.columns <span class="op">=</span> [i.lower().replace(<span class="st">' '</span>,<span class="st">'_'</span>) <span class="cf">for</span> i <span class="kw">in</span> category_sales.columns]</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>customer_features <span class="op">=</span> customer_features.merge(category_sales, on<span class="op">=</span><span class="st">'CustomerID'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>total_sales <span class="op">=</span> customer_features[<span class="st">'total_sales'</span>]</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> category_sales.columns:</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>    percentage_col <span class="op">=</span> <span class="ss">f'per_</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">'</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>    customer_features[percentage_col] <span class="op">=</span> customer_features[col] <span class="op">/</span> total_sales</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-38" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#make sure the categories are not too sparse</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>(customer_features.iloc[:,<span class="op">-</span><span class="dv">9</span>:]<span class="op">==</span><span class="dv">0</span>).mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<pre><code>per_fashion_accessories           0.409831
+per_home_decor                    0.081734
+per_kitchen_and_dining            0.122455
+per_others                        0.765561
+per_outdoor_and_garden            0.507853
+per_personal_care_and_wellness    0.448226
+per_seasonal_and_holiday          0.369401
+per_stationary_and_gifts          0.305410
+per_toys_and_games                0.487202
+dtype: float64</code></pre>
+</div>
+</div>
+</section>
+<section id="putting-them-all-together" class="level3">
+<h3 class="anchored" data-anchor-id="putting-them-all-together">Putting Them All Together</h3>
+<div id="cell-40" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>selected_features <span class="op">=</span> [</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a> <span class="st">'recency'</span>,</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a> <span class="st">'purchase_day'</span>,</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a> <span class="st">'total_sales'</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a> <span class="st">'nb_product'</span>,</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a> <span class="st">'nb_category'</span>,</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a> <span class="st">'customer_lifetime'</span>,</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a> <span class="st">'avg_purchase_frequency'</span>,</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a> <span class="st">'avg_purchase_value'</span>,</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_fashion_accessories'</span>,</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_home_decor'</span>,</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_kitchen_and_dining'</span>,</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_others'</span>,</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_outdoor_and_garden'</span>,</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_personal_care_and_wellness'</span>,</span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_seasonal_and_holiday'</span>,</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_stationary_and_gifts'</span>,</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a> <span class="st">'per_toys_and_games'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-41" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>customer_features <span class="op">=</span> customer_features[[ <span class="st">'CustomerID'</span>]<span class="op">+</span>selected_features]</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>customer_features.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">CustomerID</th>
+<th data-quarto-table-cell-role="th">recency</th>
+<th data-quarto-table-cell-role="th">purchase_day</th>
+<th data-quarto-table-cell-role="th">total_sales</th>
+<th data-quarto-table-cell-role="th">nb_product</th>
+<th data-quarto-table-cell-role="th">nb_category</th>
+<th data-quarto-table-cell-role="th">customer_lifetime</th>
+<th data-quarto-table-cell-role="th">avg_purchase_frequency</th>
+<th data-quarto-table-cell-role="th">avg_purchase_value</th>
+<th data-quarto-table-cell-role="th">per_fashion_accessories</th>
+<th data-quarto-table-cell-role="th">per_home_decor</th>
+<th data-quarto-table-cell-role="th">per_kitchen_and_dining</th>
+<th data-quarto-table-cell-role="th">per_others</th>
+<th data-quarto-table-cell-role="th">per_outdoor_and_garden</th>
+<th data-quarto-table-cell-role="th">per_personal_care_and_wellness</th>
+<th data-quarto-table-cell-role="th">per_seasonal_and_holiday</th>
+<th data-quarto-table-cell-role="th">per_stationary_and_gifts</th>
+<th data-quarto-table-cell-role="th">per_toys_and_games</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>12346</td>
+<td>255</td>
+<td>1</td>
+<td>77183.60</td>
+<td>1</td>
+<td>1</td>
+<td>255</td>
+<td>255.000000</td>
+<td>77183.600000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>1.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>12347</td>
+<td>59</td>
+<td>4</td>
+<td>2079.07</td>
+<td>65</td>
+<td>7</td>
+<td>247</td>
+<td>61.750000</td>
+<td>519.767500</td>
+<td>0.145834</td>
+<td>0.204168</td>
+<td>0.294021</td>
+<td>0.000000</td>
+<td>0.005628</td>
+<td>0.147614</td>
+<td>0.000000</td>
+<td>0.073013</td>
+<td>0.129721</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>12348</td>
+<td>5</td>
+<td>3</td>
+<td>904.44</td>
+<td>10</td>
+<td>4</td>
+<td>248</td>
+<td>82.666667</td>
+<td>301.480000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.132679</td>
+<td>0.000000</td>
+<td>0.825970</td>
+<td>0.018796</td>
+<td>0.022555</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>12350</td>
+<td>239</td>
+<td>1</td>
+<td>334.40</td>
+<td>17</td>
+<td>7</td>
+<td>239</td>
+<td>239.000000</td>
+<td>334.400000</td>
+<td>0.240431</td>
+<td>0.202751</td>
+<td>0.116926</td>
+<td>0.172548</td>
+<td>0.000000</td>
+<td>0.118421</td>
+<td>0.000000</td>
+<td>0.059211</td>
+<td>0.089713</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>12352</td>
+<td>2</td>
+<td>7</td>
+<td>2194.31</td>
+<td>47</td>
+<td>8</td>
+<td>226</td>
+<td>32.285714</td>
+<td>313.472857</td>
+<td>0.000000</td>
+<td>0.196531</td>
+<td>0.246187</td>
+<td>0.474090</td>
+<td>0.013535</td>
+<td>0.016680</td>
+<td>0.008066</td>
+<td>0.024404</td>
+<td>0.020508</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="merge-features-and-outcome" class="level2">
+<h2 class="anchored" data-anchor-id="merge-features-and-outcome">Merge Features and Outcome</h2>
+<div id="cell-43" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>customer_features.shape, outcome_df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>((3438, 18), (3438, 2))</code></pre>
+</div>
+</div>
+<div id="cell-44" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> outcome_df.merge(customer_features, on<span class="op">=</span><span class="st">'CustomerID'</span>).drop(<span class="st">'CustomerID'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<pre><code>(3438, 18)</code></pre>
+</div>
+</div>
+<div id="cell-45" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">#correlations</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>df.iloc[:,<span class="dv">1</span>:].corr()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">recency</th>
+<th data-quarto-table-cell-role="th">purchase_day</th>
+<th data-quarto-table-cell-role="th">total_sales</th>
+<th data-quarto-table-cell-role="th">nb_product</th>
+<th data-quarto-table-cell-role="th">nb_category</th>
+<th data-quarto-table-cell-role="th">customer_lifetime</th>
+<th data-quarto-table-cell-role="th">avg_purchase_frequency</th>
+<th data-quarto-table-cell-role="th">avg_purchase_value</th>
+<th data-quarto-table-cell-role="th">per_fashion_accessories</th>
+<th data-quarto-table-cell-role="th">per_home_decor</th>
+<th data-quarto-table-cell-role="th">per_kitchen_and_dining</th>
+<th data-quarto-table-cell-role="th">per_others</th>
+<th data-quarto-table-cell-role="th">per_outdoor_and_garden</th>
+<th data-quarto-table-cell-role="th">per_personal_care_and_wellness</th>
+<th data-quarto-table-cell-role="th">per_seasonal_and_holiday</th>
+<th data-quarto-table-cell-role="th">per_stationary_and_gifts</th>
+<th data-quarto-table-cell-role="th">per_toys_and_games</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">recency</td>
+<td>1.000000</td>
+<td>-0.299308</td>
+<td>-0.132344</td>
+<td>-0.287415</td>
+<td>-0.326772</td>
+<td>0.298853</td>
+<td>0.893973</td>
+<td>0.008823</td>
+<td>-0.020861</td>
+<td>0.022013</td>
+<td>0.057244</td>
+<td>-0.016069</td>
+<td>0.071268</td>
+<td>-0.082792</td>
+<td>-0.085681</td>
+<td>-0.017813</td>
+<td>-0.009686</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">purchase_day</td>
+<td>-0.299308</td>
+<td>1.000000</td>
+<td>0.540253</td>
+<td>0.690345</td>
+<td>0.304621</td>
+<td>0.332109</td>
+<td>-0.331543</td>
+<td>0.027488</td>
+<td>0.030683</td>
+<td>0.018684</td>
+<td>0.025269</td>
+<td>0.004299</td>
+<td>-0.019992</td>
+<td>-0.035665</td>
+<td>-0.020392</td>
+<td>-0.045384</td>
+<td>-0.028187</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">total_sales</td>
+<td>-0.132344</td>
+<td>0.540253</td>
+<td>1.000000</td>
+<td>0.400467</td>
+<td>0.137064</td>
+<td>0.156018</td>
+<td>-0.148762</td>
+<td>0.361138</td>
+<td>0.016511</td>
+<td>-0.013819</td>
+<td>0.047834</td>
+<td>0.006398</td>
+<td>-0.029353</td>
+<td>-0.011937</td>
+<td>-0.016724</td>
+<td>-0.029181</td>
+<td>-0.013139</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">nb_product</td>
+<td>-0.287415</td>
+<td>0.690345</td>
+<td>0.400467</td>
+<td>1.000000</td>
+<td>0.555551</td>
+<td>0.265594</td>
+<td>-0.294923</td>
+<td>0.061039</td>
+<td>-0.003137</td>
+<td>-0.017516</td>
+<td>0.035615</td>
+<td>-0.006842</td>
+<td>-0.026371</td>
+<td>-0.005309</td>
+<td>-0.016586</td>
+<td>0.026716</td>
+<td>-0.010069</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">nb_category</td>
+<td>-0.326772</td>
+<td>0.304621</td>
+<td>0.137064</td>
+<td>0.555551</td>
+<td>1.000000</td>
+<td>0.224232</td>
+<td>-0.321596</td>
+<td>0.019955</td>
+<td>0.004863</td>
+<td>-0.138372</td>
+<td>-0.039363</td>
+<td>0.055555</td>
+<td>0.041405</td>
+<td>0.075882</td>
+<td>0.015498</td>
+<td>0.152869</td>
+<td>0.111150</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">customer_lifetime</td>
+<td>0.298853</td>
+<td>0.332109</td>
+<td>0.156018</td>
+<td>0.265594</td>
+<td>0.224232</td>
+<td>1.000000</td>
+<td>0.358431</td>
+<td>0.014933</td>
+<td>0.011220</td>
+<td>0.066111</td>
+<td>0.069175</td>
+<td>-0.019971</td>
+<td>0.029726</td>
+<td>-0.127865</td>
+<td>-0.120399</td>
+<td>-0.050320</td>
+<td>-0.036484</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">avg_purchase_frequency</td>
+<td>0.893973</td>
+<td>-0.331543</td>
+<td>-0.148762</td>
+<td>-0.294923</td>
+<td>-0.321596</td>
+<td>0.358431</td>
+<td>1.000000</td>
+<td>0.009157</td>
+<td>-0.016093</td>
+<td>0.027208</td>
+<td>0.037053</td>
+<td>-0.027413</td>
+<td>0.060369</td>
+<td>-0.070352</td>
+<td>-0.074799</td>
+<td>-0.000546</td>
+<td>-0.010612</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">avg_purchase_value</td>
+<td>0.008823</td>
+<td>0.027488</td>
+<td>0.361138</td>
+<td>0.061039</td>
+<td>0.019955</td>
+<td>0.014933</td>
+<td>0.009157</td>
+<td>1.000000</td>
+<td>-0.003187</td>
+<td>-0.056690</td>
+<td>0.076862</td>
+<td>0.015427</td>
+<td>-0.028884</td>
+<td>0.004225</td>
+<td>-0.000200</td>
+<td>-0.012729</td>
+<td>-0.002396</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">per_fashion_accessories</td>
+<td>-0.020861</td>
+<td>0.030683</td>
+<td>0.016511</td>
+<td>-0.003137</td>
+<td>0.004863</td>
+<td>0.011220</td>
+<td>-0.016093</td>
+<td>-0.003187</td>
+<td>1.000000</td>
+<td>-0.254015</td>
+<td>-0.177775</td>
+<td>-0.010436</td>
+<td>-0.082834</td>
+<td>-0.038493</td>
+<td>-0.124719</td>
+<td>-0.068166</td>
+<td>-0.051486</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">per_home_decor</td>
+<td>0.022013</td>
+<td>0.018684</td>
+<td>-0.013819</td>
+<td>-0.017516</td>
+<td>-0.138372</td>
+<td>0.066111</td>
+<td>0.027208</td>
+<td>-0.056690</td>
+<td>-0.254015</td>
+<td>1.000000</td>
+<td>-0.481983</td>
+<td>-0.155784</td>
+<td>-0.080637</td>
+<td>-0.158837</td>
+<td>-0.165964</td>
+<td>-0.262313</td>
+<td>-0.245759</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">per_kitchen_and_dining</td>
+<td>0.057244</td>
+<td>0.025269</td>
+<td>0.047834</td>
+<td>0.035615</td>
+<td>-0.039363</td>
+<td>0.069175</td>
+<td>0.037053</td>
+<td>0.076862</td>
+<td>-0.177775</td>
+<td>-0.481983</td>
+<td>1.000000</td>
+<td>-0.013075</td>
+<td>-0.144698</td>
+<td>-0.117031</td>
+<td>-0.204235</td>
+<td>-0.173386</td>
+<td>-0.143931</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">per_others</td>
+<td>-0.016069</td>
+<td>0.004299</td>
+<td>0.006398</td>
+<td>-0.006842</td>
+<td>0.055555</td>
+<td>-0.019971</td>
+<td>-0.027413</td>
+<td>0.015427</td>
+<td>-0.010436</td>
+<td>-0.155784</td>
+<td>-0.013075</td>
+<td>1.000000</td>
+<td>-0.062652</td>
+<td>0.014794</td>
+<td>-0.047940</td>
+<td>-0.033975</td>
+<td>-0.040421</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">per_outdoor_and_garden</td>
+<td>0.071268</td>
+<td>-0.019992</td>
+<td>-0.029353</td>
+<td>-0.026371</td>
+<td>0.041405</td>
+<td>0.029726</td>
+<td>0.060369</td>
+<td>-0.028884</td>
+<td>-0.082834</td>
+<td>-0.080637</td>
+<td>-0.144698</td>
+<td>-0.062652</td>
+<td>1.000000</td>
+<td>-0.045639</td>
+<td>-0.077947</td>
+<td>-0.057297</td>
+<td>-0.001034</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">per_personal_care_and_wellness</td>
+<td>-0.082792</td>
+<td>-0.035665</td>
+<td>-0.011937</td>
+<td>-0.005309</td>
+<td>0.075882</td>
+<td>-0.127865</td>
+<td>-0.070352</td>
+<td>0.004225</td>
+<td>-0.038493</td>
+<td>-0.158837</td>
+<td>-0.117031</td>
+<td>0.014794</td>
+<td>-0.045639</td>
+<td>1.000000</td>
+<td>-0.057926</td>
+<td>-0.025871</td>
+<td>-0.017022</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">per_seasonal_and_holiday</td>
+<td>-0.085681</td>
+<td>-0.020392</td>
+<td>-0.016724</td>
+<td>-0.016586</td>
+<td>0.015498</td>
+<td>-0.120399</td>
+<td>-0.074799</td>
+<td>-0.000200</td>
+<td>-0.124719</td>
+<td>-0.165964</td>
+<td>-0.204235</td>
+<td>-0.047940</td>
+<td>-0.077947</td>
+<td>-0.057926</td>
+<td>1.000000</td>
+<td>-0.019418</td>
+<td>-0.042970</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">per_stationary_and_gifts</td>
+<td>-0.017813</td>
+<td>-0.045384</td>
+<td>-0.029181</td>
+<td>0.026716</td>
+<td>0.152869</td>
+<td>-0.050320</td>
+<td>-0.000546</td>
+<td>-0.012729</td>
+<td>-0.068166</td>
+<td>-0.262313</td>
+<td>-0.173386</td>
+<td>-0.033975</td>
+<td>-0.057297</td>
+<td>-0.025871</td>
+<td>-0.019418</td>
+<td>1.000000</td>
+<td>0.172039</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">per_toys_and_games</td>
+<td>-0.009686</td>
+<td>-0.028187</td>
+<td>-0.013139</td>
+<td>-0.010069</td>
+<td>0.111150</td>
+<td>-0.036484</td>
+<td>-0.010612</td>
+<td>-0.002396</td>
+<td>-0.051486</td>
+<td>-0.245759</td>
+<td>-0.143931</td>
+<td>-0.040421</td>
+<td>-0.001034</td>
+<td>-0.017022</td>
+<td>-0.042970</td>
+<td>0.172039</td>
+<td>1.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-46" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co">#target and most predictive variable</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>df[df.TargetSales<span class="op">&lt;=</span><span class="dv">25_000</span>].plot.scatter(x<span class="op">=</span><span class="st">'TargetSales'</span>,y<span class="op">=</span><span class="st">'total_sales'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="sales_prediction_files/figure-html/cell-34-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="train-valid-splits" class="level2">
+<h2 class="anchored" data-anchor-id="train-valid-splits">Train-Valid Splits</h2>
+<div id="cell-48" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co">#split into train-valid sets</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>train_df, valid_df <span class="op">=</span> train_test_split(df,</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>                                      test_size<span class="op">=</span><span class="fl">0.2</span>, </span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>                                      random_state<span class="op">=</span><span class="dv">112</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-49" class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>pd.concat([train_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]).reset_index(),</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>valid_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]).reset_index(),], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="36">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">index</th>
+<th data-quarto-table-cell-role="th">TargetSales</th>
+<th data-quarto-table-cell-role="th">index</th>
+<th data-quarto-table-cell-role="th">TargetSales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>count</td>
+<td>2750.000000</td>
+<td>count</td>
+<td>688.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>mean</td>
+<td>642.650436</td>
+<td>mean</td>
+<td>760.558808</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>std</td>
+<td>4015.305436</td>
+<td>std</td>
+<td>4024.524400</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>min</td>
+<td>0.000000</td>
+<td>min</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0%</td>
+<td>0.000000</td>
+<td>0%</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>10%</td>
+<td>0.000000</td>
+<td>10%</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>20%</td>
+<td>0.000000</td>
+<td>20%</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>30%</td>
+<td>0.000000</td>
+<td>30%</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>40%</td>
+<td>0.000000</td>
+<td>40%</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>50%</td>
+<td>91.350000</td>
+<td>50%</td>
+<td>113.575000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>60%</td>
+<td>260.308000</td>
+<td>60%</td>
+<td>277.836000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>70%</td>
+<td>426.878000</td>
+<td>70%</td>
+<td>418.187000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>80%</td>
+<td>694.164000</td>
+<td>80%</td>
+<td>759.582000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>90%</td>
+<td>1272.997000</td>
+<td>90%</td>
+<td>1255.670000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>max</td>
+<td>168469.600000</td>
+<td>max</td>
+<td>77099.380000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="baseline-regression" class="level2">
+<h2 class="anchored" data-anchor-id="baseline-regression">Baseline Regression</h2>
+<div id="cell-51" class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>predictor <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales'</span>).fit(train_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No path specified. Models will be saved in: "AutogluonModels/ag-20241108_095110"
+Verbosity: 2 (Standard Logging)
+=================== System Info ===================
+AutoGluon Version:  1.1.1
+Python Version:     3.9.12
+Operating System:   Linux
+Platform Machine:   x86_64
+Platform Version:   #1 SMP Tue Oct 22 16:37:58 UTC 2024
+CPU Count:          64
+Memory Avail:       468.98 GB / 480.23 GB (97.7%)
+Disk Space Avail:   1686.44 GB / 1968.52 GB (85.7%)
+===================================================
+No presets specified! To achieve strong results with AutoGluon, it is recommended to use the available presets.
+    Recommended Presets (For more details refer to https://auto.gluon.ai/stable/tutorials/tabular/tabular-essentials.html#presets):
+    presets='best_quality'   : Maximize accuracy. Default time_limit=3600.
+    presets='high_quality'   : Strong accuracy with fast inference speed. Default time_limit=3600.
+    presets='good_quality'   : Good accuracy with very fast inference speed. Default time_limit=3600.
+    presets='medium_quality' : Fast training time, ideal for initial prototyping.
+Beginning AutoGluon training ...
+AutoGluon will save models to "AutogluonModels/ag-20241108_095110"
+Train Data Rows:    2750
+Train Data Columns: 17
+Label Column:       TargetSales
+AutoGluon infers your prediction problem is: 'regression' (because dtype of label-column == float and many unique label-values observed).
+    Label info (max, min, mean, stddev): (168469.6, 0.0, 642.65044, 4015.30544)
+    If 'regression' is not the correct problem_type, please manually specify the problem_type parameter during Predictor init (You may specify problem_type as one of: ['binary', 'multiclass', 'regression', 'quantile'])
+Problem Type:       regression
+Preprocessing data ...
+Using Feature Generators to preprocess the data ...
+Fitting AutoMLPipelineFeatureGenerator...
+    Available Memory:                    480238.27 MB
+    Train Data (Original)  Memory Usage: 0.36 MB (0.0% of available memory)
+    Inferring data type of each feature based on column values. Set feature_metadata_in to manually specify special dtypes of the features.
+    Stage 1 Generators:
+        Fitting AsTypeFeatureGenerator...
+    Stage 2 Generators:
+        Fitting FillNaFeatureGenerator...
+    Stage 3 Generators:
+        Fitting IdentityFeatureGenerator...
+    Stage 4 Generators:
+        Fitting DropUniqueFeatureGenerator...
+    Stage 5 Generators:
+        Fitting DropDuplicatesFeatureGenerator...
+    Types of features in original data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    Types of features in processed data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    0.0s = Fit runtime
+    17 features in original data used to generate 17 features in processed data.
+    Train Data (Processed) Memory Usage: 0.36 MB (0.0% of available memory)
+Data preprocessing and feature engineering runtime = 0.06s ...
+AutoGluon will gauge predictive performance using evaluation metric: 'root_mean_squared_error'
+    This metric's sign has been flipped to adhere to being higher_is_better. The metric score can be multiplied by -1 to get the metric value.
+    To change this, specify the eval_metric parameter of Predictor()
+Automatically generating train/validation split with holdout_frac=0.18181818181818182, Train Rows: 2250, Val Rows: 500
+User-specified model hyperparameters to be fit:
+{
+    'NN_TORCH': {},
+    'GBM': [{'extra_trees': True, 'ag_args': {'name_suffix': 'XT'}}, {}, 'GBMLarge'],
+    'CAT': {},
+    'XGB': {},
+    'FASTAI': {},
+    'RF': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'XT': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'KNN': [{'weights': 'uniform', 'ag_args': {'name_suffix': 'Unif'}}, {'weights': 'distance', 'ag_args': {'name_suffix': 'Dist'}}],
+}
+Fitting 11 L1 models ...
+Fitting model: KNeighborsUnif ...
+    -923.172     = Validation score   (-root_mean_squared_error)
+    0.05s    = Training   runtime
+    0.18s    = Validation runtime
+Fitting model: KNeighborsDist ...
+    -865.9613    = Validation score   (-root_mean_squared_error)
+    0.03s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: LightGBMXT ...
+    -1003.3582   = Validation score   (-root_mean_squared_error)
+    0.53s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: LightGBM ...
+    -928.536     = Validation score   (-root_mean_squared_error)
+    0.51s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: RandomForestMSE ...
+    -887.6823    = Validation score   (-root_mean_squared_error)
+    1.02s    = Training   runtime
+    0.1s     = Validation runtime
+Fitting model: CatBoost ...
+    -917.8714    = Validation score   (-root_mean_squared_error)
+    1.45s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: ExtraTreesMSE ...
+    -974.1369    = Validation score   (-root_mean_squared_error)
+    0.7s     = Training   runtime
+    0.09s    = Validation runtime
+Fitting model: NeuralNetFastAI ...
+    -912.9949    = Validation score   (-root_mean_squared_error)
+    6.04s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: XGBoost ...
+    -836.7473    = Validation score   (-root_mean_squared_error)
+    0.83s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: NeuralNetTorch ...
+    -929.8938    = Validation score   (-root_mean_squared_error)
+    13.91s   = Training   runtime
+    0.02s    = Validation runtime
+Fitting model: LightGBMLarge ...
+    -969.4897    = Validation score   (-root_mean_squared_error)
+    1.53s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: WeightedEnsemble_L2 ...
+    Ensemble Weights: {'XGBoost': 0.333, 'NeuralNetTorch': 0.333, 'RandomForestMSE': 0.292, 'LightGBMXT': 0.042}
+    -755.8113    = Validation score   (-root_mean_squared_error)
+    0.02s    = Training   runtime
+    0.0s     = Validation runtime
+AutoGluon training complete, total runtime = 27.39s ... Best model: WeightedEnsemble_L2 | Estimated inference throughput: 3849.0 rows/s (500 batch size)
+TabularPredictor saved. To load, use: predictor = TabularPredictor.load("AutogluonModels/ag-20241108_095110")</code></pre>
+</div>
+</div>
+<div id="cell-52" class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>valid_df[<span class="st">'pred_baseline'</span>] <span class="op">=</span> predictor.predict(valid_df.drop(columns<span class="op">=</span>[<span class="st">'TargetSales'</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-53" class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>calculate_regression_metrics(valid_df[<span class="st">'TargetSales'</span>], valid_df[<span class="st">'pred_baseline'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="49">
+<pre><code>{'root_mean_squared_error': 3216.856852660034,
+ 'mean_squared_error': 10348168.010505818,
+ 'mean_absolute_error': 635.6823200048402,
+ 'r2': 0.36016787325567845,
+ 'pearsonr': 0.6522755429056346,
+ 'median_absolute_error': 249.23675720214845}</code></pre>
+</div>
+</div>
+</section>
+<section id="regression-on-winsorized-outcome" class="level2">
+<h2 class="anchored" data-anchor-id="regression-on-winsorized-outcome">Regression on Winsorized Outcome</h2>
+<div id="cell-55" class="cell" data-execution_count="50">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>outlier_per <span class="op">=</span> <span class="fl">0.99</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>outlier_cap_train <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].quantile(outlier_per)</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>outlier_cap_train</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="50">
+<pre><code>7180.805199999947</code></pre>
+</div>
+</div>
+<div id="cell-56" class="cell" data-execution_count="51">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'TargetSales_win'</span>] <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: outlier_cap_train <span class="cf">if</span> x<span class="op">&gt;</span> outlier_cap_train <span class="cf">else</span> x)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>valid_df[<span class="st">'TargetSales_win'</span>] <span class="op">=</span> valid_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: outlier_cap_train <span class="cf">if</span> x<span class="op">&gt;</span> outlier_cap_train <span class="cf">else</span> x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-57" class="cell" data-execution_count="52">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>predictor <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_win'</span>).fit(train_df.drop(<span class="st">'TargetSales'</span>, axis<span class="op">=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No path specified. Models will be saved in: "AutogluonModels/ag-20241108_101500"
+Verbosity: 2 (Standard Logging)
+=================== System Info ===================
+AutoGluon Version:  1.1.1
+Python Version:     3.9.12
+Operating System:   Linux
+Platform Machine:   x86_64
+Platform Version:   #1 SMP Tue Oct 22 16:37:58 UTC 2024
+CPU Count:          64
+Memory Avail:       470.59 GB / 480.23 GB (98.0%)
+Disk Space Avail:   1686.49 GB / 1968.52 GB (85.7%)
+===================================================
+No presets specified! To achieve strong results with AutoGluon, it is recommended to use the available presets.
+    Recommended Presets (For more details refer to https://auto.gluon.ai/stable/tutorials/tabular/tabular-essentials.html#presets):
+    presets='best_quality'   : Maximize accuracy. Default time_limit=3600.
+    presets='high_quality'   : Strong accuracy with fast inference speed. Default time_limit=3600.
+    presets='good_quality'   : Good accuracy with very fast inference speed. Default time_limit=3600.
+    presets='medium_quality' : Fast training time, ideal for initial prototyping.
+Beginning AutoGluon training ...
+AutoGluon will save models to "AutogluonModels/ag-20241108_101500"
+Train Data Rows:    2750
+Train Data Columns: 17
+Label Column:       TargetSales_win
+AutoGluon infers your prediction problem is: 'regression' (because dtype of label-column == float and many unique label-values observed).
+    Label info (max, min, mean, stddev): (7180.805199999947, 0.0, 474.91365, 994.46633)
+    If 'regression' is not the correct problem_type, please manually specify the problem_type parameter during Predictor init (You may specify problem_type as one of: ['binary', 'multiclass', 'regression', 'quantile'])
+Problem Type:       regression
+Preprocessing data ...
+Using Feature Generators to preprocess the data ...
+Fitting AutoMLPipelineFeatureGenerator...
+    Available Memory:                    481881.20 MB
+    Train Data (Original)  Memory Usage: 0.36 MB (0.0% of available memory)
+    Inferring data type of each feature based on column values. Set feature_metadata_in to manually specify special dtypes of the features.
+    Stage 1 Generators:
+        Fitting AsTypeFeatureGenerator...
+    Stage 2 Generators:
+        Fitting FillNaFeatureGenerator...
+    Stage 3 Generators:
+        Fitting IdentityFeatureGenerator...
+    Stage 4 Generators:
+        Fitting DropUniqueFeatureGenerator...
+    Stage 5 Generators:
+        Fitting DropDuplicatesFeatureGenerator...
+    Types of features in original data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    Types of features in processed data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    0.0s = Fit runtime
+    17 features in original data used to generate 17 features in processed data.
+    Train Data (Processed) Memory Usage: 0.36 MB (0.0% of available memory)
+Data preprocessing and feature engineering runtime = 0.06s ...
+AutoGluon will gauge predictive performance using evaluation metric: 'root_mean_squared_error'
+    This metric's sign has been flipped to adhere to being higher_is_better. The metric score can be multiplied by -1 to get the metric value.
+    To change this, specify the eval_metric parameter of Predictor()
+Automatically generating train/validation split with holdout_frac=0.18181818181818182, Train Rows: 2250, Val Rows: 500
+User-specified model hyperparameters to be fit:
+{
+    'NN_TORCH': {},
+    'GBM': [{'extra_trees': True, 'ag_args': {'name_suffix': 'XT'}}, {}, 'GBMLarge'],
+    'CAT': {},
+    'XGB': {},
+    'FASTAI': {},
+    'RF': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'XT': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'KNN': [{'weights': 'uniform', 'ag_args': {'name_suffix': 'Unif'}}, {'weights': 'distance', 'ag_args': {'name_suffix': 'Dist'}}],
+}
+Fitting 11 L1 models ...
+Fitting model: KNeighborsUnif ...
+    -644.8251    = Validation score   (-root_mean_squared_error)
+    0.01s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: KNeighborsDist ...
+    -624.2834    = Validation score   (-root_mean_squared_error)
+    0.01s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: LightGBMXT ...
+    -612.1193    = Validation score   (-root_mean_squared_error)
+    0.8s     = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: LightGBM ...
+    -606.6121    = Validation score   (-root_mean_squared_error)
+    0.96s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: RandomForestMSE ...
+    -594.4683    = Validation score   (-root_mean_squared_error)
+    0.81s    = Training   runtime
+    0.1s     = Validation runtime
+Fitting model: CatBoost ...
+    -566.0355    = Validation score   (-root_mean_squared_error)
+    0.63s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: ExtraTreesMSE ...
+    -594.7243    = Validation score   (-root_mean_squared_error)
+    0.66s    = Training   runtime
+    0.09s    = Validation runtime
+Fitting model: NeuralNetFastAI ...
+    -618.5089    = Validation score   (-root_mean_squared_error)
+    3.38s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: XGBoost ...
+    -630.463     = Validation score   (-root_mean_squared_error)
+    0.69s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: NeuralNetTorch ...
+    -650.7267    = Validation score   (-root_mean_squared_error)
+    6.61s    = Training   runtime
+    0.02s    = Validation runtime
+Fitting model: LightGBMLarge ...
+    -586.8863    = Validation score   (-root_mean_squared_error)
+    1.87s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: WeightedEnsemble_L2 ...
+    Ensemble Weights: {'CatBoost': 0.75, 'KNeighborsDist': 0.1, 'LightGBMLarge': 0.1, 'NeuralNetTorch': 0.05}
+    -564.7382    = Validation score   (-root_mean_squared_error)
+    0.02s    = Training   runtime
+    0.0s     = Validation runtime
+AutoGluon training complete, total runtime = 17.01s ... Best model: WeightedEnsemble_L2 | Estimated inference throughput: 14401.6 rows/s (500 batch size)
+TabularPredictor saved. To load, use: predictor = TabularPredictor.load("AutogluonModels/ag-20241108_101500")</code></pre>
+</div>
+</div>
+<div id="cell-58" class="cell" data-execution_count="53">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>valid_df[<span class="st">'pred_winsorized'</span>] <span class="op">=</span> predictor.predict(valid_df.drop(columns<span class="op">=</span>[<span class="st">'TargetSales'</span>,<span class="st">'TargetSales_win'</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-59" class="cell" data-execution_count="54">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>calculate_regression_metrics(valid_df[<span class="st">'TargetSales'</span>], valid_df[<span class="st">'pred_winsorized'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="54">
+<pre><code>{'root_mean_squared_error': 3649.3414061051403,
+ 'mean_squared_error': 13317692.698313441,
+ 'mean_absolute_error': 627.4500553117797,
+ 'r2': 0.17656075608375232,
+ 'pearsonr': 0.5784062810699505,
+ 'median_absolute_error': 212.47872924804688}</code></pre>
+</div>
+</div>
+<div id="cell-60" class="cell" data-execution_count="56">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>calculate_regression_metrics(valid_df[<span class="st">'TargetSales_win'</span>], valid_df[<span class="st">'pred_winsorized'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="56">
+<pre><code>{'root_mean_squared_error': 660.8172659679369,
+ 'mean_squared_error': 436679.4590013391,
+ 'mean_absolute_error': 376.4380814745696,
+ 'r2': 0.6314425530191099,
+ 'pearsonr': 0.8028601839210051,
+ 'median_absolute_error': 212.47872924804688}</code></pre>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
