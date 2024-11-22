@@ -180,7 +180,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="load-dataset">Load Dataset</h2>
-<div id="cell-3" class="cell" data-execution_count="1">
+<div id="cell-3" class="cell" data-execution_count="70">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
@@ -191,71 +191,83 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> autogluon.tabular <span class="im">import</span> TabularDataset, TabularPredictor</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_squared_error, mean_absolute_error, r2_score, median_absolute_error</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_regression_metrics(y_true, y_pred):</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">'root_mean_squared_error'</span>: np.sqrt(mean_squared_error(y_true, y_pred)),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_squared_error'</span>: mean_squared_error(y_true, y_pred),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_absolute_error'</span>: mean_absolute_error(y_true, y_pred),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">'r2'</span>: r2_score(y_true, y_pred),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],  <span class="co"># Pearson correlation coefficient</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> string_to_yearmon(date):</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date.split()</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">0</span>].split(<span class="st">'/'</span>) <span class="op">+</span> date[<span class="dv">1</span>].split(<span class="st">':'</span>)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">2</span>] <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> date[<span class="dv">0</span>].zfill(<span class="dv">2</span>) <span class="co">#+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> date</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_llama(system_prompt, <span class="bu">input</span>):</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    template <span class="op">=</span> <span class="ss">f"""&lt;s&gt;[INST] &lt;&lt;SYS&gt;&gt;</span><span class="sc">{</span>system_prompt<span class="sc">}</span><span class="ss">&lt;&lt;/SYS&gt;&gt;</span><span class="sc">{</span><span class="bu">input</span><span class="sc">}</span><span class="ss">[/INST]"""</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    body <span class="op">=</span> json.dumps({</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="st">"prompt"</span>: template,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">"temperature"</span>: <span class="fl">0.</span>,</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        <span class="st">"top_p"</span>: <span class="fl">0.9</span>,</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">"max_gen_len"</span>: <span class="dv">2048</span>,</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        body<span class="op">=</span>body,</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        modelId<span class="op">=</span><span class="st">'us.meta.llama3-2-90b-instruct-v1:0'</span>,</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        accept<span class="op">=</span><span class="st">'application/json'</span>,</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        contentType<span class="op">=</span><span class="st">'application/json'</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response[<span class="st">'body'</span>].read())</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_claude(system_prompt, <span class="bu">input</span>):</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    body<span class="op">=</span>json.dumps(</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        {</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>            <span class="st">"anthropic_version"</span>: <span class="st">"bedrock-2023-05-31"</span>,</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">"max_tokens"</span>: <span class="dv">2048</span>,</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>            <span class="st">"messages"</span>: [</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>                {</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"content"</span>: [</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>                    {</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"text"</span>,</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"text"</span>: system_prompt <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> <span class="bu">input</span>,</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>                    }</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>                    ]</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>                }</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>                ]</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        }  </span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    )  </span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(body<span class="op">=</span>body, </span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>                                   modelId<span class="op">=</span><span class="st">'anthropic.claude-3-5-sonnet-20241022-v2:0'</span>,</span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>                                   contentType<span class="op">=</span><span class="st">'application/json'</span>,</span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>                                   accept<span class="op">=</span><span class="st">'application/json'</span>)</span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response.get(<span class="st">'body'</span>).read())</span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> (</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    mean_squared_error, mean_absolute_error, r2_score, median_absolute_error,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    accuracy_score, precision_score, recall_score, f1_score, confusion_matrix</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> pearsonr</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_regression_metrics(y_true, y_pred):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">'root_mean_squared_error'</span>: np.sqrt(mean_squared_error(y_true, y_pred)),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_squared_error'</span>: mean_squared_error(y_true, y_pred),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_absolute_error'</span>: mean_absolute_error(y_true, y_pred),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">'r2'</span>: r2_score(y_true, y_pred),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],  <span class="co"># Pearson correlation coefficient</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> caluclate_classification_metrics(y_true, y_pred):</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">'accuracy'</span>: accuracy_score(y_true, y_pred),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">'precision'</span>: precision_score(y_true, y_pred, average<span class="op">=</span><span class="st">'weighted'</span>),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">'recall'</span>: recall_score(y_true, y_pred, average<span class="op">=</span><span class="st">'weighted'</span>),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">'f1_score'</span>: f1_score(y_true, y_pred, average<span class="op">=</span><span class="st">'weighted'</span>),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">'confusion_matrix'</span>: confusion_matrix(y_true, y_pred)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> string_to_yearmon(date):</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date.split()</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">0</span>].split(<span class="st">'/'</span>) <span class="op">+</span> date[<span class="dv">1</span>].split(<span class="st">':'</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    date <span class="op">=</span> date[<span class="dv">2</span>] <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> date[<span class="dv">0</span>].zfill(<span class="dv">2</span>) <span class="co">#+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> date</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_llama(system_prompt, <span class="bu">input</span>):</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    template <span class="op">=</span> <span class="ss">f"""&lt;s&gt;[INST] &lt;&lt;SYS&gt;&gt;</span><span class="sc">{</span>system_prompt<span class="sc">}</span><span class="ss">&lt;&lt;/SYS&gt;&gt;</span><span class="sc">{</span><span class="bu">input</span><span class="sc">}</span><span class="ss">[/INST]"""</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    body <span class="op">=</span> json.dumps({</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">"prompt"</span>: template,</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">"temperature"</span>: <span class="fl">0.</span>,</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">"top_p"</span>: <span class="fl">0.9</span>,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        <span class="st">"max_gen_len"</span>: <span class="dv">2048</span>,</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        body<span class="op">=</span>body,</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>        modelId<span class="op">=</span><span class="st">'us.meta.llama3-2-90b-instruct-v1:0'</span>,</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>        accept<span class="op">=</span><span class="st">'application/json'</span>,</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        contentType<span class="op">=</span><span class="st">'application/json'</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response[<span class="st">'body'</span>].read())</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_claude(system_prompt, <span class="bu">input</span>):</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    client <span class="op">=</span> boto3.client(service_name<span class="op">=</span><span class="st">'bedrock-runtime'</span>,region_name<span class="op">=</span><span class="st">'us-west-2'</span>)</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    body<span class="op">=</span>json.dumps(</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>            <span class="st">"anthropic_version"</span>: <span class="st">"bedrock-2023-05-31"</span>,</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>            <span class="st">"max_tokens"</span>: <span class="dv">2048</span>,</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>            <span class="st">"messages"</span>: [</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>                {</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"content"</span>: [</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"text"</span>,</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"text"</span>: system_prompt <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> <span class="bu">input</span>,</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>                    }</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>                    ]</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>                ]</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>        }  </span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    )  </span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.invoke_model(body<span class="op">=</span>body, </span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>                                   modelId<span class="op">=</span><span class="st">'anthropic.claude-3-5-sonnet-20241022-v2:0'</span>,</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>                                   contentType<span class="op">=</span><span class="st">'application/json'</span>,</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>                                   accept<span class="op">=</span><span class="st">'application/json'</span>)</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response.get(<span class="st">'body'</span>).read())</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clean-dataset" class="level2">
@@ -2152,12 +2164,392 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 </section>
 <section id="hurdle-regression" class="level2">
 <h2 class="anchored" data-anchor-id="hurdle-regression">Hurdle Regression</h2>
-<div id="cell-69" class="cell" data-execution_count="66">
+<section id="binary-classification" class="level3">
+<h3 class="anchored" data-anchor-id="binary-classification">Binary Classification</h3>
+<div id="cell-70" class="cell" data-execution_count="79">
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'has_purchase'</span>] <span class="op">=</span> train_df.TargetSales.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
 <span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'has_purchase'</span>] <span class="op">=</span> test_df.TargetSales.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div id="cell-71" class="cell" data-execution_count="80">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'has_purchase'</span>].mean(), test_df[<span class="st">'has_purchase'</span>].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="80">
+<pre><code>(0.5141818181818182, 0.5305232558139535)</code></pre>
+</div>
+</div>
+<div id="cell-72" class="cell" data-execution_count="81">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>predictor_cls <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'has_purchase'</span>).fit(train_df[selected_features<span class="op">+</span>[<span class="st">'has_purchase'</span>]],</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>                                                      presets<span class="op">=</span><span class="st">'medium_quality'</span>,</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>                                                      num_gpus<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No path specified. Models will be saved in: "AutogluonModels/ag-20241122_054503"
+Verbosity: 2 (Standard Logging)
+=================== System Info ===================
+AutoGluon Version:  1.1.1
+Python Version:     3.9.12
+Operating System:   Linux
+Platform Machine:   x86_64
+Platform Version:   #1 SMP Wed Oct 23 01:22:11 UTC 2024
+CPU Count:          64
+Memory Avail:       467.80 GB / 480.23 GB (97.4%)
+Disk Space Avail:   1552.75 GB / 1968.52 GB (78.9%)
+===================================================
+Presets specified: ['medium_quality']
+Beginning AutoGluon training ...
+AutoGluon will save models to "AutogluonModels/ag-20241122_054503"
+Train Data Rows:    2750
+Train Data Columns: 17
+Label Column:       has_purchase
+AutoGluon infers your prediction problem is: 'binary' (because only two unique label-values observed).
+    2 unique label values:  [1, 0]
+    If 'binary' is not the correct problem_type, please manually specify the problem_type parameter during Predictor init (You may specify problem_type as one of: ['binary', 'multiclass', 'regression', 'quantile'])
+Problem Type:       binary
+Preprocessing data ...
+Selected class &lt;--&gt; label mapping:  class 1 = 1, class 0 = 0
+Using Feature Generators to preprocess the data ...
+Fitting AutoMLPipelineFeatureGenerator...
+    Available Memory:                    479022.72 MB
+    Train Data (Original)  Memory Usage: 0.36 MB (0.0% of available memory)
+    Inferring data type of each feature based on column values. Set feature_metadata_in to manually specify special dtypes of the features.
+    Stage 1 Generators:
+        Fitting AsTypeFeatureGenerator...
+    Stage 2 Generators:
+        Fitting FillNaFeatureGenerator...
+    Stage 3 Generators:
+        Fitting IdentityFeatureGenerator...
+    Stage 4 Generators:
+        Fitting DropUniqueFeatureGenerator...
+    Stage 5 Generators:
+        Fitting DropDuplicatesFeatureGenerator...
+    Types of features in original data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    Types of features in processed data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    0.0s = Fit runtime
+    17 features in original data used to generate 17 features in processed data.
+    Train Data (Processed) Memory Usage: 0.36 MB (0.0% of available memory)
+Data preprocessing and feature engineering runtime = 0.06s ...
+AutoGluon will gauge predictive performance using evaluation metric: 'accuracy'
+    To change this, specify the eval_metric parameter of Predictor()
+Automatically generating train/validation split with holdout_frac=0.18181818181818182, Train Rows: 2250, Val Rows: 500
+User-specified model hyperparameters to be fit:
+{
+    'NN_TORCH': {},
+    'GBM': [{'extra_trees': True, 'ag_args': {'name_suffix': 'XT'}}, {}, 'GBMLarge'],
+    'CAT': {},
+    'XGB': {},
+    'FASTAI': {},
+    'RF': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'XT': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'KNN': [{'weights': 'uniform', 'ag_args': {'name_suffix': 'Unif'}}, {'weights': 'distance', 'ag_args': {'name_suffix': 'Dist'}}],
+}
+Excluded models: ['FASTAI', 'KNN', 'NN_TORCH'] (Specified by `excluded_model_types`)
+Fitting 9 L1 models ...
+Fitting model: LightGBMXT ...
+    Training LightGBMXT with GPU, note that this may negatively impact model quality compared to CPU training.
+Warning: GPU mode might not be installed for LightGBM, GPU training raised an exception. Falling back to CPU training...Refer to LightGBM GPU documentation: https://github.com/Microsoft/LightGBM/tree/master/python-package#build-gpu-versionOne possible method is:  pip uninstall lightgbm -y   pip install lightgbm --install-option=--gpu
+[LightGBM] [Fatal] GPU Tree Learner was not enabled in this build.
+Please recompile with CMake option -DUSE_GPU=1
+    0.684    = Validation score   (accuracy)
+    0.75s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: LightGBM ...
+    Training LightGBM with GPU, note that this may negatively impact model quality compared to CPU training.
+[LightGBM] [Fatal] GPU Tree Learner was not enabled in this build.
+Please recompile with CMake option -DUSE_GPU=1
+Warning: GPU mode might not be installed for LightGBM, GPU training raised an exception. Falling back to CPU training...Refer to LightGBM GPU documentation: https://github.com/Microsoft/LightGBM/tree/master/python-package#build-gpu-versionOne possible method is:  pip uninstall lightgbm -y   pip install lightgbm --install-option=--gpu
+    0.668    = Validation score   (accuracy)
+    0.81s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: RandomForestGini ...
+    0.652    = Validation score   (accuracy)
+    0.92s    = Training   runtime
+    0.11s    = Validation runtime
+Fitting model: RandomForestEntr ...
+    0.668    = Validation score   (accuracy)
+    0.92s    = Training   runtime
+    0.11s    = Validation runtime
+Fitting model: CatBoost ...
+    Training CatBoost with GPU, note that this may negatively impact model quality compared to CPU training.
+    Warning: CatBoost on GPU is experimental. If you encounter issues, use CPU for training CatBoost instead.
+    0.688    = Validation score   (accuracy)
+    3.9s     = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: ExtraTreesGini ...
+    0.69     = Validation score   (accuracy)
+    0.89s    = Training   runtime
+    0.12s    = Validation runtime
+Fitting model: ExtraTreesEntr ...
+    0.664    = Validation score   (accuracy)
+    0.88s    = Training   runtime
+    0.1s     = Validation runtime
+Fitting model: XGBoost ...
+/home/charipol/miniconda3/lib/python3.9/site-packages/xgboost/core.py:160: UserWarning: [05:45:13] WARNING: /workspace/src/common/error_msg.cc:27: The tree method `gpu_hist` is deprecated since 2.0.0. To use GPU training, set the `device` parameter to CUDA instead.
+
+    E.g. tree_method = "hist", device = "cuda"
+
+  warnings.warn(smsg, UserWarning)
+/home/charipol/miniconda3/lib/python3.9/site-packages/xgboost/core.py:160: UserWarning: [05:45:14] WARNING: /workspace/src/common/error_msg.cc:27: The tree method `gpu_hist` is deprecated since 2.0.0. To use GPU training, set the `device` parameter to CUDA instead.
+
+    E.g. tree_method = "hist", device = "cuda"
+
+  warnings.warn(smsg, UserWarning)
+    0.658    = Validation score   (accuracy)
+    1.06s    = Training   runtime
+    0.01s    = Validation runtime
+Fitting model: LightGBMLarge ...
+    Training LightGBMLarge with GPU, note that this may negatively impact model quality compared to CPU training.
+[LightGBM] [Fatal] GPU Tree Learner was not enabled in this build.
+Please recompile with CMake option -DUSE_GPU=1
+Warning: GPU mode might not be installed for LightGBM, GPU training raised an exception. Falling back to CPU training...Refer to LightGBM GPU documentation: https://github.com/Microsoft/LightGBM/tree/master/python-package#build-gpu-versionOne possible method is:  pip uninstall lightgbm -y   pip install lightgbm --install-option=--gpu
+    0.67     = Validation score   (accuracy)
+    2.09s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: WeightedEnsemble_L2 ...
+    Ensemble Weights: {'ExtraTreesGini': 0.714, 'LightGBMXT': 0.214, 'CatBoost': 0.071}
+    0.698    = Validation score   (accuracy)
+    0.14s    = Training   runtime
+    0.0s     = Validation runtime
+AutoGluon training complete, total runtime = 13.2s ... Best model: WeightedEnsemble_L2 | Estimated inference throughput: 4174.4 rows/s (500 batch size)
+TabularPredictor saved. To load, use: predictor = TabularPredictor.load("AutogluonModels/ag-20241122_054503")</code></pre>
+</div>
+</div>
+<div id="cell-73" class="cell" data-execution_count="82">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_binary'</span>] <span class="op">=</span> predictor_cls.predict(test_df[selected_features])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-74" class="cell" data-execution_count="83">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>caluclate_classification_metrics(test_df[<span class="st">'has_purchase'</span>], test_df[<span class="st">'pred_binary'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="83">
+<pre><code>{'accuracy': 0.6875,
+ 'precision': 0.6881282151076215,
+ 'recall': 0.6875,
+ 'f1_score': 0.6876965304761199,
+ 'confusion_matrix': array([[220, 103],
+        [112, 253]])}</code></pre>
+</div>
+</div>
+</section>
+<section id="regression-on-non-zero-outcome" class="level3">
+<h3 class="anchored" data-anchor-id="regression-on-non-zero-outcome">Regression on Non-Zero Outcome</h3>
+<div id="cell-76" class="cell" data-execution_count="84">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero <span class="op">=</span> train_df[train_df.has_purchase<span class="op">==</span><span class="dv">1</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>test_df_nonzero <span class="op">=</span> test_df[test_df.has_purchase<span class="op">==</span><span class="dv">1</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>train_df_nonzero.shape, test_df_nonzero.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="84">
+<pre><code>((1414, 21), (365, 26))</code></pre>
+</div>
+</div>
+<div id="cell-77" class="cell" data-execution_count="85">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co">#log</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">=</span> train_df_nonzero[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log)</span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>test_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">=</span> test_df_nonzero[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-78" class="cell" data-execution_count="86">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'TargetSales_log'</span>].hist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="sales_prediction_files/figure-html/cell-59-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-79" class="cell" data-execution_count="87">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>predictor_reg <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log'</span>).fit(train_df_nonzero[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log'</span>]],</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>                                                      presets<span class="op">=</span><span class="st">'medium_quality'</span>,</span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>                                                      num_gpus<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No path specified. Models will be saved in: "AutogluonModels/ag-20241122_054607"
+Verbosity: 2 (Standard Logging)
+=================== System Info ===================
+AutoGluon Version:  1.1.1
+Python Version:     3.9.12
+Operating System:   Linux
+Platform Machine:   x86_64
+Platform Version:   #1 SMP Wed Oct 23 01:22:11 UTC 2024
+CPU Count:          64
+Memory Avail:       467.78 GB / 480.23 GB (97.4%)
+Disk Space Avail:   1552.65 GB / 1968.52 GB (78.9%)
+===================================================
+Presets specified: ['medium_quality']
+Beginning AutoGluon training ...
+AutoGluon will save models to "AutogluonModels/ag-20241122_054607"
+Train Data Rows:    1414
+Train Data Columns: 17
+Label Column:       TargetSales_log
+AutoGluon infers your prediction problem is: 'regression' (because dtype of label-column == float and many unique label-values observed).
+    Label info (max, min, mean, stddev): (12.034510597067465, 2.2975725511705014, 6.31275, 1.06643)
+    If 'regression' is not the correct problem_type, please manually specify the problem_type parameter during Predictor init (You may specify problem_type as one of: ['binary', 'multiclass', 'regression', 'quantile'])
+Problem Type:       regression
+Preprocessing data ...
+Using Feature Generators to preprocess the data ...
+Fitting AutoMLPipelineFeatureGenerator...
+    Available Memory:                    479007.09 MB
+    Train Data (Original)  Memory Usage: 0.18 MB (0.0% of available memory)
+    Inferring data type of each feature based on column values. Set feature_metadata_in to manually specify special dtypes of the features.
+    Stage 1 Generators:
+        Fitting AsTypeFeatureGenerator...
+    Stage 2 Generators:
+        Fitting FillNaFeatureGenerator...
+    Stage 3 Generators:
+        Fitting IdentityFeatureGenerator...
+    Stage 4 Generators:
+        Fitting DropUniqueFeatureGenerator...
+    Stage 5 Generators:
+        Fitting DropDuplicatesFeatureGenerator...
+    Types of features in original data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    Types of features in processed data (raw dtype, special dtypes):
+        ('float', []) : 12 | ['total_sales', 'avg_purchase_frequency', 'avg_purchase_value', 'per_fashion_accessories', 'per_home_decor', ...]
+        ('int', [])   :  5 | ['recency', 'purchase_day', 'nb_product', 'nb_category', 'customer_lifetime']
+    0.0s = Fit runtime
+    17 features in original data used to generate 17 features in processed data.
+    Train Data (Processed) Memory Usage: 0.18 MB (0.0% of available memory)
+Data preprocessing and feature engineering runtime = 0.06s ...
+AutoGluon will gauge predictive performance using evaluation metric: 'root_mean_squared_error'
+    This metric's sign has been flipped to adhere to being higher_is_better. The metric score can be multiplied by -1 to get the metric value.
+    To change this, specify the eval_metric parameter of Predictor()
+Automatically generating train/validation split with holdout_frac=0.2, Train Rows: 1131, Val Rows: 283
+User-specified model hyperparameters to be fit:
+{
+    'NN_TORCH': {},
+    'GBM': [{'extra_trees': True, 'ag_args': {'name_suffix': 'XT'}}, {}, 'GBMLarge'],
+    'CAT': {},
+    'XGB': {},
+    'FASTAI': {},
+    'RF': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'XT': [{'criterion': 'gini', 'ag_args': {'name_suffix': 'Gini', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'entropy', 'ag_args': {'name_suffix': 'Entr', 'problem_types': ['binary', 'multiclass']}}, {'criterion': 'squared_error', 'ag_args': {'name_suffix': 'MSE', 'problem_types': ['regression', 'quantile']}}],
+    'KNN': [{'weights': 'uniform', 'ag_args': {'name_suffix': 'Unif'}}, {'weights': 'distance', 'ag_args': {'name_suffix': 'Dist'}}],
+}
+Excluded models: ['FASTAI', 'KNN', 'NN_TORCH'] (Specified by `excluded_model_types`)
+Fitting 7 L1 models ...
+Fitting model: LightGBMXT ...
+    Training LightGBMXT with GPU, note that this may negatively impact model quality compared to CPU training.
+[LightGBM] [Fatal] GPU Tree Learner was not enabled in this build.
+Please recompile with CMake option -DUSE_GPU=1
+Warning: GPU mode might not be installed for LightGBM, GPU training raised an exception. Falling back to CPU training...Refer to LightGBM GPU documentation: https://github.com/Microsoft/LightGBM/tree/master/python-package#build-gpu-versionOne possible method is:  pip uninstall lightgbm -y   pip install lightgbm --install-option=--gpu
+    -0.7585  = Validation score   (-root_mean_squared_error)
+    0.77s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: LightGBM ...
+    Training LightGBM with GPU, note that this may negatively impact model quality compared to CPU training.
+[LightGBM] [Fatal] GPU Tree Learner was not enabled in this build.
+Please recompile with CMake option -DUSE_GPU=1
+Warning: GPU mode might not be installed for LightGBM, GPU training raised an exception. Falling back to CPU training...Refer to LightGBM GPU documentation: https://github.com/Microsoft/LightGBM/tree/master/python-package#build-gpu-versionOne possible method is:  pip uninstall lightgbm -y   pip install lightgbm --install-option=--gpu
+    -0.7376  = Validation score   (-root_mean_squared_error)
+    0.73s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: RandomForestMSE ...
+    -0.7427  = Validation score   (-root_mean_squared_error)
+    0.67s    = Training   runtime
+    0.1s     = Validation runtime
+Fitting model: CatBoost ...
+    Training CatBoost with GPU, note that this may negatively impact model quality compared to CPU training.
+    Warning: CatBoost on GPU is experimental. If you encounter issues, use CPU for training CatBoost instead.
+    -0.7276  = Validation score   (-root_mean_squared_error)
+    3.23s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: ExtraTreesMSE ...
+    -0.7481  = Validation score   (-root_mean_squared_error)
+    0.7s     = Training   runtime
+    0.09s    = Validation runtime
+Fitting model: XGBoost ...
+/home/charipol/miniconda3/lib/python3.9/site-packages/xgboost/core.py:160: UserWarning: [05:46:13] WARNING: /workspace/src/common/error_msg.cc:27: The tree method `gpu_hist` is deprecated since 2.0.0. To use GPU training, set the `device` parameter to CUDA instead.
+
+    E.g. tree_method = "hist", device = "cuda"
+
+  warnings.warn(smsg, UserWarning)
+/home/charipol/miniconda3/lib/python3.9/site-packages/xgboost/core.py:160: UserWarning: [05:46:14] WARNING: /workspace/src/common/error_msg.cc:27: The tree method `gpu_hist` is deprecated since 2.0.0. To use GPU training, set the `device` parameter to CUDA instead.
+
+    E.g. tree_method = "hist", device = "cuda"
+
+  warnings.warn(smsg, UserWarning)
+    -0.7365  = Validation score   (-root_mean_squared_error)
+    1.09s    = Training   runtime
+    0.02s    = Validation runtime
+Fitting model: LightGBMLarge ...
+    Training LightGBMLarge with GPU, note that this may negatively impact model quality compared to CPU training.
+[LightGBM] [Fatal] GPU Tree Learner was not enabled in this build.
+Please recompile with CMake option -DUSE_GPU=1
+Warning: GPU mode might not be installed for LightGBM, GPU training raised an exception. Falling back to CPU training...Refer to LightGBM GPU documentation: https://github.com/Microsoft/LightGBM/tree/master/python-package#build-gpu-versionOne possible method is:  pip uninstall lightgbm -y   pip install lightgbm --install-option=--gpu
+    -0.775   = Validation score   (-root_mean_squared_error)
+    2.48s    = Training   runtime
+    0.0s     = Validation runtime
+Fitting model: WeightedEnsemble_L2 ...
+    Ensemble Weights: {'CatBoost': 0.6, 'XGBoost': 0.25, 'LightGBM': 0.15}
+    -0.7242  = Validation score   (-root_mean_squared_error)
+    0.02s    = Training   runtime
+    0.0s     = Validation runtime
+AutoGluon training complete, total runtime = 10.21s ... Best model: WeightedEnsemble_L2 | Estimated inference throughput: 13543.8 rows/s (283 batch size)
+TabularPredictor saved. To load, use: predictor = TabularPredictor.load("AutogluonModels/ag-20241122_054607")</code></pre>
+</div>
+</div>
+<div id="cell-80" class="cell" data-execution_count="88">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>test_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(test_df_nonzero[selected_features])</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>test_df_nonzero[<span class="st">'pred_log_exp'</span>] <span class="op">=</span> test_df_nonzero[<span class="st">'pred_log'</span>].<span class="bu">map</span>(np.exp)</span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(test_df[selected_features])</span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log'</span>].<span class="bu">map</span>(np.exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-81" class="cell" data-execution_count="89">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>calculate_regression_metrics(test_df_nonzero[<span class="st">'TargetSales'</span>], test_df_nonzero[<span class="st">'pred_log_exp'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="89">
+<pre><code>{'root_mean_squared_error': 4432.526276333969,
+ 'mean_squared_error': 19647289.190391082,
+ 'mean_absolute_error': 884.6138819058123,
+ 'r2': 0.3344550185098929,
+ 'pearsonr': 0.6474654951795362,
+ 'median_absolute_error': 239.09978802417265}</code></pre>
+</div>
+</div>
+<div id="cell-82" class="cell" data-execution_count="91">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle'</span>] <span class="op">=</span> test_df.pred_binary <span class="op">*</span> test_df.pred_log_exp</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="91">
+<pre><code>{'root_mean_squared_error': 3246.258960109551,
+ 'mean_squared_error': 10538197.236091545,
+ 'mean_absolute_error': 589.3096792867335,
+ 'r2': 0.34841827628096245,
+ 'pearsonr': 0.6497011871197678,
+ 'median_absolute_error': 197.7694728626407}</code></pre>
+</div>
+</div>
+</section>
+<section id="duans-method" class="level3">
+<h3 class="anchored" data-anchor-id="duans-method">Duan’s Method</h3>
+<div id="cell-84" class="cell" data-execution_count="93">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(train_df_nonzero[selected_features])</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log_exp'</span>] <span class="op">=</span> train_df_nonzero[<span class="st">'pred_log'</span>].<span class="bu">map</span>(np.exp)</span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>smearing_factor <span class="op">=</span> np.mean(np.exp(train_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">-</span> train_df_nonzero[<span class="st">'pred_log'</span>]))</span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true" tabindex="-1"></a>smearing_factor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="93">
+<pre><code>1.3715872927403208</code></pre>
+</div>
+</div>
+<div id="cell-85" class="cell" data-execution_count="94">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp_corrected'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log_exp'</span>] <span class="op">*</span> smearing_factor</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected'</span>] <span class="op">=</span> test_df.pred_binary <span class="op">*</span> test_df.pred_log_exp_corrected</span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="94">
+<pre><code>{'root_mean_squared_error': 3096.3423338211273,
+ 'mean_squared_error': 9587335.848212866,
+ 'mean_absolute_error': 641.2781956415758,
+ 'r2': 0.4072104860158461,
+ 'pearsonr': 0.6497011871197678,
+ 'median_absolute_error': 269.04780476878705}</code></pre>
+</div>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
