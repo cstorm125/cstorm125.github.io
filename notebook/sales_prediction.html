@@ -104,6 +104,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -3046,22 +3075,39 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 </div>
 </section>
 <section id="duans-method" class="level3">
-<h3 class="anchored" data-anchor-id="duans-method">Duan’s Method</h3>
-<div id="cell-95" class="cell" data-execution_count="73">
+<h3 class="anchored" data-anchor-id="duans-method"><a href="https://www.jstor.org/stable/2288126">Duan’s Method</a></h3>
+<p>When predicting a log-transformed outcome, we typically want to re-transform the predictions to non-log numbers by applying the exponential function. However, this ignores a small bias due to the error term in the process.</p>
+<p><span class="math display">\[ln(y) = f(X) + \epsilon\]</span></p>
+<p>where * <span class="math inline">\(y\)</span> is actual outcome. * <span class="math inline">\(X\)</span> is the features. * <span class="math inline">\(f(.)\)</span> is a trained model. * <span class="math inline">\(\epsilon\)</span> is the error term.</p>
+<p>when re-transforming <span class="math display">\[
+\begin{align}
+y &amp;= exp(ln(y)) \\
+&amp;= exp(f(X) + \epsilon ) \\
+&amp;= exp(f(X)) \cdot exp(\epsilon) \\
+E[y] &amp;= E[exp(f(X))] \cdot E[exp(\epsilon)]
+\end{align}
+\]</span></p>
+<p>Duan estimates the <span class="math inline">\(exp(\epsilon)\)</span> as <span class="math display">\[
+\begin{align}
+\hat \lambda &amp;= E[exp(ln(y) - ln(\hat y))]
+\end{align}
+\]</span></p>
+<p>where * <span class="math inline">\(\hat \lambda\)</span> is the Duan’s smearing estimator of the bias from re-transformation <span class="math inline">\(exp(\epsilon)\)</span> * <span class="math inline">\(\hat y\)</span> is the prediction aka <span class="math inline">\(f(X)\)</span></p>
+<div id="cell-96" class="cell">
 <div class="sourceCode cell-code" id="cb104"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(train_df_nonzero[selected_features])</span>
 <span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log_exp'</span>] <span class="op">=</span> train_df_nonzero[<span class="st">'pred_log'</span>].<span class="bu">map</span>(np.exp)</span>
 <span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>smearing_factor <span class="op">=</span> np.mean(np.exp(train_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">-</span> train_df_nonzero[<span class="st">'pred_log'</span>]))</span>
-<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>smearing_factor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>smearing_estimator <span class="op">=</span> np.mean(np.exp(train_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">-</span> train_df_nonzero[<span class="st">'pred_log'</span>]))</span>
+<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>smearing_estimator</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="73">
 <pre><code>1.2280991653046711</code></pre>
 </div>
 </div>
-<div id="cell-96" class="cell" data-execution_count="74">
-<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp_corrected'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log_exp'</span>] <span class="op">*</span> smearing_factor</span>
+<div id="cell-97" class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp_corrected'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log_exp'</span>] <span class="op">*</span> smearing_estimator</span>
 <span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected'</span>] <span class="op">=</span> test_df.pred_binary <span class="op">*</span> test_df.pred_log_exp_corrected</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-97" class="cell" data-execution_count="75">
+<div id="cell-98" class="cell" data-execution_count="75">
 <div class="sourceCode cell-code" id="cb107"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected'</span>])</span>
 <span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle_corrected'</span></span>
 <span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3080,8 +3126,8 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 </section>
 <section id="evaluation" class="level2">
 <h2 class="anchored" data-anchor-id="evaluation">Evaluation</h2>
-<p>We can see that the <code>hurdle_corrected</code> method performs best across all metrics except for 1) mean absolute error where it performs about 5% worse than <code>hurdle</code> method without the correction and 2) median absolute error where it only performs better than baseline regression; pearson’s correlation is tied between the two Hurdle methods by definition since we multiply Duan’s smearing factor to <code>hurdle</code> predictions to get <code>hurdle_corrected</code>.</p>
-<div id="cell-100" class="cell" data-execution_count="148">
+<p>We can see that the <code>hurdle_corrected</code> method performs best across all metrics except for 1) mean absolute error where it performs about 5% worse than <code>hurdle</code> method without the correction and 2) median absolute error where it only performs better than baseline regression; pearson’s correlation is tied between the two Hurdle methods by definition since we multiply Duan’s smearing estimator to <code>hurdle</code> predictions to get <code>hurdle_corrected</code>.</p>
+<div id="cell-101" class="cell" data-execution_count="148">
 <div class="sourceCode cell-code" id="cb109"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>metric_df <span class="op">=</span> pd.DataFrame([metric_baseline,</span>
 <span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>                       metric_winsorized,</span>
 <span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>                       metric_log1p,</span>
@@ -3089,7 +3135,7 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 <span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected,])</span>
 <span id="cb109-6"><a href="#cb109-6" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-101" class="cell" data-execution_count="149">
+<div id="cell-102" class="cell" data-execution_count="149">
 <div class="sourceCode cell-code" id="cb110"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>rank_df <span class="op">=</span> metric_df.copy()</span>
 <span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> metric_df.columns.tolist()[:<span class="op">-</span><span class="dv">1</span>]:</span>
 <span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> col <span class="kw">in</span> [<span class="st">'r2'</span>, <span class="st">'pearsonr'</span>]:</span>
@@ -3193,7 +3239,7 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 </div>
 </div>
 </div>
-<div id="cell-102" class="cell" data-execution_count="150">
+<div id="cell-103" class="cell" data-execution_count="150">
 <div class="sourceCode cell-code" id="cb111"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>metric_df.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="150">
 <div>
@@ -3284,11 +3330,11 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 <section id="why-hurdle-outperforms-hurdle_corrected-in-mae" class="level3">
 <h3 class="anchored" data-anchor-id="why-hurdle-outperforms-hurdle_corrected-in-mae">Why <code>hurdle</code> Outperforms <code>hurdle_corrected</code> in MAE?</h3>
 <p>Duan’s method adjusts for underestimation from retransformation of log outcome. This could lead to smaller extreme errors but more less extreme ones. We verify this hypothesis by comparing mean absolute error before and after transformation for errors originally under and over 99th percentile. We confirm that is the case for this problem.</p>
-<div id="cell-105" class="cell" data-execution_count="124">
+<div id="cell-106" class="cell" data-execution_count="124">
 <div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>err_hurdle <span class="op">=</span> (test_df[<span class="st">'TargetSales'</span>] <span class="op">-</span> test_df[<span class="st">'pred_hurdle'</span>]).<span class="bu">abs</span>()</span>
 <span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>err_hurdle_corrected <span class="op">=</span> (test_df[<span class="st">'TargetSales'</span>] <span class="op">-</span> test_df[<span class="st">'pred_hurdle_corrected'</span>]).<span class="bu">abs</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-106" class="cell">
+<div id="cell-107" class="cell">
 <div class="sourceCode cell-code" id="cb113"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>err_hurdle.describe(percentiles<span class="op">=</span>[<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.9</span>, <span class="fl">.95</span>, <span class="fl">.99</span>]) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="137">
 <pre><code>count      688.000000
@@ -3305,14 +3351,14 @@ max      55731.205996
 dtype: float64</code></pre>
 </div>
 </div>
-<div id="cell-107" class="cell" data-execution_count="140">
+<div id="cell-108" class="cell" data-execution_count="140">
 <div class="sourceCode cell-code" id="cb115"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>err_hurdle[err_hurdle<span class="op">&lt;</span><span class="fl">6763.777844</span>].mean(),<span class="op">\</span></span>
 <span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>err_hurdle[err_hurdle<span class="op">&gt;</span><span class="fl">6763.777844</span>].mean(),</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="140">
 <pre><code>(355.4918014848842, 22904.641872667555)</code></pre>
 </div>
 </div>
-<div id="cell-108" class="cell" data-execution_count="141">
+<div id="cell-109" class="cell" data-execution_count="141">
 <div class="sourceCode cell-code" id="cb117"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>err_hurdle_corrected[err_hurdle<span class="op">&lt;</span><span class="fl">6763.777844</span>].mean(),<span class="op">\</span></span>
 <span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>err_hurdle_corrected[err_hurdle<span class="op">&gt;</span><span class="fl">6763.777844</span>].mean(),</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="141">
@@ -3323,7 +3369,7 @@ dtype: float64</code></pre>
 <section id="why-log1p-performs-so-much-better-than-others-in-medae" class="level3">
 <h3 class="anchored" data-anchor-id="why-log1p-performs-so-much-better-than-others-in-medae">Why <code>log1p</code> Performs So Much Better than Others in MedAE?</h3>
 <p>It is for similar reasons that <code>hurdle</code> outperforms <code>hurdle_corrected</code> in MedAE; however, <code>log1p</code> performs twice better than other approaches, especially the Hurdle models which should be modeling the non-zero outcomes in the same manner. This is because Hurdle models depend not only on the regression but the classification model. We can see that if the classification model were perfect (instead of the current f1 = 0.69), other metrics also improved but not nearly as drastic as MedAE and MAE.</p>
-<div id="cell-111" class="cell" data-execution_count="153">
+<div id="cell-112" class="cell" data-execution_count="153">
 <div class="sourceCode cell-code" id="cb119"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>] <span class="op">=</span> test_df.has_purchase <span class="op">*</span> test_df.pred_log_exp_corrected</span>
 <span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>])</span>
 <span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle_corrected_perfect_cls'</span></span>
@@ -3428,6 +3474,34 @@ dtype: float64</code></pre>
 </table>
 
 </div>
+</div>
+</div>
+</section>
+<section id="why-baseline-regression-performs-best-at-aggregate-level" class="level3">
+<h3 class="anchored" data-anchor-id="why-baseline-regression-performs-best-at-aggregate-level">Why Baseline Regression Performs Best at Aggregate Level</h3>
+<p>If we look at aggregated mean or sum of actual sales vs predicted sales, baseline regression performs best by far. This is due to the fact that without any constraints a regressor only minimizes the MSE loss and usually ends up predicting values around the mean to balance between under- and over-predictions. However, this level of prediction is often not very useful as a single point and more often done by in a time series setup.</p>
+<div id="cell-115" class="cell" data-execution_count="156">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>test_df[[<span class="st">'TargetSales'</span>,<span class="st">'pred_baseline'</span>,<span class="st">'pred_winsorized'</span>,<span class="st">'pred_log1p_expm1'</span>,<span class="st">'pred_hurdle'</span>,<span class="st">'pred_hurdle_corrected'</span>]].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="156">
+<pre><code>TargetSales              760.558808
+pred_baseline            791.043945
+pred_winsorized          508.281555
+pred_log1p_expm1         186.200281
+pred_hurdle              527.286811
+pred_hurdle_corrected    647.560493
+dtype: float64</code></pre>
+</div>
+</div>
+<div id="cell-116" class="cell" data-execution_count="157">
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>test_df[[<span class="st">'TargetSales'</span>,<span class="st">'pred_baseline'</span>,<span class="st">'pred_winsorized'</span>,<span class="st">'pred_log1p_expm1'</span>,<span class="st">'pred_hurdle'</span>,<span class="st">'pred_hurdle_corrected'</span>]].<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="157">
+<pre><code>TargetSales              523264.460000
+pred_baseline            544238.250000
+pred_winsorized          349697.718750
+pred_log1p_expm1         128105.793618
+pred_hurdle              362773.326124
+pred_hurdle_corrected    445521.619008
+dtype: float64</code></pre>
 </div>
 </div>
 
