@@ -3319,44 +3319,22 @@ dtype: float64</code></pre>
 <pre><code>(392.7718802742851, 22076.839798471465)</code></pre>
 </div>
 </div>
-<div id="cell-109" class="cell" data-execution_count="110">
-<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected'</span>].plot.kde()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="sales_prediction_files/figure-html/cell-76-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<div id="cell-110" class="cell" data-execution_count="108">
-<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected'</span>].plot.kde()</span>
-<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle'</span>].plot.kde()</span>
-<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a><span class="co"># test_df['TargetSales'].plot.kde()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="sales_prediction_files/figure-html/cell-77-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
 </section>
 <section id="why-log1p-performs-so-much-better-than-others-in-medae" class="level3">
 <h3 class="anchored" data-anchor-id="why-log1p-performs-so-much-better-than-others-in-medae">Why <code>log1p</code> Performs So Much Better than Others in MedAE?</h3>
 <p>It is for similar reasons that <code>hurdle</code> outperforms <code>hurdle_corrected</code> in MedAE; however, <code>log1p</code> performs twice better than other approaches, especially the Hurdle models which should be modeling the non-zero outcomes in the same manner. This is because Hurdle models depend not only on the regression but the classification model. We can see that if the classification model were perfect (instead of the current f1 = 0.69), other metrics also improved but not nearly as drastic as MedAE and MAE.</p>
-<div id="cell-113" class="cell" data-execution_count="153">
-<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>] <span class="op">=</span> test_df.has_purchase <span class="op">*</span> test_df.pred_log_exp_corrected</span>
-<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>])</span>
-<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle_corrected_perfect_cls'</span></span>
-<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a>metric_df2 <span class="op">=</span> pd.DataFrame([metric_baseline,</span>
-<span id="cb121-6"><a href="#cb121-6" aria-hidden="true" tabindex="-1"></a>                       metric_winsorized,</span>
-<span id="cb121-7"><a href="#cb121-7" aria-hidden="true" tabindex="-1"></a>                       metric_log1p,</span>
-<span id="cb121-8"><a href="#cb121-8" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle,</span>
-<span id="cb121-9"><a href="#cb121-9" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected,</span>
-<span id="cb121-10"><a href="#cb121-10" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected_perfect_cls,])</span>
-<span id="cb121-11"><a href="#cb121-11" aria-hidden="true" tabindex="-1"></a>metric_df2.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-111" class="cell" data-execution_count="153">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>] <span class="op">=</span> test_df.has_purchase <span class="op">*</span> test_df.pred_log_exp_corrected</span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>])</span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle_corrected_perfect_cls'</span></span>
+<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-5"><a href="#cb119-5" aria-hidden="true" tabindex="-1"></a>metric_df2 <span class="op">=</span> pd.DataFrame([metric_baseline,</span>
+<span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a>                       metric_winsorized,</span>
+<span id="cb119-7"><a href="#cb119-7" aria-hidden="true" tabindex="-1"></a>                       metric_log1p,</span>
+<span id="cb119-8"><a href="#cb119-8" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle,</span>
+<span id="cb119-9"><a href="#cb119-9" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected,</span>
+<span id="cb119-10"><a href="#cb119-10" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected_perfect_cls,])</span>
+<span id="cb119-11"><a href="#cb119-11" aria-hidden="true" tabindex="-1"></a>metric_df2.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="153">
 <div>
 
