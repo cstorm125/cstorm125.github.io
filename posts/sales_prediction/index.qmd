@@ -10,7 +10,7 @@ format:
 jupyter: python3
 ---
 
-I have spent nearly a decade as a data scientist in the retail sector, but it was not until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture that I realized I have been approaching customer sales predictions the wrong way all along.
+I have spent nearly a decade as a data scientist in the retail sector, but I did not realize I have been approaching customer sales predictions the wrong way until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture.
 
 ```{python}
 #| eval: true
@@ -40,7 +40,7 @@ def calculate_regression_metrics(y_true, y_pred):
         'mean_squared_error': mean_squared_error(y_true, y_pred),
         'mean_absolute_error': mean_absolute_error(y_true, y_pred),
         'r2': r2_score(y_true, y_pred),
-        'pearsonr': pearsonr(y_true, y_pred)[0],  # Pearson correlation coefficient
+        'pearsonr': pearsonr(y_true, y_pred)[0],
         'median_absolute_error': median_absolute_error(y_true, y_pred),
         'earths_mover_distance': wasserstein_distance(y_true, y_pred)
     }
