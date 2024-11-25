@@ -107,3 +107,14 @@ def call_claude(system_prompt, input):
    
     return response_body
 ```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+online_retail = fetch_ucirepo(id=352) 
+transaction_df = online_retail['data']['original']
+print(transaction_df.shape)
+transaction_df.head(5)
+```
