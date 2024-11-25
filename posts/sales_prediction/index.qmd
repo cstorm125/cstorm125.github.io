@@ -1,0 +1,109 @@
+---
+title: "Predict How Much A Customer Will Spend in Retail"
+author: "cstorm125"
+date: "2024-11-25"
+categories: [news, code, analysis]
+image: "featured_image.jpg"
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+I have spent nearly a decade as a data scientist in the retail sector, but it was not until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture that I realized I have been approaching customer sales predictions the wrong way all along.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+import pandas as pd
+import numpy as np
+import random
+from ucimlrepo import fetch_ucirepo 
+import boto3
+import json
+from tqdm.auto import tqdm
+import time
+from sklearn.model_selection import train_test_split
+from autogluon.tabular import TabularDataset, TabularPredictor
+from sklearn.metrics import (
+    mean_squared_error, mean_absolute_error, r2_score, median_absolute_error,
+    accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+)
+
+from scipy.stats import pearsonr, wasserstein_distance
+
+def calculate_regression_metrics(y_true, y_pred):
+    return {
+        'root_mean_squared_error': np.sqrt(mean_squared_error(y_true, y_pred)),
+        'mean_squared_error': mean_squared_error(y_true, y_pred),
+        'mean_absolute_error': mean_absolute_error(y_true, y_pred),
+        'r2': r2_score(y_true, y_pred),
+        'pearsonr': pearsonr(y_true, y_pred)[0],  # Pearson correlation coefficient
+        'median_absolute_error': median_absolute_error(y_true, y_pred),
+        'earths_mover_distance': wasserstein_distance(y_true, y_pred)
+    }
+
+def caluclate_classification_metrics(y_true, y_pred):
+    return {
+        'accuracy': accuracy_score(y_true, y_pred),
+        'precision': precision_score(y_true, y_pred, average='weighted'),
+        'recall': recall_score(y_true, y_pred, average='weighted'),
+        'f1_score': f1_score(y_true, y_pred, average='weighted'),
+        'confusion_matrix': confusion_matrix(y_true, y_pred)
+    }
+
+def string_to_yearmon(date):
+    date = date.split()
+    date = date[0].split('/') + date[1].split(':')
+    date = date[2] + '-' + date[0].zfill(2) #+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)
+    return date
+
+def call_llama(system_prompt, input):
+    template = f"""<s>[INST] <<SYS>>{system_prompt}<</SYS>>{input}[/INST]"""
+    client = boto3.client(service_name='bedrock-runtime',region_name='us-west-2')
+    body = json.dumps({
+        "prompt": template,
+        "temperature": 0.,
+        "top_p": 0.9,
+        "max_gen_len": 2048,
+    })
+    response = client.invoke_model(
+        body=body,
+        modelId='us.meta.llama3-2-90b-instruct-v1:0',
+        accept='application/json',
+        contentType='application/json'
+    )
+    response_body = json.loads(response['body'].read())
+    return response_body
+
+def call_claude(system_prompt, input):
+    client = boto3.client(service_name='bedrock-runtime',region_name='us-west-2')
+    body=json.dumps(
+        {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 2048,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                    {
+                        "type": "text",
+                        "text": system_prompt + '\n' + input,
+                    }
+                    ]
+                }
+                ]
+        }  
+    )  
+
+    
+    response = client.invoke_model(body=body, 
+                                   modelId='anthropic.claude-3-5-sonnet-20241022-v2:0',
+                                   contentType='application/json',
+                                   accept='application/json')
+    response_body = json.loads(response.get('body').read())
+   
+    return response_body
+```
