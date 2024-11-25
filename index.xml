@@ -21,7 +21,7 @@
 
 
 <p>I have spent nearly a decade as a data scientist in the retail sector, but I did not realize I have been approaching customer sales predictions the wrong way until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture.</p>
-<div id="02fb7d40" class="cell" data-execution_count="1">
+<div id="b2ec8770" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -386,6 +386,115 @@ background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> response_body</span></code></pre></div>
 </details>
+</div>
+<div id="678d3a8a" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">online_retail <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> fetch_ucirepo(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">352</span>) </span>
+<span id="cb2-2">transaction_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> online_retail[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'data'</span>][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'original'</span>]</span>
+<span id="cb2-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(transaction_df.shape)</span>
+<span id="cb2-4">transaction_df.head(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(541909, 8)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">InvoiceNo</th>
+<th data-quarto-table-cell-role="th">StockCode</th>
+<th data-quarto-table-cell-role="th">Description</th>
+<th data-quarto-table-cell-role="th">Quantity</th>
+<th data-quarto-table-cell-role="th">InvoiceDate</th>
+<th data-quarto-table-cell-role="th">UnitPrice</th>
+<th data-quarto-table-cell-role="th">CustomerID</th>
+<th data-quarto-table-cell-role="th">Country</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>536365</td>
+<td>85123A</td>
+<td>WHITE HANGING HEART T-LIGHT HOLDER</td>
+<td>6</td>
+<td>12/1/2010 8:26</td>
+<td>2.55</td>
+<td>17850.0</td>
+<td>United Kingdom</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>536365</td>
+<td>71053</td>
+<td>WHITE METAL LANTERN</td>
+<td>6</td>
+<td>12/1/2010 8:26</td>
+<td>3.39</td>
+<td>17850.0</td>
+<td>United Kingdom</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>536365</td>
+<td>84406B</td>
+<td>CREAM CUPID HEARTS COAT HANGER</td>
+<td>8</td>
+<td>12/1/2010 8:26</td>
+<td>2.75</td>
+<td>17850.0</td>
+<td>United Kingdom</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>536365</td>
+<td>84029G</td>
+<td>KNITTED UNION FLAG HOT WATER BOTTLE</td>
+<td>6</td>
+<td>12/1/2010 8:26</td>
+<td>3.39</td>
+<td>17850.0</td>
+<td>United Kingdom</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>536365</td>
+<td>84029E</td>
+<td>RED WOOLLY HOTTIE WHITE HEART.</td>
+<td>6</td>
+<td>12/1/2010 8:26</td>
+<td>3.39</td>
+<td>17850.0</td>
+<td>United Kingdom</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
 </div>
 
 
