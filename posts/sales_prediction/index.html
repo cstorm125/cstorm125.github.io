@@ -194,8 +194,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>I have spent nearly a decade as a data scientist in the retail sector, but it was not until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture that I realized I have been approaching customer sales predictions the wrong way all along.</p>
-<div id="cf48f0fa" class="cell" data-execution_count="1">
+<p>I have spent nearly a decade as a data scientist in the retail sector, but I did not realize I have been approaching customer sales predictions the wrong way until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture.</p>
+<div id="02fb7d40" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -221,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_squared_error'</span>: mean_squared_error(y_true, y_pred),</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_absolute_error'</span>: mean_absolute_error(y_true, y_pred),</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">'r2'</span>: r2_score(y_true, y_pred),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],  <span class="co"># Pearson correlation coefficient</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred),</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">'earths_mover_distance'</span>: wasserstein_distance(y_true, y_pred)</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    }</span>

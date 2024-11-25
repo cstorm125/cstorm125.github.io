@@ -210,7 +210,7 @@ window.Quarto = {
 <p>This notebook details how to predict a real-number outcome that is zero-inflated and long-tailed such as sales prediction in retail. We provide baseline regression, regression trained using winsorized outcome, regression trained on log(y+1) outcome, and hurdle regression with and without Duan’s method.</p>
 <section id="import" class="level2">
 <h2 class="anchored" data-anchor-id="import">Import</h2>
-<div id="cell-4" class="cell" data-execution_count="46">
+<div id="cell-4" class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
@@ -234,7 +234,7 @@ window.Quarto = {
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_squared_error'</span>: mean_squared_error(y_true, y_pred),</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mean_absolute_error'</span>: mean_absolute_error(y_true, y_pred),</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">'r2'</span>: r2_score(y_true, y_pred),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],  <span class="co"># Pearson correlation coefficient</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv">0</span>],  </span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred),</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">'earths_mover_distance'</span>: wasserstein_distance(y_true, y_pred)</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    }</span>

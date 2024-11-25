@@ -20,8 +20,8 @@
 
 
 
-<p>I have spent nearly a decade as a data scientist in the retail sector, but it was not until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture that I realized I have been approaching customer sales predictions the wrong way all along.</p>
-<div id="cf48f0fa" class="cell" data-execution_count="1">
+<p>I have spent nearly a decade as a data scientist in the retail sector, but I did not realize I have been approaching customer sales predictions the wrong way until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture.</p>
+<div id="02fb7d40" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -105,9 +105,7 @@ font-style: inherit;">'r2'</span>: r2_score(y_true, y_pred),</span>
 background-color: null;
 font-style: inherit;">'pearsonr'</span>: pearsonr(y_true, y_pred)[<span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">0</span>],  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Pearson correlation coefficient</span></span>
+font-style: inherit;">0</span>],</span>
 <span id="cb1-25">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred),</span>
