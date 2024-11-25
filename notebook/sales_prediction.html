@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Predict Zero-inflated and Long-tailed Outcomes – chariblog</title>
+<title>Predict Zero-inflated and Long/fat-tailed Outcomes – chariblog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -190,7 +190,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Predict Zero-inflated and Long-tailed Outcomes</h1>
+<h1 class="title">Predict Zero-inflated and Long/fat-tailed Outcomes</h1>
 </div>
 
 
@@ -207,7 +207,7 @@ window.Quarto = {
 </header>
 
 
-<p>This notebook details how to predict a real-number outcome that is zero-inflated and long-tailed such as sales prediction in retail. We provide baseline regression, regression trained using winsorized outcome, regression trained on log(y+1) outcome, and hurdle regression with and without Duan’s method.</p>
+<p>This notebook details how to predict a real-number outcome that is zero-inflated and long/fat-tailed such as sales prediction in retail. We provide baseline regression, regression trained using winsorized outcome, regression trained on log(y+1) outcome, and hurdle regression with and without Duan’s method.</p>
 <section id="import" class="level2">
 <h2 class="anchored" data-anchor-id="import">Import</h2>
 <div id="cell-4" class="cell">
@@ -367,7 +367,7 @@ dtype: float64</code></pre>
 <section id="problem-formulation-and-outcome" class="level2">
 <h2 class="anchored" data-anchor-id="problem-formulation-and-outcome">Problem Formulation and Outcome</h2>
 <p>We formulate the problem as predicting the sales (<code>TargetSales</code>) during Q4 2011 for each customers who bought at least one item during Q1-Q3 2011. Note that we are interested in predicting the <strong>actual sales number per customer</strong> as accurately as possible; this is common for marketing use cases such as determining what spend threshold to give each customer in a promotion, targeting customers for upselling, or detecting early signs of churns.</p>
-<p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3,438 customers.</p>
+<p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3,438 customers.</p>
 <div id="cell-13" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>feature_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-01'</span>, <span class="st">'end'</span>: <span class="st">'2011-09'</span>}</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>outcome_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-10'</span>, <span class="st">'end'</span>: <span class="st">'2011-12'</span>}</span>
@@ -620,8 +620,8 @@ dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-17" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long-tailed</span></span>
+<div id="cell-17" class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>outcome_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
 <pre><code>count      3438.000000
@@ -642,8 +642,8 @@ max      168469.600000
 Name: TargetSales, dtype: float64</code></pre>
 </div>
 </div>
-<div id="cell-18" class="cell" data-execution_count="163">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long-tailed</span></span>
+<div id="cell-18" class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>outcome_df[outcome_df.TargetSales<span class="op">&lt;=</span><span class="dv">10_000</span>].TargetSales.hist(bins<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -2125,7 +2125,7 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 </section>
 <section id="regression-on-winsorized-outcome" class="level2">
 <h2 class="anchored" data-anchor-id="regression-on-winsorized-outcome">Regression on Winsorized Outcome</h2>
-<p>One possible approach to deal with long-tailed outcome is to train on a winsorized outcome. This may lead to better performance when tested on a winsorized outcome but not so much on original outcome.</p>
+<p>One possible approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. This may lead to better performance when tested on a winsorized outcome but not so much on original outcome.</p>
 <div id="cell-63" class="cell" data-execution_count="48">
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>outlier_per <span class="op">=</span> <span class="fl">0.99</span></span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>outlier_cap_train <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].quantile(outlier_per)</span>
@@ -2341,7 +2341,7 @@ TabularPredictor saved. To load, use: predictor = TabularPredictor.load("Autoglu
 </section>
 <section id="log1p-regression" class="level2">
 <h2 class="anchored" data-anchor-id="log1p-regression">Log1p Regression</h2>
-<p>Log transformation handles long-tailed distribution and is especially useful for certain models since the transformed distribution is roughly normal. However, it cannot handle zero-valued outcome and oftentimes scientists end up adding 1 to the outcome (so often that <code>numpy</code> even has a function for it). This not only introduces bias to the prediction, but also does not solve the zero-inflation as it becomes one-inflation instead.</p>
+<p>Log transformation handles long/fat-tailed distribution and is especially useful for certain models since the transformed distribution is roughly normal. However, it cannot handle zero-valued outcome and oftentimes scientists end up adding 1 to the outcome (so often that <code>numpy</code> even has a function for it). This not only introduces bias to the prediction, but also does not solve the zero-inflation as it becomes one-inflation instead.</p>
 <div id="cell-71" class="cell" data-execution_count="54">
 <div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co">#log</span></span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'TargetSales_log1p'</span>] <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log1p)</span>
