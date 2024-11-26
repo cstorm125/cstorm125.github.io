@@ -21,7 +21,7 @@
 
 
 <p>I have spent nearly a decade as a data scientist in the retail sector, but I have been approaching customer spend predictions the wrong way until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture. Accurately predicting how much an individual customer will spend in the next X days enables key retail use cases such as personalized promotion (determine X in Buy-X-Get-Y), customer targeting for upselling (which customers have higher purchasing power), and early churn detection (customers do not spend as much as they should). What makes this problem particularly difficult is because the distribution of customer spending is both <strong><a href="https://en.wikipedia.org/wiki/Zero-inflated_model">zero-inflated</a></strong> and <strong><a href="https://en.wikipedia.org/wiki/Heavy-tailed_distribution">long/fat-tailed</a></strong>. Intuitively, most customers who visit your store are not going to make a purchase and among those who do, there will be some super customers who purchase an outrageous amount more than the average customer. Some parametric models allow for zero-inflated outcomes such as <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson</a>, <a href="https://en.wikipedia.org/wiki/Negative_binomial_distribution">negative binomial</a>, <a href="https://en.wikipedia.org/wiki/Conway%E2%80%93Maxwell%E2%80%93Poisson_distribution">Conway-Maxwell-Poisson</a>; however, they do not handle the long/fat-tailed explicitly. Even for non-parametric models such as decision tree ensembles, more resources (trees and splits) will be dedicated to separating zeros and handling outliers; this could lead to deterioration in performance. Using the real-world dataset <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a>, we will compare the performance of common approaches namely naive baseline regression, regression on winsorized outcome, regression on log-plus-one-transformed outcome to what Duncan suggested: hurdle model with Duan’s method. we will demonstrate why this approach outperforms the others in most evaluation metrics and why it might not in some.</p>
-<div id="7bbbc96f" class="cell" data-execution_count="1">
+<div id="8c5b2ab8" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -390,7 +390,7 @@ font-style: inherit;">return</span> response_body</span></code></pre></div>
 <section id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl" class="level2">
 <h2 class="anchored" data-anchor-id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl">This Is Not a Drill: Real-world Datasets, Meticulous Feature Engineering, State-of-the-art AutoML</h2>
 <p>To make this exercise as realistic as possible, we will use a real-world dataset (as opposed to a simulated one), perform as much feature engineering as we would in a real-world setting, and employ the best AutoML solution the market has to offer in <a href="https://auto.gluon.ai/dev/index.html">AutoGluon</a>.</p>
-<div id="9d80c210" class="cell" data-execution_count="2">
+<div id="d0aa39b2" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">online_retail <span class="op" style="color: #5E5E5E;
@@ -514,11 +514,11 @@ font-style: inherit;">*</span> transaction_df.Quantity</span></code></pre></div>
 </div>
 <p>We use the <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a> dataset, which contain transactions from a UK-based, non-store online retail from 2010-12 and 2011-12. We perform the following data processing:</p>
 <ol type="1">
-<li>Remove transactions without <code>CustomerID</code>; from 541909 to 406829 transactions</li>
-<li>Filter out transactions where either <code>UnitPrice</code> or <code>Quantity</code> is less than zero; from 406829 to 397884 transactions</li>
+<li>Remove transactions without <code>CustomerID</code>; from 541,909 to 406,829 transactions</li>
+<li>Filter out transactions where either <code>UnitPrice</code> or <code>Quantity</code> is less than zero; from 406,829 to 397,884 transactions</li>
 <li>Fill in missing product <code>Description</code> with value <code>UNKNOWN</code>.</li>
 </ol>
-<div id="c5b65b6c" class="cell" data-execution_count="3">
+<div id="f77c85cc" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="bu" style="color: null;
@@ -553,69 +553,69 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">49301</td>
-<td>543036</td>
-<td>22423</td>
-<td>REGENCY CAKESTAND 3 TIER</td>
+<td data-quarto-table-cell-role="th">276559</td>
+<td>569998</td>
+<td>POST</td>
+<td>POSTAGE</td>
 <td>2</td>
-<td>2/2/2011 15:57</td>
-<td>12.75</td>
-<td>17223</td>
-<td>United Kingdom</td>
-<td>2011-02</td>
-<td>25.50</td>
+<td>10/7/2011 8:12</td>
+<td>28.00</td>
+<td>12540</td>
+<td>Spain</td>
+<td>2011-10</td>
+<td>56.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">168967</td>
-<td>558098</td>
-<td>22082</td>
-<td>RIBBON REEL STRIPES DESIGN</td>
-<td>10</td>
-<td>6/26/2011 13:31</td>
-<td>1.65</td>
-<td>18044</td>
+<td data-quarto-table-cell-role="th">312515</td>
+<td>573359</td>
+<td>71403</td>
+<td>PINK/WHITE "KEEP CLEAN" BULLET BIN</td>
+<td>1</td>
+<td>10/30/2011 12:48</td>
+<td>2.95</td>
+<td>14178</td>
 <td>United Kingdom</td>
-<td>2011-06</td>
-<td>16.50</td>
+<td>2011-10</td>
+<td>2.95</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">26898</td>
-<td>540099</td>
-<td>20724</td>
-<td>RED RETROSPOT CHARLOTTE BAG</td>
-<td>20</td>
-<td>1/4/2011 16:41</td>
+<td data-quarto-table-cell-role="th">200836</td>
+<td>562046</td>
+<td>22585</td>
+<td>PACK OF 6 BIRDY GIFT TAGS</td>
+<td>12</td>
+<td>8/2/2011 10:34</td>
+<td>1.25</td>
+<td>12378</td>
+<td>Switzerland</td>
+<td>2011-08</td>
+<td>15.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">69274</td>
+<td>545460</td>
+<td>21059</td>
+<td>PARTY INVITES DINOSAURS</td>
+<td>1</td>
+<td>3/2/2011 17:33</td>
 <td>0.85</td>
-<td>15808</td>
+<td>13230</td>
 <td>United Kingdom</td>
-<td>2011-01</td>
-<td>17.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">231396</td>
-<td>565614</td>
-<td>22456</td>
-<td>NATURAL SLATE CHALKBOARD LARGE</td>
-<td>1</td>
-<td>9/5/2011 15:20</td>
-<td>4.95</td>
-<td>17309</td>
-<td>United Kingdom</td>
-<td>2011-09</td>
-<td>4.95</td>
+<td>2011-03</td>
+<td>0.85</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">31152</td>
-<td>540538</td>
-<td>82484</td>
-<td>WOOD BLACK BOARD ANT WHITE FINISH</td>
+<td data-quarto-table-cell-role="th">334851</td>
+<td>575607</td>
+<td>22979</td>
+<td>PANTRY WASHING UP BRUSH</td>
 <td>1</td>
-<td>1/9/2011 14:36</td>
-<td>6.45</td>
-<td>17841</td>
+<td>11/10/2011 12:37</td>
+<td>3.29</td>
+<td>14096</td>
 <td>United Kingdom</td>
-<td>2011-01</td>
-<td>6.45</td>
+<td>2011-11</td>
+<td>3.29</td>
 </tr>
 </tbody>
 </table>
@@ -624,7 +624,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </div>
 </div>
 <p>We formulate the problem as predicting the sales (<code>TargetSales</code>) during Q4 2011 for each customers who bought at least one item during Q1-Q3 2011. Note that we are interested in predicting the <strong>spend per customer</strong> as accurately as possible; this is common for marketing use cases such as determining what spend threshold to give each customer in a promotion, targeting customers for upselling, or detecting early signs of churns. It is notably different from predicting <strong>total spend of all customers</strong> during a time period, which usually requires a different approach.</p>
-<div id="6a146589" class="cell" data-execution_count="4">
+<div id="bd945ab2" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">feature_period <span class="op" style="color: #5E5E5E;
@@ -735,8 +735,8 @@ background-color: null;
 font-style: inherit;">'TargetSales'</span>]</span></code></pre></div>
 </details>
 </div>
-<p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3438 customers.</p>
-<div id="d9d5d785" class="cell" data-execution_count="5">
+<p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3,438 customers.</p>
+<div id="8cb81256" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
@@ -779,7 +779,7 @@ max      168469.600000
 Name: TargetSales, dtype: float64</code></pre>
 </div>
 </div>
-<div id="02a3ee9b" class="cell" data-execution_count="6">
+<div id="8e2a7ad0" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
@@ -804,7 +804,7 @@ font-style: inherit;">100</span>)</span></code></pre></div>
 </div>
 </div>
 <p>We represent a customer using traditional RFM features namely recency of purchase, purchase days, total sales, number of distinct products purchased, number of distinct category purchased, customer tenure within 2011, average purchase frequency, average purchase value, and percentage of purchase across all 9 categories. This is based on data from Q1-Q3 2011.</p>
-<p>Since the <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a> dataset does not have a category but only contains descriptions over 3,000 items, we use <code>LLaMA 3.2 90B</code> to infer categories based on randomly selected 1,000 descriptions. This is to make the category preference representation for each customer, which is more tractable than including features about all 3548 items. After that, we use <code>Claude 3.5 v2</code> to label a category for each description as it performs structured output a little more reliably. The categories are:</p>
+<p>Since the <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a> dataset does not have a category but only contains descriptions over 3,000 items, we use <code>LLaMA 3.2 90B</code> to infer categories based on randomly selected 1,000 descriptions. This is to make the category preference representation for each customer, which is more tractable than including features about all 3,548 items. After that, we use <code>Claude 3.5 v2</code> to label a category for each description as it performs structured output a little more reliably. The categories are:</p>
 <ol type="1">
 <li>Home Decor</li>
 <li>Kitchen and Dining</li>
@@ -816,7 +816,7 @@ font-style: inherit;">100</span>)</span></code></pre></div>
 <li>Outdoor and Garden</li>
 <li>Others</li>
 </ol>
-<div id="61b69cb5" class="cell" data-execution_count="7">
+<div id="d3948104" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">descriptions <span class="op" style="color: #5E5E5E;
@@ -938,7 +938,7 @@ font-style: inherit;">'generation'</span>])</span></code></pre></div>
 Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
 </div>
 </div>
-<div id="e724d670" class="cell" data-execution_count="8">
+<div id="13d090fe" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
@@ -1138,7 +1138,7 @@ font-style: inherit;">'</span>)</span></code></pre></div>
 </details>
 </div>
 <p>Here is the share of product descriptions in each annotated category:</p>
-<div id="fd1f9c78" class="cell" data-execution_count="9">
+<div id="61ef2ea2" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">product_description_category <span class="op" style="color: #5E5E5E;
@@ -1181,7 +1181,7 @@ Name: proportion, dtype: float64</code></pre>
 </div>
 </div>
 <p>We merge the RFM features with preference features, that is share of sales in each category for every customer, then the outcome <code>TargetSales</code> to create the universe set for the problem.</p>
-<div id="481e52d1" class="cell" data-execution_count="10">
+<div id="7c0dd03d" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1">feature_transaction_cat <span class="op" style="color: #5E5E5E;
@@ -1667,7 +1667,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </div>
 </div>
 <p>Univariate correlation expectedly pinpoints <code>total_sales</code> in during Q1-Q3 2011 as the most predictive feature; however, we can see that it is still not very predictive. This shows that the problem is not a trivial one.</p>
-<div id="d76968d3" class="cell" data-execution_count="11">
+<div id="a37ed61c" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="bu" style="color: null;
@@ -1709,7 +1709,7 @@ total_sales     0.558558     1.000000</code></pre>
 </div>
 </div>
 <p>We randomly split the dataset into train and test sets at 80/20 ratio. We also confirm the distribution of <code>TargetSales</code> is similar across percentiles between train and test and only different at the upper end.</p>
-<div id="68f4dcd3" class="cell" data-execution_count="12">
+<div id="6d1898b2" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
@@ -1893,6 +1893,10 @@ font-style: inherit;">1</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="naive-baseline-regression" class="level2">
+<h2 class="anchored" data-anchor-id="naive-baseline-regression">“Naive” Baseline Regression</h2>
+<p>We start w</p>
 
 
 </section>
