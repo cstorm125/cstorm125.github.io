@@ -2,7 +2,7 @@
 title: "Predict How Much A Customer Will Spend"
 author: "cstorm125"
 date: "2024-11-25"
-categories: [news, code, analysis]
+categories: [retail, zero-inflated, long/fat-tailed, hurdle]
 image: "featured_image.jpg"
 format:
   html:
@@ -10,7 +10,7 @@ format:
 jupyter: python3
 ---
 
-I have spent nearly a decade as a data scientist in the retail sector, but I have been approaching customer spend predictions the wrong way until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture. Accurately predicting how much an individual customer will spend in the next X days enables key retail use cases such as personalized promotion (determine X in Buy-X-Get-Y), customer targeting for upselling (which customers have higher purchasing power), and early churn detection (customers do not spend as much as they should). What makes this problem particularly difficult is because the distribution of customer spending is both **[zero-inflated](https://en.wikipedia.org/wiki/Zero-inflated_model)** and **[long/fat-tailed](https://en.wikipedia.org/wiki/Heavy-tailed_distribution)**. Intuitively, most customers who visit your store are not going to make a purchase and among those who do, there will be some super customers who purchase an outrageous amount more than the average customer. Some parametric models allow for zero-inflated outcomes such as [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution), [negative binomial](https://en.wikipedia.org/wiki/Negative_binomial_distribution), [Conway-Maxwell-Poisson](https://en.wikipedia.org/wiki/Conway%E2%80%93Maxwell%E2%80%93Poisson_distribution); however, they do not handle the long/fat-tailed explicitly. Even for non-parametric models such as decision tree ensembles, more resources (trees and splits) will be dedicated to separating zeros and handling outliers; this could lead to deterioration in performance. Using the real-world dataset [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail), we will compare the performance of common approaches namely naive baseline regression, regression on winsorized outcome, regression on log-plus-one-transformed outcome to what Duncan suggested: hurdle model with Duan's method. we will demonstrate why this approach outperforms the others in most evaluation metrics and why it might not in some.
+I have spent nearly a decade as a data scientist in the retail sector, but I have been approaching customer spend predictions the wrong way until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture. Accurately predicting how much an individual customer will spend in the next X days enables key retail use cases such as personalized promotion (determine X in Buy-X-Get-Y), customer targeting for upselling (which customers have higher purchasing power), and early churn detection (customers do not spend as much as they should). What makes this problem particularly difficult is because the distribution of customer spending is both **[zero-inflated](https://en.wikipedia.org/wiki/Zero-inflated_model)** and **[long/fat-tailed](https://en.wikipedia.org/wiki/Heavy-tailed_distribution)**. Intuitively, most customers who visit your store are not going to make a purchase and among those who do, there will be some super customers who purchase an outrageous amount more than the average customer. Some parametric models allow for zero-inflated outcomes such as [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution), [negative binomial](https://en.wikipedia.org/wiki/Negative_binomial_distribution), [Conway-Maxwell-Poisson](https://en.wikipedia.org/wiki/Conway%E2%80%93Maxwell%E2%80%93Poisson_distribution); however, they do not handle the long/fat-tailed explicitly. Even for non-parametric models such as decision tree ensembles, more resources (trees and splits) will be dedicated to separating zeros and handling outliers; this could lead to deterioration in performance. Using the real-world dataset [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail), we will compare the performance of common approaches namely naive baseline regression, regression on winsorized outcome, regression on log-plus-one-transformed outcome to what Duncan suggested: hurdle model with Duan's method. We will demonstrate why this approach outperforms the others in most evaluation metrics and why it might not in some.
 
 ```{python}
 #| eval: true
@@ -427,6 +427,362 @@ pd.concat([train_df.TargetSales.describe(percentiles=[i/10 for i in range(10)]).
 test_df.TargetSales.describe(percentiles=[i/10 for i in range(10)]).reset_index(),], axis=1)
 ```
 
-## "Naive" Baseline Regression
+## Naive Baseline Regression
 
-We start w
+The most naive solution is to simply predict `TargetSales` based on the features. We use a stacked ensemble of LightGBM, CatBoost, XGBoost, Random Forest and Extra Trees via AutoGluon. We train with `good_quality` preset, stated to be ["Stronger than any other AutoML Framework"](https://auto.gluon.ai/stable/tutorials/tabular/tabular-essentials.html#presets), for speedy training and inference but feel free to try more performant options. We exclude the neural-network models as they require further preprocessing of the features. We use an industry-grade, non-parametric model to be as close to a real use case as possible and make a point that the methodology works not only in a toy-dataset setup.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+preset = 'good_quality'
+
+predictor = TabularPredictor(label='TargetSales').fit(train_df[selected_features + ['TargetSales']], 
+                                                      presets=preset,
+                                                      excluded_model_types=['NN_TORCH','FASTAI','KNN'],
+                                                      )
+test_df['pred_baseline'] = predictor.predict(test_df[selected_features])
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+metric_baseline = calculate_regression_metrics(test_df['TargetSales'], test_df['pred_baseline'])
+metric_baseline['model'] = 'baseline'
+metric_baseline
+```
+
+## Regression on Winsorized Outcome
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+outlier_per = 0.99
+outlier_cap_train = train_df['TargetSales'].quantile(outlier_per)
+```
+An alternative approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. In our case, we cap the outlier at `{python} outlier_per*100`% or `TargetSales` equals `{python} f'{outlier_cap_train:,}'`. While this solves the long/fat-tailed issues, it does not deal with zero inflation and also introduce bias to the outcome. This leads to better performance when tested on the winsorized outcome, but not so much on the original outcome.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+#winsorize
+train_df['TargetSales_win'] = train_df['TargetSales'].map(lambda x: outlier_cap_train if x> outlier_cap_train else x)
+test_df['TargetSales_win'] = test_df['TargetSales'].map(lambda x: outlier_cap_train if x> outlier_cap_train else x)
+
+predictor = TabularPredictor(label='TargetSales_win').fit(train_df[selected_features+['TargetSales_win']],
+                                                      presets=preset,
+                                                      excluded_model_types=['NN_TORCH','FASTAI','KNN'],
+                                                      )
+
+test_df['pred_winsorized'] = predictor.predict(test_df[selected_features])
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+metric_winsorized = calculate_regression_metrics(test_df['TargetSales'], test_df['pred_winsorized'])
+metric_winsorized['model'] = 'winsorized'
+metric_winsorized
+```
+
+## Regression on Log-plus-one-transformed Outcome
+
+Log transformation handles long/fat-tailed distribution and is especially useful for certain models since the transformed distribution is closer normal. However, it cannot handle zero-valued outcome and oftentimes scientists end up adding 1 to the outcome (so often that `numpy` even has a function for it). This not only introduces bias to the prediction, but also does not solve the zero-inflation as it becomes one-inflation instead.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+#log
+train_df['TargetSales_log1p'] = train_df['TargetSales'].map(np.log1p)
+test_df['TargetSales_log1p'] = test_df['TargetSales'].map(np.log1p)
+
+#from zero-inflated to one-inflated
+train_df['TargetSales_log1p'].hist()
+```
+
+We can see that this is the best performing approach so far, which is one of the reasons why so many scientists end up going for this not-entirely-correct approach.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+predictor = TabularPredictor(label='TargetSales_log1p').fit(train_df[selected_features+['TargetSales_log1p']],
+                                                      presets=preset,
+                                                      excluded_model_types=['NN_TORCH','FASTAI','KNN'],
+                                                      )
+
+test_df['pred_log1p'] = predictor.predict(test_df[selected_features])
+test_df['pred_log1p_expm1'] = test_df['pred_log1p'].map(np.expm1)
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+metric_log1p = calculate_regression_metrics(test_df['TargetSales'], test_df['pred_log1p_expm1'])
+metric_log1p['model'] = 'log1p'
+metric_log1p
+```
+
+## Hurdle Model
+
+Hurdle model is a two-stage approach that handles zero inflation by first having a classification model to predict if the outcome is zero or not, then a regression model, trained only on examples with actual non-zero outcomes, to fit a log-transformed outcome. When retransforming the predictions from log to non-log numbers, we perform correction of underestimation using Duan's method. During inference time, we multiply the predictions from the classification and corrected regression model.
+
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+train_df['has_purchase'] = train_df.TargetSales.map(lambda x: 1 if x>0 else 0)
+test_df['has_purchase'] = test_df.TargetSales.map(lambda x: 1 if x>0 else 0)
+
+predictor_cls = TabularPredictor(label='has_purchase').fit(train_df[selected_features+['has_purchase']],
+                                                      presets=preset,
+                                                      excluded_model_types=['NN_TORCH','FASTAI','KNN'],
+                                                      )
+test_df['pred_binary'] = predictor_cls.predict(test_df[selected_features])
+```
+
+For our splits, `{python} round(train_df['has_purchase'].mean()*100,2)`% of train and `{python} round(test_df['has_purchase'].mean()*100,2)`% of test include customers with non-zero purchase outcome. As with all two-stage approaches, we need to make sure the intermediate model performs reasonably in classifying zero/non-zero outcomes.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+caluclate_classification_metrics(test_df['has_purchase'], test_df['pred_binary'])
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+train_df_nonzero = train_df[train_df.has_purchase==1].reset_index(drop=True)
+test_df_nonzero = test_df[test_df.has_purchase==1].reset_index(drop=True)
+
+#log
+train_df_nonzero['TargetSales_log'] = train_df_nonzero['TargetSales'].map(np.log)
+test_df_nonzero['TargetSales_log'] = test_df_nonzero['TargetSales'].map(np.log)
+```
+
+After that, we perform log-transformed regression on the examples with non-zero outcome (`{python} f'{train_df_nonzero.shape[0]:,}'` in train). Without the need to worry about `ln(0)` outcome, the regression is much more straightforward albeit with fewer examples to train on.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+train_df_nonzero['TargetSales_log'].hist()
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+predictor_reg = TabularPredictor(label='TargetSales_log').fit(train_df_nonzero[selected_features+['TargetSales_log']],
+                                                      presets=preset,
+                                                      excluded_model_types=['NN_TORCH','FASTAI','KNN'],
+                                                      )
+test_df_nonzero['pred_log'] = predictor_reg.predict(test_df_nonzero[selected_features])
+test_df_nonzero['pred_log_exp'] = test_df_nonzero['pred_log'].map(np.exp)
+
+test_df['pred_log'] = predictor_reg.predict(test_df[selected_features])
+test_df['pred_log_exp'] = test_df['pred_log'].map(np.exp)
+
+test_df['pred_hurdle'] = test_df.pred_binary * test_df.pred_log_exp
+```
+
+For inference, we combine the binary prediction (purchase/no purchase) from the classification model with the re-transformed (exponentialized) numerical prediction from the regression model by simply multiplying them together. As you can see, this approach yields the best performance so far and this is where I used to think everything has been accounted for.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+metric_hurdle = calculate_regression_metrics(test_df['TargetSales'], test_df['pred_hurdle'])
+metric_hurdle['model'] = 'hurdle'
+metric_hurdle
+```
+
+## But Wait, There Is MoreーEnter Naihua Duan
+
+In the previous section, we have blissfully assumed that we can freely log-transform and re-transform the outcome during training and inference without any bias. This is not the case as there is a small bias generated in the process due to the error term.
+
+$$ln(y) = f(X) + \epsilon$$
+
+where 
+* $y$ is actual outcome.
+* $X$ is the features.
+* $f(.)$ is a trained model.
+* $\epsilon$ is the error term.
+
+when re-transforming
+$$
+\begin{align}
+y &= exp(ln(y)) \\
+&= exp(f(X) + \epsilon ) \\
+&= exp(f(X)) \cdot exp(\epsilon) \\
+E[y] &= E[exp(f(X))] \cdot E[exp(\epsilon)]
+\end{align}
+$$
+
+The average treatment affect (ATE; $E[y]$) is underestimated by $E[exp(\epsilon)]$. [Naihua Duan (段乃華)](https://en.wikipedia.org/wiki/Naihua_Duan), a Taiwanese biostatistician, suggested a consistent estimator of $E[exp(\epsilon)]$ in [his 1983 work](https://www.jstor.org/stable/2288126) as 
+
+$$
+\begin{align}
+\hat \lambda &= E[exp(ln(y) - ln(\hat y))]
+\end{align}
+$$
+
+where 
+* $\hat \lambda$ is the Duan's smearing estimator of the bias from re-transformation $E[exp(\epsilon)]$
+* $\hat y$ is the prediction aka $f(X)$
+
+```
+Fun Fact: If you assume Duan were a western name, you would have been pronouncing 
+the method's name incorrectly since it should be [twàn]'s method, NOT /dwɑn/'s method.
+```
+
+We can easily derive Duan's smearing estimator by taking mean of error between actual and predicted `TargetSales` in the training set.
+
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+train_df_nonzero['pred_log'] = predictor_reg.predict(train_df_nonzero[selected_features])
+train_df_nonzero['pred_log_exp'] = train_df_nonzero['pred_log'].map(np.exp)
+
+smearing_estimator = np.mean(np.exp(train_df_nonzero['TargetSales_log'] - train_df_nonzero['pred_log']))
+smearing_estimator
+```
+
+We multiply this to the predictions of the Hurdel model to correct the underestimation due to re-transformation bias.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+test_df['pred_log_exp_corrected'] = test_df['pred_log_exp'] * smearing_estimator
+test_df['pred_hurdle_corrected'] = test_df.pred_binary * test_df.pred_log_exp_corrected
+
+metric_hurdle_corrected = calculate_regression_metrics(test_df['TargetSales'], test_df['pred_hurdle_corrected'])
+metric_hurdle_corrected['model'] = 'hurdle_corrected'
+metric_hurdle_corrected
+```
+
+## The Eval Bar
+
+We can see that the hurdle model with Duan's correction performs best across majority of the metrics. We will now deep dive on metrics where it did not to understand the caveats when taking this approach.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+metric_df = pd.DataFrame([metric_baseline,
+                       metric_winsorized,
+                       metric_log1p,
+                       metric_hurdle,
+                       metric_hurdle_corrected,])
+
+rank_df = metric_df.copy()
+for col in metric_df.columns.tolist()[:-1]:
+    if col in ['r2', 'pearsonr', 'spearmanr']:
+        rank_df[f'{col}_rank'] = rank_df[col].rank(ascending=False)
+    else:
+        rank_df[f'{col}_rank'] = rank_df[col].rank(ascending=True)
+rank_df = rank_df.drop(metric_df.columns.tolist()[:-1], axis=1)
+rank_df['avg_rank'] = rank_df.iloc[:,1:].mean(axis=1)
+rank_df.transpose()
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+metric_df.transpose()
+```
+
+### Why Duan's Correction Results in Slightly Worse MAE?
+
+Duan's method adjusts for underestimation from re-transformation of log outcome. This could lead to smaller extreme errors, but more frequent occurrences of less extreme ones. We verify this hypothesis by comparing mean absolute error before and after transformation for errors originally under and over 99th percentile. We confirm that is the case for our problem.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+err_hurdle = (test_df['TargetSales'] - test_df['pred_hurdle']).abs()
+err_hurdle_corrected = (test_df['TargetSales'] - test_df['pred_hurdle_corrected']).abs()
+
+print('Distribution of errors for Hurdle model without correction')
+err_hurdle.describe(percentiles=[.25, .5, .75, .9, .95, .99]) 
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+print('Hurdle Model without correction')
+print(f'Mean absolute error under 99th percentile: {err_hurdle[err_hurdle<6763.777844].mean()}')
+print(f'Mean absolute error over 99th percentile: {err_hurdle[err_hurdle>6763.777844].mean()}')
+
+print('Hurdle Model with correction')
+print(f'Mean absolute error under 99th percentile: {err_hurdle_corrected[err_hurdle<6763.777844].mean()}')
+print(f'Mean absolute error over 99th percentile: {err_hurdle_corrected[err_hurdle>6763.777844].mean()}')
+```
+
+### Importance of Classification Model
+
+The overperformance of log-transform regression over both hurdle model approarches in Spearman's rank correlation and median absolute error demonstrates the importance of a classification model. At first glance, it is perplexing since we have just spent a large portion of this article to justify that hurdle models handle zero inflation better and re-transformation without Duan's method is biased. However, it becomes clear once you compare performance of the hurdle model with a classification model (f1 = 0.69) and a hypothetical, perfect classification model. Other metrics also improved but not nearly as drastic as MedAE and MAE.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+test_df['pred_hurdle_corrected_perfect_cls'] = test_df.has_purchase * test_df.pred_log_exp_corrected
+metric_hurdle_corrected_perfect_cls = calculate_regression_metrics(test_df['TargetSales'], test_df['pred_hurdle_corrected_perfect_cls'])
+metric_hurdle_corrected_perfect_cls['model'] = 'hurdle_corrected_perfect_cls'
+
+metric_df2 = pd.DataFrame([metric_baseline,
+                       metric_winsorized,
+                       metric_log1p,
+                       metric_hurdle,
+                       metric_hurdle_corrected,
+                       metric_hurdle_corrected_perfect_cls,])
+metric_df2.transpose()
+```
+
+### Remember What Problem We Are Solving
+
+One last thing to remember is that we are trying to predict **sales of each individual customer**, not **total sales of all customers**. If we look at aggregated mean or sum of actual sales vs predicted sales, baseline regression performs best by far. This is due to the fact that without any constraints a regressor only minimizes the MSE loss and usually ends up predicting values around the mean to balance between under- and over-predictions. However, this level of prediction is often not very useful as a single point. Imagine you want to give promotions with higher or lower spend thresholds to customers according to their purchasing power; you will not be able to do so with a model that is accurate on aggregate but not so much on individual customers.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+test_df[['TargetSales','pred_baseline','pred_winsorized','pred_log1p_expm1','pred_hurdle','pred_hurdle_corrected']].mean()
+```
+
+## Closing Remarks
+
+And this is how you predict how much a customer will spend in the least wrong way. My hope is that you will not need to spend ten years in data science to find out how to do it like I did.
