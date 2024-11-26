@@ -9,10 +9,10 @@
 <link>https://cstorm125.github.io/</link>
 <atom:link href="https://cstorm125.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>A collection of technical writings on applied science</description>
-<generator>quarto-1.5.57</generator>
+<generator>quarto-1.6.37</generator>
 <lastBuildDate>Mon, 25 Nov 2024 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>Predict How Much A Customer Will Spend in Retail</title>
+  <title>Predict How Much A Customer Will Spend</title>
   <dc:creator>cstorm125 </dc:creator>
   <link>https://cstorm125.github.io/posts/sales_prediction/</link>
   <description><![CDATA[ 
@@ -20,8 +20,8 @@
 
 
 
-<p>I have spent nearly a decade as a data scientist in the retail sector, but I did not realize I have been approaching customer sales predictions the wrong way until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture.</p>
-<div id="b2ec8770" class="cell" data-execution_count="1">
+<p>I have spent nearly a decade as a data scientist in the retail sector, but I have been approaching customer spend predictions the wrong way until I attended <a href="https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&amp;hl=en">Gregory M. Duncan</a>’s lecture. Accurately predicting how much an individual customer will spend in the next X days enables key retail use cases such as personalized promotion (determine X in Buy-X-Get-Y), customer targeting for upselling (which customers have higher purchasing power), and early churn detection (customers do not spend as much as they should). What makes this problem particularly difficult is because the distribution of customer spending is both <strong><a href="https://en.wikipedia.org/wiki/Zero-inflated_model">zero-inflated</a></strong> and <strong><a href="https://en.wikipedia.org/wiki/Heavy-tailed_distribution">long/fat-tailed</a></strong>. Intuitively, most customers who visit your store are not going to make a purchase and among those who do, there will be some super customers who purchase an outrageous amount more than the average customer. Some parametric models allow for zero-inflated outcomes such as <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson</a>, <a href="https://en.wikipedia.org/wiki/Negative_binomial_distribution">negative binomial</a>, <a href="https://en.wikipedia.org/wiki/Conway%E2%80%93Maxwell%E2%80%93Poisson_distribution">Conway-Maxwell-Poisson</a>; however, they do not handle the long/fat-tailed explicitly. Even for non-parametric models such as decision tree ensembles, more resources (trees and splits) will be dedicated to separating zeros and handling outliers; this could lead to deterioration in performance. Using the real-world dataset <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a>, we will compare the performance of common approaches namely naive baseline regression, regression on winsorized outcome, regression on log-plus-one-transformed outcome to what Duncan suggested: hurdle model with Duan’s method. we will demonstrate why this approach outperforms the others in most evaluation metrics and why it might not in some.</p>
+<div id="7bbbc96f" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -66,15 +66,15 @@ background-color: null;
 font-style: inherit;">from</span> autogluon.tabular <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> TabularDataset, TabularPredictor</span>
-<span id="cb1-11"><span class="im" style="color: #00769E;
+<span id="cb1-11"></span>
+<span id="cb1-12"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> sklearn.metrics <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> (</span>
-<span id="cb1-12">    mean_squared_error, mean_absolute_error, r2_score, median_absolute_error,</span>
-<span id="cb1-13">    accuracy_score, precision_score, recall_score, f1_score, confusion_matrix</span>
-<span id="cb1-14">)</span>
-<span id="cb1-15"></span>
+<span id="cb1-13">    mean_squared_error, mean_absolute_error, r2_score, median_absolute_error,</span>
+<span id="cb1-14">    accuracy_score, precision_score, recall_score, f1_score, confusion_matrix</span>
+<span id="cb1-15">)</span>
 <span id="cb1-16"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">from</span> scipy.stats <span class="im" style="color: #00769E;
@@ -387,7 +387,10 @@ font-weight: bold;
 font-style: inherit;">return</span> response_body</span></code></pre></div>
 </details>
 </div>
-<div id="678d3a8a" class="cell" data-execution_count="2">
+<section id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl" class="level2">
+<h2 class="anchored" data-anchor-id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl">This Is Not a Drill: Real-world Datasets, Meticulous Feature Engineering, State-of-the-art AutoML</h2>
+<p>To make this exercise as realistic as possible, we will use a real-world dataset (as opposed to a simulated one), perform as much feature engineering as we would in a real-world setting, and employ the best AutoML solution the market has to offer in <a href="https://auto.gluon.ai/dev/index.html">AutoGluon</a>.</p>
+<div id="9d80c210" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">online_retail <span class="op" style="color: #5E5E5E;
@@ -406,17 +409,129 @@ background-color: null;
 font-style: inherit;">'data'</span>][<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'original'</span>]</span>
-<span id="cb2-3"><span class="bu" style="color: null;
+<span id="cb2-3">original_nb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df.shape[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb2-4"></span>
+<span id="cb2-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#create yearmon for train-valid split</span></span>
+<span id="cb2-6">transaction_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'yearmon'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df.InvoiceDate.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>(string_to_yearmon)</span>
+<span id="cb2-7"></span>
+<span id="cb2-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#get rid of transactions without cid</span></span>
+<span id="cb2-9">transaction_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df[<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>transaction_df.CustomerID.isna()].reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-10">has_cid_nb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df.shape[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb2-11"></span>
+<span id="cb2-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#fill in unknown descriptions</span></span>
+<span id="cb2-13">transaction_df.Description <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df.Description.fillna(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'UNKNOWN'</span>)</span>
+<span id="cb2-14"></span>
+<span id="cb2-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#convert customer id to string</span></span>
+<span id="cb2-16">transaction_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(x)))</span>
+<span id="cb2-17"></span>
+<span id="cb2-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#simplify by filtering unit price and quantity to be non-zero (get rid of discounts, cancellations, etc)</span></span>
+<span id="cb2-19">transaction_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df[(transaction_df.UnitPrice<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;\</span></span>
+<span id="cb2-20">                                (transaction_df.Quantity<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)].reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-21">has_sales_nb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df.shape[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb2-22"></span>
+<span id="cb2-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#add sales</span></span>
+<span id="cb2-24">transaction_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Sales'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df.UnitPrice <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> transaction_df.Quantity</span></code></pre></div>
+</details>
+</div>
+<p>We use the <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a> dataset, which contain transactions from a UK-based, non-store online retail from 2010-12 and 2011-12. We perform the following data processing:</p>
+<ol type="1">
+<li>Remove transactions without <code>CustomerID</code>; from 541909 to 406829 transactions</li>
+<li>Filter out transactions where either <code>UnitPrice</code> or <code>Quantity</code> is less than zero; from 406829 to 397884 transactions</li>
+<li>Fill in missing product <code>Description</code> with value <code>UNKNOWN</code>.</li>
+</ol>
+<div id="c5b65b6c" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(transaction_df.shape)</span>
-<span id="cb2-4">transaction_df.head(<span class="dv" style="color: #AD0000;
+<span id="cb3-2">transaction_df.sample(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span></code></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>(541909, 8)</code></pre>
+<pre><code>(397884, 10)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -432,63 +547,1345 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <th data-quarto-table-cell-role="th">UnitPrice</th>
 <th data-quarto-table-cell-role="th">CustomerID</th>
 <th data-quarto-table-cell-role="th">Country</th>
+<th data-quarto-table-cell-role="th">yearmon</th>
+<th data-quarto-table-cell-role="th">Sales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">49301</td>
+<td>543036</td>
+<td>22423</td>
+<td>REGENCY CAKESTAND 3 TIER</td>
+<td>2</td>
+<td>2/2/2011 15:57</td>
+<td>12.75</td>
+<td>17223</td>
+<td>United Kingdom</td>
+<td>2011-02</td>
+<td>25.50</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">168967</td>
+<td>558098</td>
+<td>22082</td>
+<td>RIBBON REEL STRIPES DESIGN</td>
+<td>10</td>
+<td>6/26/2011 13:31</td>
+<td>1.65</td>
+<td>18044</td>
+<td>United Kingdom</td>
+<td>2011-06</td>
+<td>16.50</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26898</td>
+<td>540099</td>
+<td>20724</td>
+<td>RED RETROSPOT CHARLOTTE BAG</td>
+<td>20</td>
+<td>1/4/2011 16:41</td>
+<td>0.85</td>
+<td>15808</td>
+<td>United Kingdom</td>
+<td>2011-01</td>
+<td>17.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">231396</td>
+<td>565614</td>
+<td>22456</td>
+<td>NATURAL SLATE CHALKBOARD LARGE</td>
+<td>1</td>
+<td>9/5/2011 15:20</td>
+<td>4.95</td>
+<td>17309</td>
+<td>United Kingdom</td>
+<td>2011-09</td>
+<td>4.95</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">31152</td>
+<td>540538</td>
+<td>82484</td>
+<td>WOOD BLACK BOARD ANT WHITE FINISH</td>
+<td>1</td>
+<td>1/9/2011 14:36</td>
+<td>6.45</td>
+<td>17841</td>
+<td>United Kingdom</td>
+<td>2011-01</td>
+<td>6.45</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We formulate the problem as predicting the sales (<code>TargetSales</code>) during Q4 2011 for each customers who bought at least one item during Q1-Q3 2011. Note that we are interested in predicting the <strong>spend per customer</strong> as accurately as possible; this is common for marketing use cases such as determining what spend threshold to give each customer in a promotion, targeting customers for upselling, or detecting early signs of churns. It is notably different from predicting <strong>total spend of all customers</strong> during a time period, which usually requires a different approach.</p>
+<div id="6a146589" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">feature_period <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'start'</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'2011-01'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'end'</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'2011-09'</span>}</span>
+<span id="cb5-2">outcome_period <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'start'</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'2011-10'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'end'</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'2011-12'</span>}</span>
+<span id="cb5-3"></span>
+<span id="cb5-4">feature_transaction <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df[(transaction_df.yearmon<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span>feature_period[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'start'</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;\</span></span>
+<span id="cb5-5">                                      (transaction_df.yearmon<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span>feature_period[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'end'</span>])]</span>
+<span id="cb5-6">outcome_transaction <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> transaction_df[(transaction_df.yearmon<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span>outcome_period[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'start'</span>])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;\</span></span>
+<span id="cb5-7">                                      (transaction_df.yearmon<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span>outcome_period[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'end'</span>])]</span>
+<span id="cb5-8"></span>
+<span id="cb5-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#aggregate sales during outcome period</span></span>
+<span id="cb5-10">outcome_sales <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> outcome_transaction.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>).Sales.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>().reset_index()</span>
+<span id="cb5-11"></span>
+<span id="cb5-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#aggregate sales during feature period</span></span>
+<span id="cb5-13">feature_sales <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_transaction.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>).Sales.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>().reset_index()</span>
+<span id="cb5-14"></span>
+<span id="cb5-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#merge to get TargetSales including those who spent during feature period but not during outcome (zeroes)</span></span>
+<span id="cb5-16">outcome_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_sales[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>]].merge(outcome_sales, on<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>, how<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'left'</span>)</span>
+<span id="cb5-17">outcome_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Sales'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> outcome_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Sales'</span>].fillna(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb5-18">outcome_df.columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'TargetSales'</span>]</span></code></pre></div>
+</details>
+</div>
+<p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3438 customers.</p>
+<div id="d9d5d785" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#confirm zero-inflated, long/fat-tailed</span></span>
+<span id="cb6-2">outcome_df.TargetSales.describe(percentiles<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)])</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>count      3438.000000
+mean        666.245829
+std        4016.843037
+min           0.000000
+0%            0.000000
+10%           0.000000
+20%           0.000000
+30%           0.000000
+40%           0.000000
+50%         102.005000
+60%         263.006000
+70%         425.790000
+80%         705.878000
+90%        1273.611000
+max      168469.600000
+Name: TargetSales, dtype: float64</code></pre>
+</div>
+</div>
+<div id="02a3ee9b" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#confirm zero-inflated, long/fat-tailed</span></span>
+<span id="cb8-2">outcome_df[outcome_df.TargetSales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10_000</span>].TargetSales.hist(bins<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://cstorm125.github.io/posts/sales_prediction/index_files/figure-html/cell-7-output-1.png" width="605" height="411" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We represent a customer using traditional RFM features namely recency of purchase, purchase days, total sales, number of distinct products purchased, number of distinct category purchased, customer tenure within 2011, average purchase frequency, average purchase value, and percentage of purchase across all 9 categories. This is based on data from Q1-Q3 2011.</p>
+<p>Since the <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a> dataset does not have a category but only contains descriptions over 3,000 items, we use <code>LLaMA 3.2 90B</code> to infer categories based on randomly selected 1,000 descriptions. This is to make the category preference representation for each customer, which is more tractable than including features about all 3548 items. After that, we use <code>Claude 3.5 v2</code> to label a category for each description as it performs structured output a little more reliably. The categories are:</p>
+<ol type="1">
+<li>Home Decor</li>
+<li>Kitchen and Dining</li>
+<li>Fashion Accessories</li>
+<li>Stationary and Gifts</li>
+<li>Toys and Games</li>
+<li>Seasonal and Holiday</li>
+<li>Personal Care and Wellness</li>
+<li>Outdoor and Garden</li>
+<li>Others</li>
+</ol>
+<div id="61b69cb5" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">descriptions <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_transaction.Description.unique().tolist()</span>
+<span id="cb9-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(descriptions[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>])</span>
+<span id="cb9-3"></span>
+<span id="cb9-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#randomize descriptions with seed 112 to get which categories we should use</span></span>
+<span id="cb9-5">np.random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112</span>)</span>
+<span id="cb9-6">random_descriptions <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.choice(descriptions, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>, replace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb9-7"></span>
+<span id="cb9-8">res <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> call_llama(</span>
+<span id="cb9-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'You are a product categorization assistant at a retail website.'</span>,</span>
+<span id="cb9-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Given the following product descriptions, come up with a few product categories they should be classified into.'</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>.join(random_descriptions)</span>
+<span id="cb9-11">)</span>
+<span id="cb9-12"></span>
+<span id="cb9-13">categories <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb9-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Home Decor'</span>,</span>
+<span id="cb9-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Kitchen and Dining'</span>,</span>
+<span id="cb9-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Fashion Accessories'</span>,</span>
+<span id="cb9-17">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Stationary and Gifts'</span>,</span>
+<span id="cb9-18">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Toys and Games'</span>,</span>
+<span id="cb9-19">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Seasonal and Holiday'</span>,</span>
+<span id="cb9-20">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Personal Care and Wellness'</span>,</span>
+<span id="cb9-21">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Outdoor and Garden'</span>,   </span>
+<span id="cb9-22">]</span>
+<span id="cb9-23"></span>
+<span id="cb9-24"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(res[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'generation'</span>])</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>['JUMBO BAG PINK POLKADOT', 'BLUE POLKADOT WRAP', 'RED RETROSPOT WRAP ', 'RECYCLING BAG RETROSPOT ', 'RED RETROSPOT SHOPPER BAG']
+ &lt;&lt;SYS&gt;&gt;Based on the product descriptions, I would categorize them into the following categories:
+
+1. Home Decor:
+    * Wall art
+    * Decorative items (e.g. vases, figurines, etc.)
+    * Lighting (e.g. candles, lanterns, etc.)
+    * Textiles (e.g. throw pillows, blankets, etc.)
+2. Kitchen and Dining:
+    * Cookware and utensils
+    * Tableware (e.g. plates, cups, etc.)
+    * Kitchen decor (e.g. signs, magnets, etc.)
+    * Food and drink items (e.g. tea, coffee, etc.)
+3. Fashion and Accessories:
+    * Jewelry (e.g. necklaces, earrings, etc.)
+    * Handbags and wallets
+    * Clothing and accessories (e.g. scarves, hats, etc.)
+4. Stationery and Gifts:
+    * Cards and gift wrap
+    * Stationery (e.g. notebooks, pens, etc.)
+    * Gift items (e.g. mugs, keychains, etc.)
+5. Toys and Games:
+    * Toys (e.g. stuffed animals, puzzles, etc.)
+    * Games and puzzles
+6. Seasonal and Holiday:
+    * Christmas decorations and gifts
+    * Easter decorations and gifts
+    * Other seasonal items (e.g. Halloween, etc.)
+7. Personal Care and Wellness:
+    * Beauty and personal care items (e.g. skincare, haircare, etc.)
+    * Wellness and self-care items (e.g. essential oils, etc.)
+8. Outdoor and Garden:
+    * Garden decor and accessories
+    * Outdoor furniture and decor
+    * Gardening tools and supplies
+
+Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
+</div>
+</div>
+<div id="e724d670" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#loop through descriptions in batches of batch_size</span></span>
+<span id="cb11-2">res_texts <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb11-3">batch_size <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb11-4"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> tqdm(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(descriptions), batch_size)):</span>
+<span id="cb11-5">    batch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> descriptions[i:i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>batch_size]</span>
+<span id="cb11-6">    d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>.join(batch)</span>
+<span id="cb11-7">    inp <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'''Categorize the following product descriptions into </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">", "</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>join(categories)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> or Others, if they do not fall into any. </span></span>
+<span id="cb11-8"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Only answer in the following format:</span></span>
+<span id="cb11-9"></span>
+<span id="cb11-10"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"product description of product #1"|"product category classified into"</span></span>
+<span id="cb11-11"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"product description of product #2"|"product category classified into"</span></span>
+<span id="cb11-12"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">...</span></span>
+<span id="cb11-13"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"product description of product #n"|"product category classified into"</span></span>
+<span id="cb11-14"></span>
+<span id="cb11-15"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Here are the product descriptions:</span></span>
+<span id="cb11-16"><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>d<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span></span>
+<span id="cb11-17"><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'''</span></span>
+<span id="cb11-18">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">while</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>:</span>
+<span id="cb11-19">        res <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> call_claude(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'You are a product categorizer at a retail website'</span>, inp)</span>
+<span id="cb11-20">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># if res['generation_token_count'] &gt; 1: #for llama</span></span>
+<span id="cb11-21">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> res[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'usage'</span>][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'output_tokens'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:</span>
+<span id="cb11-22">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">break</span></span>
+<span id="cb11-23">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb11-24">            <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Retrying...'</span>)</span>
+<span id="cb11-25">            time.sleep(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb11-26">    res_text <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> res[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'content'</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'text'</span>].strip().split(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb11-27">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#for llama</span></span>
+<span id="cb11-28">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># .replace('[SYS]','').replace('&lt;&lt;SYS&gt;&gt;','')\</span></span>
+<span id="cb11-29">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># .replace('[/SYS]','').replace('&lt;&lt;/SYS&gt;&gt;','')\</span></span>
+<span id="cb11-30">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> res_text<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">''</span>:</span>
+<span id="cb11-31">        res_texts.extend(res_text)</span>
+<span id="cb11-32"></span>
+<span id="cb11-33"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data/sales_prediction/product_description_category.csv'</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> f:</span>
+<span id="cb11-34">    f.write(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'"product_description"|"category"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb11-35">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> res_texts:</span>
+<span id="cb11-36">        f.write(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span></code></pre></div>
+</details>
+</div>
+<p>Here is the share of product descriptions in each annotated category:</p>
+<div id="fd1f9c78" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">product_description_category <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data/sales_prediction/product_description_category.csv'</span>,</span>
+<span id="cb12-2">                                           sep<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'|'</span>)</span>
+<span id="cb12-3"></span>
+<span id="cb12-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#clean product_description</span></span>
+<span id="cb12-5">product_description_category[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Description'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> descriptions</span>
+<span id="cb12-6">product_description_category.category.value_counts(normalize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>category
+Home Decor                    0.328636
+Kitchen and Dining            0.195885
+Fashion Accessories           0.138670
+Stationary and Gifts          0.116122
+Seasonal and Holiday          0.087373
+Personal Care and Wellness    0.047351
+Toys and Games                0.045096
+Outdoor and Garden            0.032976
+Others                        0.007892
+Name: proportion, dtype: float64</code></pre>
+</div>
+</div>
+<p>We merge the RFM features with preference features, that is share of sales in each category for every customer, then the outcome <code>TargetSales</code> to create the universe set for the problem.</p>
+<div id="481e52d1" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1">feature_transaction_cat <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_transaction.merge(product_description_category,</span>
+<span id="cb14-2">                                                    how<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'inner'</span>,</span>
+<span id="cb14-3">                                                    on <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Description'</span>,)</span>
+<span id="cb14-4">feature_transaction.shape, feature_transaction_cat.shape</span>
+<span id="cb14-5"></span>
+<span id="cb14-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#convert invoice date to datetime</span></span>
+<span id="cb14-7">feature_transaction_cat[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'InvoiceDate'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(feature_transaction_cat[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'InvoiceDate'</span>])</span>
+<span id="cb14-8"></span>
+<span id="cb14-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># last date in feature set</span></span>
+<span id="cb14-10">current_date <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_transaction_cat[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'InvoiceDate'</span>].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>()</span>
+<span id="cb14-11"></span>
+<span id="cb14-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#rfm</span></span>
+<span id="cb14-13">customer_features <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_transaction_cat.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>).agg({</span>
+<span id="cb14-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'InvoiceDate'</span>: [</span>
+<span id="cb14-15">        (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'recency'</span>, <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: (current_date <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>()).days),</span>
+<span id="cb14-16">        (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'first_purchase_date'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'min'</span>),</span>
+<span id="cb14-17">        (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purchase_day'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nunique'</span>),</span>
+<span id="cb14-18">    ],</span>
+<span id="cb14-19">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'InvoiceNo'</span>: [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_invoice'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nunique'</span>)],</span>
+<span id="cb14-20">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Sales'</span>: [</span>
+<span id="cb14-21">        (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'sum'</span>)</span>
+<span id="cb14-22">    ],</span>
+<span id="cb14-23">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'StockCode'</span>: [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_product'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nunique'</span>)],</span>
+<span id="cb14-24">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'category'</span>: [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_category'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nunique'</span>)]</span>
+<span id="cb14-25">}).reset_index()</span>
+<span id="cb14-26"></span>
+<span id="cb14-27"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Flatten column names</span></span>
+<span id="cb14-28">customer_features.columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb14-29">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>,</span>
+<span id="cb14-30">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'recency'</span>,</span>
+<span id="cb14-31">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'first_purchase_date'</span>,</span>
+<span id="cb14-32">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purchase_day'</span>,</span>
+<span id="cb14-33">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_invoice'</span>,</span>
+<span id="cb14-34">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>,</span>
+<span id="cb14-35">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_product'</span>,</span>
+<span id="cb14-36">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_category'</span></span>
+<span id="cb14-37">]</span>
+<span id="cb14-38"></span>
+<span id="cb14-39">customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'customer_lifetime'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (current_date <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'first_purchase_date'</span>]).dt.days</span>
+<span id="cb14-40">customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'avg_purchase_frequency'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'customer_lifetime'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purchase_day'</span>]</span>
+<span id="cb14-41">customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'avg_purchase_value'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purchase_day'</span>]</span>
+<span id="cb14-42"></span>
+<span id="cb14-43"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#category preference</span></span>
+<span id="cb14-44">category_sales <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> feature_transaction_cat.pivot_table(</span>
+<span id="cb14-45">    values<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Sales'</span>, </span>
+<span id="cb14-46">    index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>, </span>
+<span id="cb14-47">    columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'category'</span>, </span>
+<span id="cb14-48">    aggfunc<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'sum'</span>, </span>
+<span id="cb14-49">    fill_value<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb14-50">)</span>
+<span id="cb14-51">category_sales.columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [i.lower().replace(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">' '</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'_'</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> category_sales.columns]</span>
+<span id="cb14-52">customer_features <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> customer_features.merge(category_sales, on<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>, how<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'left'</span>)</span>
+<span id="cb14-53"></span>
+<span id="cb14-54">total_sales <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> customer_features[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>]</span>
+<span id="cb14-55"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> col <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> category_sales.columns:</span>
+<span id="cb14-56">    percentage_col <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'per_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>col<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span></span>
+<span id="cb14-57">    customer_features[percentage_col] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> customer_features[col] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> total_sales</span>
+<span id="cb14-58"></span>
+<span id="cb14-59">selected_features <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb14-60"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'recency'</span>,</span>
+<span id="cb14-61"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purchase_day'</span>,</span>
+<span id="cb14-62"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>,</span>
+<span id="cb14-63"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_product'</span>,</span>
+<span id="cb14-64"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'nb_category'</span>,</span>
+<span id="cb14-65"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'customer_lifetime'</span>,</span>
+<span id="cb14-66"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'avg_purchase_frequency'</span>,</span>
+<span id="cb14-67"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'avg_purchase_value'</span>,</span>
+<span id="cb14-68"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_fashion_accessories'</span>,</span>
+<span id="cb14-69"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_home_decor'</span>,</span>
+<span id="cb14-70"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_kitchen_and_dining'</span>,</span>
+<span id="cb14-71"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_others'</span>,</span>
+<span id="cb14-72"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_outdoor_and_garden'</span>,</span>
+<span id="cb14-73"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_personal_care_and_wellness'</span>,</span>
+<span id="cb14-74"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_seasonal_and_holiday'</span>,</span>
+<span id="cb14-75"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_stationary_and_gifts'</span>,</span>
+<span id="cb14-76"> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'per_toys_and_games'</span>]</span>
+<span id="cb14-77"></span>
+<span id="cb14-78">outcome_variable <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'TargetSales'</span></span>
+<span id="cb14-79"></span>
+<span id="cb14-80">customer_features <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> customer_features[[ <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>selected_features]</span>
+<span id="cb14-81">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> outcome_df.merge(customer_features, on<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>).drop(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'CustomerID'</span>, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb14-82"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(df.shape)</span>
+<span id="cb14-83">df.sample(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(3438, 18)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TargetSales</th>
+<th data-quarto-table-cell-role="th">recency</th>
+<th data-quarto-table-cell-role="th">purchase_day</th>
+<th data-quarto-table-cell-role="th">total_sales</th>
+<th data-quarto-table-cell-role="th">nb_product</th>
+<th data-quarto-table-cell-role="th">nb_category</th>
+<th data-quarto-table-cell-role="th">customer_lifetime</th>
+<th data-quarto-table-cell-role="th">avg_purchase_frequency</th>
+<th data-quarto-table-cell-role="th">avg_purchase_value</th>
+<th data-quarto-table-cell-role="th">per_fashion_accessories</th>
+<th data-quarto-table-cell-role="th">per_home_decor</th>
+<th data-quarto-table-cell-role="th">per_kitchen_and_dining</th>
+<th data-quarto-table-cell-role="th">per_others</th>
+<th data-quarto-table-cell-role="th">per_outdoor_and_garden</th>
+<th data-quarto-table-cell-role="th">per_personal_care_and_wellness</th>
+<th data-quarto-table-cell-role="th">per_seasonal_and_holiday</th>
+<th data-quarto-table-cell-role="th">per_stationary_and_gifts</th>
+<th data-quarto-table-cell-role="th">per_toys_and_games</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2606</td>
+<td>0.00</td>
+<td>53</td>
+<td>2</td>
+<td>597.48</td>
+<td>138</td>
+<td>8</td>
+<td>184</td>
+<td>92.000000</td>
+<td>298.740</td>
+<td>0.079383</td>
+<td>0.433973</td>
+<td>0.343710</td>
+<td>0.003465</td>
+<td>0.000000</td>
+<td>0.041357</td>
+<td>0.016570</td>
+<td>0.056688</td>
+<td>0.024854</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">196</td>
+<td>0.00</td>
+<td>78</td>
+<td>2</td>
+<td>2209.85</td>
+<td>37</td>
+<td>6</td>
+<td>226</td>
+<td>113.000000</td>
+<td>1104.925</td>
+<td>0.030771</td>
+<td>0.275245</td>
+<td>0.628549</td>
+<td>0.000000</td>
+<td>0.021178</td>
+<td>0.022535</td>
+<td>0.000000</td>
+<td>0.021721</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2900</td>
+<td>3893.79</td>
+<td>10</td>
+<td>6</td>
+<td>4099.11</td>
+<td>78</td>
+<td>9</td>
+<td>172</td>
+<td>28.666667</td>
+<td>683.185</td>
+<td>0.003879</td>
+<td>0.761507</td>
+<td>0.104540</td>
+<td>0.003879</td>
+<td>0.012442</td>
+<td>0.014015</td>
+<td>0.051597</td>
+<td>0.043312</td>
+<td>0.004830</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2187</td>
+<td>0.00</td>
+<td>227</td>
+<td>1</td>
+<td>122.40</td>
+<td>1</td>
+<td>1</td>
+<td>227</td>
+<td>227.000000</td>
+<td>122.400</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>1.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">322</td>
+<td>0.00</td>
+<td>68</td>
+<td>1</td>
+<td>147.12</td>
+<td>3</td>
+<td>2</td>
+<td>68</td>
+<td>68.000000</td>
+<td>147.120</td>
+<td>0.881729</td>
+<td>0.118271</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Univariate correlation expectedly pinpoints <code>total_sales</code> in during Q1-Q3 2011 as the most predictive feature; however, we can see that it is still not very predictive. This shows that the problem is not a trivial one.</p>
+<div id="d76968d3" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(df[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'TargetSales'</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>]].corr())</span>
+<span id="cb16-2"></span>
+<span id="cb16-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#target and most predictive variable</span></span>
+<span id="cb16-4">df[df.TargetSales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25_000</span>].plot.scatter(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'TargetSales'</span>,y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'total_sales'</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>             TargetSales  total_sales
+TargetSales     1.000000     0.558558
+total_sales     0.558558     1.000000</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://cstorm125.github.io/posts/sales_prediction/index_files/figure-html/cell-12-output-2.png" width="619" height="429" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We randomly split the dataset into train and test sets at 80/20 ratio. We also confirm the distribution of <code>TargetSales</code> is similar across percentiles between train and test and only different at the upper end.</p>
+<div id="68f4dcd3" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#split into train-valid sets</span></span>
+<span id="cb18-2">train_df, test_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> train_test_split(df,</span>
+<span id="cb18-3">                                      test_size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, </span>
+<span id="cb18-4">                                      random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112</span>)</span>
+<span id="cb18-5">pd.concat([train_df.TargetSales.describe(percentiles<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)]).reset_index(),</span>
+<span id="cb18-6">test_df.TargetSales.describe(percentiles<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)]).reset_index(),], axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">index</th>
+<th data-quarto-table-cell-role="th">TargetSales</th>
+<th data-quarto-table-cell-role="th">index</th>
+<th data-quarto-table-cell-role="th">TargetSales</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>536365</td>
-<td>85123A</td>
-<td>WHITE HANGING HEART T-LIGHT HOLDER</td>
-<td>6</td>
-<td>12/1/2010 8:26</td>
-<td>2.55</td>
-<td>17850.0</td>
-<td>United Kingdom</td>
+<td>count</td>
+<td>2750.000000</td>
+<td>count</td>
+<td>688.000000</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>536365</td>
-<td>71053</td>
-<td>WHITE METAL LANTERN</td>
-<td>6</td>
-<td>12/1/2010 8:26</td>
-<td>3.39</td>
-<td>17850.0</td>
-<td>United Kingdom</td>
+<td>mean</td>
+<td>642.650436</td>
+<td>mean</td>
+<td>760.558808</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>536365</td>
-<td>84406B</td>
-<td>CREAM CUPID HEARTS COAT HANGER</td>
-<td>8</td>
-<td>12/1/2010 8:26</td>
-<td>2.75</td>
-<td>17850.0</td>
-<td>United Kingdom</td>
+<td>std</td>
+<td>4015.305436</td>
+<td>std</td>
+<td>4024.524400</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>536365</td>
-<td>84029G</td>
-<td>KNITTED UNION FLAG HOT WATER BOTTLE</td>
-<td>6</td>
-<td>12/1/2010 8:26</td>
-<td>3.39</td>
-<td>17850.0</td>
-<td>United Kingdom</td>
+<td>min</td>
+<td>0.000000</td>
+<td>min</td>
+<td>0.000000</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>536365</td>
-<td>84029E</td>
-<td>RED WOOLLY HOTTIE WHITE HEART.</td>
-<td>6</td>
-<td>12/1/2010 8:26</td>
-<td>3.39</td>
-<td>17850.0</td>
-<td>United Kingdom</td>
+<td>0%</td>
+<td>0.000000</td>
+<td>0%</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>10%</td>
+<td>0.000000</td>
+<td>10%</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>20%</td>
+<td>0.000000</td>
+<td>20%</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>30%</td>
+<td>0.000000</td>
+<td>30%</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>40%</td>
+<td>0.000000</td>
+<td>40%</td>
+<td>0.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>50%</td>
+<td>91.350000</td>
+<td>50%</td>
+<td>113.575000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>60%</td>
+<td>260.308000</td>
+<td>60%</td>
+<td>277.836000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>70%</td>
+<td>426.878000</td>
+<td>70%</td>
+<td>418.187000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>80%</td>
+<td>694.164000</td>
+<td>80%</td>
+<td>759.582000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>90%</td>
+<td>1272.997000</td>
+<td>90%</td>
+<td>1255.670000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>max</td>
+<td>168469.600000</td>
+<td>max</td>
+<td>77099.380000</td>
 </tr>
 </tbody>
 </table>
@@ -498,6 +1895,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </div>
 
 
+</section>
 
  ]]></description>
   <category>news</category>
