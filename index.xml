@@ -27,7 +27,7 @@
 <figcaption>featured_image</figcaption>
 </figure>
 </div>
-<div id="c8b3f13e" class="cell" data-execution_count="1">
+<div id="1e017386" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -85,7 +85,7 @@ font-style: inherit;">import</span> (</span>
 background-color: null;
 font-style: inherit;">from</span> scipy.stats <span class="im" style="color: #00769E;
 background-color: null;
-font-style: inherit;">import</span> pearsonr, wasserstein_distance</span>
+font-style: inherit;">import</span> pearsonr, spearmanr, wasserstein_distance</span>
 <span id="cb1-17"></span>
 <span id="cb1-18"><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -114,57 +114,62 @@ background-color: null;
 font-style: inherit;">0</span>],</span>
 <span id="cb1-25">        <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred),</span>
+font-style: inherit;">'spearmanr'</span>: spearmanr(y_true, y_pred)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>],</span>
 <span id="cb1-26">        <span class="st" style="color: #20794D;
 background-color: null;
+font-style: inherit;">'median_absolute_error'</span>: median_absolute_error(y_true, y_pred),</span>
+<span id="cb1-27">        <span class="st" style="color: #20794D;
+background-color: null;
 font-style: inherit;">'earths_mover_distance'</span>: wasserstein_distance(y_true, y_pred)</span>
-<span id="cb1-27">    }</span>
-<span id="cb1-28"></span>
-<span id="cb1-29"><span class="kw" style="color: #003B4F;
+<span id="cb1-28">    }</span>
+<span id="cb1-29"></span>
+<span id="cb1-30"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> caluclate_classification_metrics(y_true, y_pred):</span>
-<span id="cb1-30">    <span class="cf" style="color: #003B4F;
+<span id="cb1-31">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> {</span>
-<span id="cb1-31">        <span class="st" style="color: #20794D;
+<span id="cb1-32">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'accuracy'</span>: accuracy_score(y_true, y_pred),</span>
-<span id="cb1-32">        <span class="st" style="color: #20794D;
+<span id="cb1-33">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'precision'</span>: precision_score(y_true, y_pred, average<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'weighted'</span>),</span>
-<span id="cb1-33">        <span class="st" style="color: #20794D;
+<span id="cb1-34">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'recall'</span>: recall_score(y_true, y_pred, average<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'weighted'</span>),</span>
-<span id="cb1-34">        <span class="st" style="color: #20794D;
+<span id="cb1-35">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'f1_score'</span>: f1_score(y_true, y_pred, average<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'weighted'</span>),</span>
-<span id="cb1-35">        <span class="st" style="color: #20794D;
+<span id="cb1-36">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'confusion_matrix'</span>: confusion_matrix(y_true, y_pred)</span>
-<span id="cb1-36">    }</span>
-<span id="cb1-37"></span>
-<span id="cb1-38"><span class="kw" style="color: #003B4F;
+<span id="cb1-37">    }</span>
+<span id="cb1-38"></span>
+<span id="cb1-39"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> string_to_yearmon(date):</span>
-<span id="cb1-39">    date <span class="op" style="color: #5E5E5E;
+<span id="cb1-40">    date <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> date.split()</span>
-<span id="cb1-40">    date <span class="op" style="color: #5E5E5E;
+<span id="cb1-41">    date <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> date[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -177,7 +182,7 @@ background-color: null;
 font-style: inherit;">1</span>].split(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">':'</span>)</span>
-<span id="cb1-41">    date <span class="op" style="color: #5E5E5E;
+<span id="cb1-42">    date <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> date[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -194,18 +199,18 @@ background-color: null;
 font-style: inherit;">2</span>) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">#+ '-' + date[1].zfill(2) + ' ' + date[3].zfill(2) + ':' + date[4].zfill(2)</span></span>
-<span id="cb1-42">    <span class="cf" style="color: #003B4F;
+<span id="cb1-43">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> date</span>
-<span id="cb1-43"></span>
-<span id="cb1-44"><span class="kw" style="color: #003B4F;
+<span id="cb1-44"></span>
+<span id="cb1-45"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> call_llama(system_prompt, <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">input</span>):</span>
-<span id="cb1-45">    template <span class="op" style="color: #5E5E5E;
+<span id="cb1-46">    template <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
 background-color: null;
@@ -224,7 +229,7 @@ background-color: null;
 font-style: inherit;">}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">[/INST]"""</span></span>
-<span id="cb1-46">    client <span class="op" style="color: #5E5E5E;
+<span id="cb1-47">    client <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> boto3.client(service_name<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -235,67 +240,67 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'us-west-2'</span>)</span>
-<span id="cb1-47">    body <span class="op" style="color: #5E5E5E;
+<span id="cb1-48">    body <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> json.dumps({</span>
-<span id="cb1-48">        <span class="st" style="color: #20794D;
+<span id="cb1-49">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"prompt"</span>: template,</span>
-<span id="cb1-49">        <span class="st" style="color: #20794D;
+<span id="cb1-50">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"temperature"</span>: <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.</span>,</span>
-<span id="cb1-50">        <span class="st" style="color: #20794D;
+<span id="cb1-51">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"top_p"</span>: <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.9</span>,</span>
-<span id="cb1-51">        <span class="st" style="color: #20794D;
+<span id="cb1-52">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"max_gen_len"</span>: <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2048</span>,</span>
-<span id="cb1-52">    })</span>
-<span id="cb1-53">    response <span class="op" style="color: #5E5E5E;
+<span id="cb1-53">    })</span>
+<span id="cb1-54">    response <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> client.invoke_model(</span>
-<span id="cb1-54">        body<span class="op" style="color: #5E5E5E;
+<span id="cb1-55">        body<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>body,</span>
-<span id="cb1-55">        modelId<span class="op" style="color: #5E5E5E;
+<span id="cb1-56">        modelId<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'us.meta.llama3-2-90b-instruct-v1:0'</span>,</span>
-<span id="cb1-56">        accept<span class="op" style="color: #5E5E5E;
+<span id="cb1-57">        accept<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'application/json'</span>,</span>
-<span id="cb1-57">        contentType<span class="op" style="color: #5E5E5E;
+<span id="cb1-58">        contentType<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'application/json'</span></span>
-<span id="cb1-58">    )</span>
-<span id="cb1-59">    response_body <span class="op" style="color: #5E5E5E;
+<span id="cb1-59">    )</span>
+<span id="cb1-60">    response_body <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> json.loads(response[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'body'</span>].read())</span>
-<span id="cb1-60">    <span class="cf" style="color: #003B4F;
+<span id="cb1-61">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> response_body</span>
-<span id="cb1-61"></span>
-<span id="cb1-62"><span class="kw" style="color: #003B4F;
+<span id="cb1-62"></span>
+<span id="cb1-63"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> call_claude(system_prompt, <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">input</span>):</span>
-<span id="cb1-63">    client <span class="op" style="color: #5E5E5E;
+<span id="cb1-64">    client <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> boto3.client(service_name<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -306,39 +311,39 @@ background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'us-west-2'</span>)</span>
-<span id="cb1-64">    body<span class="op" style="color: #5E5E5E;
+<span id="cb1-65">    body<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>json.dumps(</span>
-<span id="cb1-65">        {</span>
-<span id="cb1-66">            <span class="st" style="color: #20794D;
+<span id="cb1-66">        {</span>
+<span id="cb1-67">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"anthropic_version"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bedrock-2023-05-31"</span>,</span>
-<span id="cb1-67">            <span class="st" style="color: #20794D;
+<span id="cb1-68">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"max_tokens"</span>: <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2048</span>,</span>
-<span id="cb1-68">            <span class="st" style="color: #20794D;
+<span id="cb1-69">            <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"messages"</span>: [</span>
-<span id="cb1-69">                {</span>
-<span id="cb1-70">                    <span class="st" style="color: #20794D;
+<span id="cb1-70">                {</span>
+<span id="cb1-71">                    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"role"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"user"</span>,</span>
-<span id="cb1-71">                    <span class="st" style="color: #20794D;
+<span id="cb1-72">                    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"content"</span>: [</span>
-<span id="cb1-72">                    {</span>
-<span id="cb1-73">                        <span class="st" style="color: #20794D;
+<span id="cb1-73">                    {</span>
+<span id="cb1-74">                        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"type"</span>: <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"text"</span>,</span>
-<span id="cb1-74">                        <span class="st" style="color: #20794D;
+<span id="cb1-75">                        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"text"</span>: system_prompt <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -353,41 +358,41 @@ background-color: null;
 font-style: inherit;">+</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">input</span>,</span>
-<span id="cb1-75">                    }</span>
-<span id="cb1-76">                    ]</span>
-<span id="cb1-77">                }</span>
-<span id="cb1-78">                ]</span>
-<span id="cb1-79">        }  </span>
-<span id="cb1-80">    )  </span>
-<span id="cb1-81"></span>
-<span id="cb1-82">    </span>
-<span id="cb1-83">    response <span class="op" style="color: #5E5E5E;
+<span id="cb1-76">                    }</span>
+<span id="cb1-77">                    ]</span>
+<span id="cb1-78">                }</span>
+<span id="cb1-79">                ]</span>
+<span id="cb1-80">        }  </span>
+<span id="cb1-81">    )  </span>
+<span id="cb1-82"></span>
+<span id="cb1-83">    </span>
+<span id="cb1-84">    response <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> client.invoke_model(body<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span>body, </span>
-<span id="cb1-84">                                   modelId<span class="op" style="color: #5E5E5E;
+<span id="cb1-85">                                   modelId<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'anthropic.claude-3-5-sonnet-20241022-v2:0'</span>,</span>
-<span id="cb1-85">                                   contentType<span class="op" style="color: #5E5E5E;
+<span id="cb1-86">                                   contentType<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'application/json'</span>,</span>
-<span id="cb1-86">                                   accept<span class="op" style="color: #5E5E5E;
+<span id="cb1-87">                                   accept<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'application/json'</span>)</span>
-<span id="cb1-87">    response_body <span class="op" style="color: #5E5E5E;
+<span id="cb1-88">    response_body <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> json.loads(response.get(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'body'</span>).read())</span>
-<span id="cb1-88">   </span>
-<span id="cb1-89">    <span class="cf" style="color: #003B4F;
+<span id="cb1-89">   </span>
+<span id="cb1-90">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> response_body</span></code></pre></div>
@@ -396,7 +401,7 @@ font-style: inherit;">return</span> response_body</span></code></pre></div>
 <section id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl" class="level2">
 <h2 class="anchored" data-anchor-id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl">This Is Not a Drill: Real-world Datasets, Meticulous Feature Engineering, State-of-the-art AutoML</h2>
 <p>To make this exercise as realistic as possible, we will use a real-world dataset (as opposed to a simulated one), perform as much feature engineering as we would in a real-world setting, and employ the best AutoML solution the market has to offer in <a href="https://auto.gluon.ai/dev/index.html">AutoGluon</a>.</p>
-<div id="3403ea4f" class="cell" data-execution_count="2">
+<div id="491ea0eb" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">online_retail <span class="op" style="color: #5E5E5E;
@@ -524,7 +529,7 @@ font-style: inherit;">*</span> transaction_df.Quantity</span></code></pre></div>
 <li>Filter out transactions where either <code>UnitPrice</code> or <code>Quantity</code> is less than zero; from 406,829 to 397,884 transactions</li>
 <li>Fill in missing product <code>Description</code> with value <code>UNKNOWN</code>.</li>
 </ol>
-<div id="cb4e6aef" class="cell" data-execution_count="3">
+<div id="53f5ebf9" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="bu" style="color: null;
@@ -559,69 +564,69 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">15471</td>
-<td>538308</td>
-<td>20727</td>
-<td>LUNCH BAG BLACK SKULL.</td>
-<td>10</td>
-<td>12/10/2010 13:29</td>
-<td>1.65</td>
-<td>14107</td>
+<td data-quarto-table-cell-role="th">244313</td>
+<td>566950</td>
+<td>23026</td>
+<td>DRAWER KNOB VINTAGE GLASS STAR</td>
+<td>6</td>
+<td>9/15/2011 16:34</td>
+<td>2.08</td>
+<td>17594</td>
 <td>United Kingdom</td>
-<td>2010-12</td>
-<td>16.50</td>
+<td>2011-09</td>
+<td>12.48</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">12309</td>
-<td>537840</td>
-<td>85099B</td>
-<td>JUMBO BAG RED RETROSPOT</td>
-<td>20</td>
-<td>12/8/2010 15:03</td>
-<td>1.95</td>
-<td>13531</td>
+<td data-quarto-table-cell-role="th">390470</td>
+<td>580808</td>
+<td>22543</td>
+<td>MINI JIGSAW BAKE A CAKE</td>
+<td>48</td>
+<td>12/6/2011 11:24</td>
+<td>0.19</td>
+<td>16133</td>
 <td>United Kingdom</td>
-<td>2010-12</td>
-<td>39.00</td>
+<td>2011-12</td>
+<td>9.12</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">316007</td>
-<td>573665</td>
-<td>84029E</td>
-<td>RED WOOLLY HOTTIE WHITE HEART.</td>
-<td>4</td>
-<td>10/31/2011 16:24</td>
-<td>4.25</td>
-<td>13982</td>
+<td data-quarto-table-cell-role="th">236686</td>
+<td>566247</td>
+<td>47566</td>
+<td>PARTY BUNTING</td>
+<td>20</td>
+<td>9/11/2011 12:03</td>
+<td>4.95</td>
+<td>16107</td>
+<td>United Kingdom</td>
+<td>2011-09</td>
+<td>99.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">361574</td>
+<td>578022</td>
+<td>21843</td>
+<td>RED RETROSPOT CAKE STAND</td>
+<td>1</td>
+<td>11/22/2011 13:25</td>
+<td>10.95</td>
+<td>17371</td>
+<td>United Kingdom</td>
+<td>2011-11</td>
+<td>10.95</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">293093</td>
+<td>571601</td>
+<td>22728</td>
+<td>ALARM CLOCK BAKELIKE PINK</td>
+<td>2</td>
+<td>10/18/2011 10:53</td>
+<td>3.75</td>
+<td>17073</td>
 <td>United Kingdom</td>
 <td>2011-10</td>
-<td>17.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">138956</td>
-<td>554131</td>
-<td>84879</td>
-<td>ASSORTED COLOUR BIRD ORNAMENT</td>
-<td>16</td>
-<td>5/23/2011 9:43</td>
-<td>1.69</td>
-<td>13988</td>
-<td>United Kingdom</td>
-<td>2011-05</td>
-<td>27.04</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">367027</td>
-<td>578472</td>
-<td>82494L</td>
-<td>WOODEN FRAME ANTIQUE WHITE</td>
-<td>18</td>
-<td>11/24/2011 12:40</td>
-<td>2.95</td>
-<td>12476</td>
-<td>Germany</td>
-<td>2011-11</td>
-<td>53.10</td>
+<td>7.50</td>
 </tr>
 </tbody>
 </table>
@@ -630,7 +635,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </div>
 </div>
 <p>We formulate the problem as predicting the sales (<code>TargetSales</code>) during Q4 2011 for each customers who bought at least one item during Q1-Q3 2011. Note that we are interested in predicting the <strong>spend per customer</strong> as accurately as possible; this is common for marketing use cases such as determining what spend threshold to give each customer in a promotion, targeting customers for upselling, or detecting early signs of churns. It is notably different from predicting <strong>total spend of all customers</strong> during a time period, which usually requires a different approach.</p>
-<div id="2d12ca9a" class="cell" data-execution_count="4">
+<div id="8012c9fe" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">feature_period <span class="op" style="color: #5E5E5E;
@@ -742,7 +747,7 @@ font-style: inherit;">'TargetSales'</span>]</span></code></pre></div>
 </details>
 </div>
 <p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3,438 customers.</p>
-<div id="446715f2" class="cell" data-execution_count="5">
+<div id="31bd5fa1" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
@@ -785,7 +790,7 @@ max      168469.600000
 Name: TargetSales, dtype: float64</code></pre>
 </div>
 </div>
-<div id="ce97f82a" class="cell" data-execution_count="6">
+<div id="f3452b1e" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
@@ -822,7 +827,7 @@ font-style: inherit;">100</span>)</span></code></pre></div>
 <li>Outdoor and Garden</li>
 <li>Others</li>
 </ol>
-<div id="079fa102" class="cell" data-execution_count="7">
+<div id="c22ac0f2" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">descriptions <span class="op" style="color: #5E5E5E;
@@ -924,28 +929,25 @@ font-style: inherit;">'generation'</span>])</span></code></pre></div>
     * Clothing and accessories (e.g. scarves, hats, etc.)
     * Beauty and personal care items (e.g. cosmetics, skincare, etc.)
 4. Stationery and Gifts:
-    * Greeting cards
-    * Gift wrap and bags
+    * Cards and gift wrap
     * Stationery (e.g. notebooks, pens, etc.)
     * Gift items (e.g. mugs, keychains, etc.)
 5. Toys and Games:
     * Toys (e.g. stuffed animals, puzzles, etc.)
     * Games and puzzles
-    * Outdoor toys and games
 6. Seasonal and Holiday:
     * Christmas decorations and gifts
     * Easter decorations and gifts
-    * Other seasonal and holiday items (e.g. Halloween, Valentine's Day, etc.)
-7. Miscellaneous:
-    * Pet accessories
-    * Home office supplies
-    * Travel accessories
-    * Other miscellaneous items that don't fit into the above categories
+    * Other seasonal and holiday items
+7. Outdoor and Garden:
+    * Garden decor (e.g. planters, statues, etc.)
+    * Outdoor furniture and accessories
+    * Gardening tools and supplies
 
-Note that some products may fit into multiple categories, but I've tried to categorize them based on their primary function or theme.</code></pre>
+Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
 </div>
 </div>
-<div id="6cdd5757" class="cell" data-execution_count="8">
+<div id="dc96d700" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
@@ -1145,7 +1147,7 @@ font-style: inherit;">'</span>)</span></code></pre></div>
 </details>
 </div>
 <p>Here is the share of product descriptions in each annotated category:</p>
-<div id="07a1422a" class="cell" data-execution_count="9">
+<div id="8eae31e5" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1">product_description_category <span class="op" style="color: #5E5E5E;
@@ -1188,7 +1190,7 @@ Name: proportion, dtype: float64</code></pre>
 </div>
 </div>
 <p>We merge the RFM features with preference features, that is share of sales in each category for every customer, then the outcome <code>TargetSales</code> to create the universe set for the problem.</p>
-<div id="b1c4ca11" class="cell" data-execution_count="10">
+<div id="767f1237" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1">feature_transaction_cat <span class="op" style="color: #5E5E5E;
@@ -1674,7 +1676,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </div>
 </div>
 <p>Univariate correlation expectedly pinpoints <code>total_sales</code> in during Q1-Q3 2011 as the most predictive feature; however, we can see that it is still not very predictive. This shows that the problem is not a trivial one.</p>
-<div id="59f25080" class="cell" data-execution_count="11">
+<div id="7702c17e" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="bu" style="color: null;
@@ -1716,7 +1718,7 @@ total_sales     0.558558     1.000000</code></pre>
 </div>
 </div>
 <p>We randomly split the dataset into train and test sets at 80/20 ratio. We also confirm the distribution of <code>TargetSales</code> is similar across percentiles between train and test and only different at the upper end.</p>
-<div id="37cc87f0" class="cell" data-execution_count="12">
+<div id="1981b9a3" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
@@ -1904,7 +1906,7 @@ font-style: inherit;">1</span>)</span></code></pre></div>
 <section id="naive-baseline-regression" class="level2">
 <h2 class="anchored" data-anchor-id="naive-baseline-regression">Naive Baseline Regression</h2>
 <p>The most naive solution is to simply predict <code>TargetSales</code> based on the features. We use a stacked ensemble of LightGBM, CatBoost, XGBoost, Random Forest and Extra Trees via AutoGluon. We train with <code>good_quality</code> preset, stated to be <a href="https://auto.gluon.ai/stable/tutorials/tabular/tabular-essentials.html#presets">“Stronger than any other AutoML Framework”</a>, for speedy training and inference but feel free to try more performant options. We exclude the neural-network models as they require further preprocessing of the features. We use an industry-grade, non-parametric model to be as close to a real use case as possible and make a point that the methodology works not only in a toy-dataset setup.</p>
-<div id="5579dba8" class="cell" data-execution_count="13">
+<div id="76ee73b7" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1">preset <span class="op" style="color: #5E5E5E;
@@ -1944,7 +1946,7 @@ background-color: null;
 font-style: inherit;">=</span> predictor.predict(test_df[selected_features])</span></code></pre></div>
 </details>
 </div>
-<div id="4e1dc843" class="cell" data-execution_count="14">
+<div id="09d48c4d" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1">metric_baseline <span class="op" style="color: #5E5E5E;
@@ -1969,6 +1971,7 @@ font-style: inherit;">'baseline'</span></span>
  'mean_absolute_error': 715.6442657130541,
  'r2': 0.3816166296854987,
  'pearsonr': 0.6190719671013133,
+ 'spearmanr': 0.47008461549340863,
  'median_absolute_error': 232.98208312988282,
  'earths_mover_distance': 287.77728784026124,
  'model': 'baseline'}</code></pre>
@@ -1977,7 +1980,7 @@ font-style: inherit;">'baseline'</span></span>
 </section>
 <section id="regression-on-winsorized-outcome" class="level2">
 <h2 class="anchored" data-anchor-id="regression-on-winsorized-outcome">Regression on Winsorized Outcome</h2>
-<div id="0924ead4" class="cell" data-execution_count="15">
+<div id="d0136cd0" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1">outlier_per <span class="op" style="color: #5E5E5E;
@@ -1993,7 +1996,7 @@ font-style: inherit;">'TargetSales'</span>].quantile(outlier_per)</span></code><
 </details>
 </div>
 <p>An alternative approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. In our case, we cap the outlier at 99.0% or <code>TargetSales</code> equals 7,180.81. While this solves the long/fat-tailed issues, it does not deal with zero inflation and also introduce bias to the outcome. This leads to better performance when tested on the winsorized outcome, but not so much on the original outcome.</p>
-<div id="32c16d5f" class="cell" data-execution_count="16">
+<div id="1f88753e" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
@@ -2072,7 +2075,7 @@ background-color: null;
 font-style: inherit;">=</span> predictor.predict(test_df[selected_features])</span></code></pre></div>
 </details>
 </div>
-<div id="17bdd6aa" class="cell" data-execution_count="17">
+<div id="b4e70517" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1">metric_winsorized <span class="op" style="color: #5E5E5E;
@@ -2097,6 +2100,7 @@ font-style: inherit;">'winsorized'</span></span>
  'mean_absolute_error': 627.7880071099414,
  'r2': 0.18814697894155963,
  'pearsonr': 0.5757989413256978,
+ 'spearmanr': 0.504301956183441,
  'median_absolute_error': 219.62248107910156,
  'earths_mover_distance': 432.1288432991232,
  'model': 'winsorized'}</code></pre>
@@ -2106,7 +2110,7 @@ font-style: inherit;">'winsorized'</span></span>
 <section id="regression-on-log-plus-one-transformed-outcome" class="level2">
 <h2 class="anchored" data-anchor-id="regression-on-log-plus-one-transformed-outcome">Regression on Log-plus-one-transformed Outcome</h2>
 <p>Log transformation handles long/fat-tailed distribution and is especially useful for certain models since the transformed distribution is closer normal. However, it cannot handle zero-valued outcome and oftentimes scientists end up adding 1 to the outcome (so often that <code>numpy</code> even has a function for it). This not only introduces bias to the prediction, but also does not solve the zero-inflation as it becomes one-inflation instead.</p>
-<div id="a47c8e0b" class="cell" data-execution_count="18">
+<div id="f6fa6f18" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
@@ -2147,7 +2151,7 @@ font-style: inherit;">'TargetSales_log1p'</span>].hist()</span></code></pre></di
 </div>
 </div>
 <p>We can see that this is the best performing approach so far, which is one of the reasons why so many scientists end up going for this not-entirely-correct approach.</p>
-<div id="d60a45f5" class="cell" data-execution_count="19">
+<div id="a3a8a907" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1">predictor <span class="op" style="color: #5E5E5E;
@@ -2191,7 +2195,7 @@ background-color: null;
 font-style: inherit;">map</span>(np.expm1)</span></code></pre></div>
 </details>
 </div>
-<div id="0e9e10b3" class="cell" data-execution_count="20">
+<div id="3a478639" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1">metric_log1p <span class="op" style="color: #5E5E5E;
@@ -2216,6 +2220,7 @@ font-style: inherit;">'log1p'</span></span>
  'mean_absolute_error': 618.9768466651894,
  'r2': 0.14190585634701047,
  'pearsonr': 0.5817166874396966,
+ 'spearmanr': 0.5338156315937898,
  'median_absolute_error': 89.55495441784018,
  'earths_mover_distance': 581.0494444960044,
  'model': 'log1p'}</code></pre>
@@ -2225,7 +2230,7 @@ font-style: inherit;">'log1p'</span></span>
 <section id="hurdle-model" class="level2">
 <h2 class="anchored" data-anchor-id="hurdle-model">Hurdle Model</h2>
 <p>Hurdle model is a two-stage approach that handles zero inflation by first having a classification model to predict if the outcome is zero or not, then a regression model, trained only on examples with actual non-zero outcomes, to fit a log-transformed outcome. When retransforming the predictions from log to non-log numbers, we perform correction of underestimation using Duan’s method. During inference time, we multiply the predictions from the classification and corrected regression model.</p>
-<div id="ada5dd92" class="cell" data-execution_count="21">
+<div id="7707a407" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1">train_df[<span class="st" style="color: #20794D;
@@ -2309,7 +2314,7 @@ font-style: inherit;">=</span> predictor_cls.predict(test_df[selected_features])
 </details>
 </div>
 <p>For our splits, 51.42% of train and 53.05% of test include customers with non-zero purchase outcome. As with all two-stage approaches, we need to make sure the intermediate model performs reasonably in classifying zero/non-zero outcomes.</p>
-<div id="040aa294" class="cell" data-execution_count="22">
+<div id="64867a84" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1">caluclate_classification_metrics(test_df[<span class="st" style="color: #20794D;
@@ -2327,7 +2332,7 @@ font-style: inherit;">'pred_binary'</span>])</span></code></pre></div>
         [118, 247]])}</code></pre>
 </div>
 </div>
-<div id="f8996ca1" class="cell" data-execution_count="23">
+<div id="5e18a5d2" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1">train_df_nonzero <span class="op" style="color: #5E5E5E;
@@ -2377,7 +2382,7 @@ font-style: inherit;">map</span>(np.log)</span></code></pre></div>
 </details>
 </div>
 <p>After that, we perform log-transformed regression on the examples with non-zero outcome (1,414 examples in train). Without the need to worry about <code>ln(0)</code> outcome, the regression is much more straightforward albeit with fewer examples to train on.</p>
-<div id="92f2b610" class="cell" data-execution_count="24">
+<div id="600fe759" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1">train_df_nonzero[<span class="st" style="color: #20794D;
@@ -2392,7 +2397,7 @@ font-style: inherit;">'TargetSales_log'</span>].hist()</span></code></pre></div>
 </div>
 </div>
 </div>
-<div id="06a0767e" class="cell" data-execution_count="25">
+<div id="f6d17c66" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1">predictor_reg <span class="op" style="color: #5E5E5E;
@@ -2459,7 +2464,7 @@ font-style: inherit;">*</span> test_df.pred_log_exp</span></code></pre></div>
 </details>
 </div>
 <p>For inference, we combine the binary prediction (purchase/no purchase) from the classification model with the re-transformed (exponentialized) numerical prediction from the regression model by simply multiplying them together. As you can see, this approach yields the best performance so far and this is where I used to think everything has been accounted for.</p>
-<div id="456e2ffe" class="cell" data-execution_count="26">
+<div id="8518e2e8" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1">metric_hurdle <span class="op" style="color: #5E5E5E;
@@ -2484,6 +2489,7 @@ font-style: inherit;">'hurdle'</span></span>
  'mean_absolute_error': 584.9162934881963,
  'r2': 0.3779813431428882,
  'pearsonr': 0.6769697889999318,
+ 'spearmanr': 0.5107083593715698,
  'median_absolute_error': 199.1780137692856,
  'earths_mover_distance': 286.381442541919,
  'model': 'hurdle'}</code></pre>
@@ -2514,7 +2520,7 @@ font-style: inherit;">'hurdle'</span></span>
 pronouncing the method's name incorrectly since it should be [twàn]'s 
 method, NOT /dwɑn/'s method.</code></pre>
 <p>We can easily derive Duan’s smearing estimator by taking mean of error between actual and predicted <code>TargetSales</code> in the training set.</p>
-<div id="bd91bfe0" class="cell" data-execution_count="27">
+<div id="a3332a30" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1">train_df_nonzero[<span class="st" style="color: #20794D;
@@ -2547,8 +2553,8 @@ font-style: inherit;">'pred_log'</span>]))</span>
 <pre><code>1.2280991653046711</code></pre>
 </div>
 </div>
-<p>We multiply this to the predictions of the Hurdel model to correct the underestimation due to re-transformation bias.</p>
-<div id="f023744b" class="cell" data-execution_count="28">
+<p>We multiply this to the predictions of the hurdle model to correct the underestimation due to re-transformation bias.</p>
+<div id="0acd3930" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1">test_df[<span class="st" style="color: #20794D;
@@ -2590,6 +2596,7 @@ font-style: inherit;">'hurdle_corrected'</span></span>
  'mean_absolute_error': 613.3946643257099,
  'r2': 0.42281345159207295,
  'pearsonr': 0.6769697889999318,
+ 'spearmanr': 0.5107083593715698,
  'median_absolute_error': 232.55557358084502,
  'earths_mover_distance': 241.61839859133218,
  'model': 'hurdle_corrected'}</code></pre>
@@ -2599,7 +2606,7 @@ font-style: inherit;">'hurdle_corrected'</span></span>
 <section id="the-eval-bar" class="level2">
 <h2 class="anchored" data-anchor-id="the-eval-bar">The Eval Bar</h2>
 <p>We can see that the hurdle model with Duan’s correction performs best across majority of the metrics. We will now deep dive on metrics where it did not to understand the caveats when taking this approach.</p>
-<div id="6cc4e7d8" class="cell" data-execution_count="29">
+<div id="ead26f6e" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1">metric_df <span class="op" style="color: #5E5E5E;
@@ -2760,6 +2767,14 @@ font-style: inherit;">1</span>)</span>
 <td>1.5</td>
 </tr>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">spearmanr_rank</td>
+<td>5.0</td>
+<td>4.0</td>
+<td>1.0</td>
+<td>2.5</td>
+<td>2.5</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">median_absolute_error_rank</td>
 <td>5.0</td>
 <td>3.0</td>
@@ -2767,7 +2782,7 @@ font-style: inherit;">1</span>)</span>
 <td>2.0</td>
 <td>4.0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">earths_mover_distance_rank</td>
 <td>3.0</td>
 <td>4.0</td>
@@ -2775,13 +2790,13 @@ font-style: inherit;">1</span>)</span>
 <td>2.0</td>
 <td>1.0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">avg_rank</td>
-<td>3.142857</td>
+<td>3.375</td>
 <td>4.0</td>
-<td>4.0</td>
-<td>2.214286</td>
-<td>1.642857</td>
+<td>3.625</td>
+<td>2.25</td>
+<td>1.75</td>
 </tr>
 </tbody>
 </table>
@@ -2789,7 +2804,7 @@ font-style: inherit;">1</span>)</span>
 </div>
 </div>
 </div>
-<div id="55b027ad" class="cell" data-execution_count="30">
+<div id="3ebb6ddd" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1">metric_df.transpose()</span></code></pre></div>
@@ -2851,6 +2866,14 @@ font-style: inherit;">1</span>)</span>
 <td>0.67697</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">spearmanr</td>
+<td>0.470085</td>
+<td>0.504302</td>
+<td>0.533816</td>
+<td>0.510708</td>
+<td>0.510708</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">median_absolute_error</td>
 <td>232.982083</td>
 <td>219.622481</td>
@@ -2858,7 +2881,7 @@ font-style: inherit;">1</span>)</span>
 <td>199.178014</td>
 <td>232.555574</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">earths_mover_distance</td>
 <td>287.777288</td>
 <td>432.128843</td>
@@ -2866,7 +2889,7 @@ font-style: inherit;">1</span>)</span>
 <td>286.381443</td>
 <td>241.618399</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">model</td>
 <td>baseline</td>
 <td>winsorized</td>
@@ -2883,7 +2906,7 @@ font-style: inherit;">1</span>)</span>
 <section id="why-duans-correction-results-in-slightly-worse-mae" class="level3">
 <h3 class="anchored" data-anchor-id="why-duans-correction-results-in-slightly-worse-mae">Why Duan’s Correction Results in Slightly Worse MAE?</h3>
 <p>Duan’s method adjusts for underestimation from re-transformation of log outcome. This could lead to smaller extreme errors, but more frequent occurrences of less extreme ones. We verify this hypothesis by comparing mean absolute error before and after transformation for errors originally under and over 99th percentile. We confirm that is the case for our problem.</p>
-<div id="e00112a4" class="cell" data-execution_count="31">
+<div id="bd3ff6b1" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1">err_hurdle <span class="op" style="color: #5E5E5E;
@@ -2948,7 +2971,7 @@ max      55731.205996
 dtype: float64</code></pre>
 </div>
 </div>
-<div id="aae24547" class="cell" data-execution_count="32">
+<div id="f39df705" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><span class="bu" style="color: null;
@@ -3043,8 +3066,8 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 </section>
 <section id="importance-of-classification-model" class="level3">
 <h3 class="anchored" data-anchor-id="importance-of-classification-model">Importance of Classification Model</h3>
-<p>The overperformance of log-transform regression over both hurdle model approarches in Spearman’s rank correlation and median absolute error demonstrates the importance of a classification model. At first glance, it is perplexing since we have just spent a large portion of this article to justify that hurdle models handle zero inflation better and re-transformation without Duan’s method is biased. However, it becomes clear once you compare performance of the hurdle model with a classification model (f1 = 0.69) and a hypothetical, perfect classification model. Other metrics also improved but not nearly as drastic as MedAE and MAE.</p>
-<div id="3c7d2d4c" class="cell" data-execution_count="33">
+<p>The overperformance of log-transform regression over both hurdle model approarches in Spearman’s rank correlation and median absolute error demonstrates the importance of a classification model. At first glance, it is perplexing since we have just spent a large portion of this article to justify that hurdle models handle zero inflation better and re-transformation without Duan’s method is biased. However, it becomes clear once you compare performance of the hurdle model with a classification model (f1 = 0.69) and a hypothetical, perfect classification model. Other metrics also improved but not nearly as drastic as MedAE and Spearman’s rank correlation.</p>
+<div id="4f04211a" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1">test_df[<span class="st" style="color: #20794D;
@@ -3142,6 +3165,15 @@ font-style: inherit;">=</span> pd.DataFrame([metric_baseline,</span>
 <td>0.687639</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">spearmanr</td>
+<td>0.470085</td>
+<td>0.504302</td>
+<td>0.533816</td>
+<td>0.510708</td>
+<td>0.510708</td>
+<td>0.929419</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">median_absolute_error</td>
 <td>232.982083</td>
 <td>219.622481</td>
@@ -3150,7 +3182,7 @@ font-style: inherit;">=</span> pd.DataFrame([metric_baseline,</span>
 <td>232.555574</td>
 <td>34.991964</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td data-quarto-table-cell-role="th">earths_mover_distance</td>
 <td>287.777288</td>
 <td>432.128843</td>
@@ -3159,7 +3191,7 @@ font-style: inherit;">=</span> pd.DataFrame([metric_baseline,</span>
 <td>241.618399</td>
 <td>234.587018</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td data-quarto-table-cell-role="th">model</td>
 <td>baseline</td>
 <td>winsorized</td>
@@ -3178,7 +3210,7 @@ font-style: inherit;">=</span> pd.DataFrame([metric_baseline,</span>
 <section id="remember-what-problem-we-are-solving" class="level3">
 <h3 class="anchored" data-anchor-id="remember-what-problem-we-are-solving">Remember What Problem We Are Solving</h3>
 <p>One last thing to remember is that we are trying to predict <strong>sales of each individual customer</strong>, not <strong>total sales of all customers</strong>. If we look at aggregated mean or sum of actual sales vs predicted sales, baseline regression performs best by far. This is due to the fact that without any constraints a regressor only minimizes the MSE loss and usually ends up predicting values around the mean to balance between under- and over-predictions. However, this level of prediction is often not very useful as a single point. Imagine you want to give promotions with higher or lower spend thresholds to customers according to their purchasing power; you will not be able to do so with a model that is accurate on aggregate but not so much on individual customers.</p>
-<div id="a318d510" class="cell" data-execution_count="34">
+<div id="087813e6" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1">test_df[[<span class="st" style="color: #20794D;
