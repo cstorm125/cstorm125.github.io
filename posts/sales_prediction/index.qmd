@@ -1,5 +1,5 @@
 ---
-title: "Predict How Much A Customer Will Spend in Retail"
+title: "Predict How Much A Customer Will Spend"
 author: "cstorm125"
 date: "2024-11-25"
 categories: [news, code, analysis]
@@ -10,7 +10,7 @@ format:
 jupyter: python3
 ---
 
-I have spent nearly a decade as a data scientist in the retail sector, but I did not realize I have been approaching customer sales predictions the wrong way until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture.
+I have spent nearly a decade as a data scientist in the retail sector, but I have been approaching customer spend predictions the wrong way until I attended [Gregory M. Duncan](https://scholar.google.com/citations?user=EZ9sTM4AAAAJ&hl=en)'s lecture. Accurately predicting how much an individual customer will spend in the next X days enables key retail use cases such as personalized promotion (determine X in Buy-X-Get-Y), customer targeting for upselling (which customers have higher purchasing power), and early churn detection (customers do not spend as much as they should). What makes this problem particularly difficult is because the distribution of customer spending is both **[zero-inflated](https://en.wikipedia.org/wiki/Zero-inflated_model)** and **[long/fat-tailed](https://en.wikipedia.org/wiki/Heavy-tailed_distribution)**. Intuitively, most customers who visit your store are not going to make a purchase and among those who do, there will be some super customers who purchase an outrageous amount more than the average customer. Some parametric models allow for zero-inflated outcomes such as [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution), [negative binomial](https://en.wikipedia.org/wiki/Negative_binomial_distribution), [Conway-Maxwell-Poisson](https://en.wikipedia.org/wiki/Conway%E2%80%93Maxwell%E2%80%93Poisson_distribution); however, they do not handle the long/fat-tailed explicitly. Even for non-parametric models such as decision tree ensembles, more resources (trees and splits) will be dedicated to separating zeros and handling outliers; this could lead to deterioration in performance. Using the real-world dataset [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail), we will compare the performance of common approaches namely naive baseline regression, regression on winsorized outcome, regression on log-plus-one-transformed outcome to what Duncan suggested: hurdle model with Duan's method. we will demonstrate why this approach outperforms the others in most evaluation metrics and why it might not in some.
 
 ```{python}
 #| eval: true
@@ -27,11 +27,11 @@ from tqdm.auto import tqdm
 import time
 from sklearn.model_selection import train_test_split
 from autogluon.tabular import TabularDataset, TabularPredictor
+
 from sklearn.metrics import (
     mean_squared_error, mean_absolute_error, r2_score, median_absolute_error,
     accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 )
-
 from scipy.stats import pearsonr, wasserstein_distance
 
 def calculate_regression_metrics(y_true, y_pred):
@@ -108,13 +108,321 @@ def call_claude(system_prompt, input):
     return response_body
 ```
 
+## This Is Not a Drill: Real-world Datasets, Meticulous Feature Engineering, State-of-the-art AutoML
+
+To make this exercise as realistic as possible, we will use a real-world dataset (as opposed to a simulated one), perform as much feature engineering as we would in a real-world setting, and employ the best AutoML solution the market has to offer in [AutoGluon](https://auto.gluon.ai/dev/index.html).
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+online_retail = fetch_ucirepo(id=352) 
+transaction_df = online_retail['data']['original']
+original_nb = transaction_df.shape[0]
+
+#create yearmon for train-valid split
+transaction_df['yearmon'] = transaction_df.InvoiceDate.map(string_to_yearmon)
+
+#get rid of transactions without cid
+transaction_df = transaction_df[~transaction_df.CustomerID.isna()].reset_index(drop=True)
+has_cid_nb = transaction_df.shape[0]
+
+#fill in unknown descriptions
+transaction_df.Description = transaction_df.Description.fillna('UNKNOWN')
+
+#convert customer id to string
+transaction_df['CustomerID'] = transaction_df['CustomerID'].map(lambda x: str(int(x)))
+
+#simplify by filtering unit price and quantity to be non-zero (get rid of discounts, cancellations, etc)
+transaction_df = transaction_df[(transaction_df.UnitPrice>0)&\
+                                (transaction_df.Quantity>0)].reset_index(drop=True)
+has_sales_nb = transaction_df.shape[0]
+
+#add sales
+transaction_df['Sales'] = transaction_df.UnitPrice * transaction_df.Quantity
+```
+
+We use the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) dataset, which contain transactions from a UK-based, non-store online retail from `{python} transaction_df.yearmon.min()` and `{python} transaction_df.yearmon.max()`. We perform the following data processing:
+
+1. Remove transactions without `CustomerID`; from `{python} original_nb` to `{python} has_cid_nb` transactions
+2. Filter out transactions where either `UnitPrice` or `Quantity` is less than zero; from `{python} has_cid_nb` to `{python} has_sales_nb` transactions
+3. Fill in missing product `Description` with value `UNKNOWN`.
+
 ```{python}
 #| eval: true
 #| echo: true
 #| output: true
 
-online_retail = fetch_ucirepo(id=352) 
-transaction_df = online_retail['data']['original']
 print(transaction_df.shape)
-transaction_df.head(5)
+transaction_df.sample(5)
+```
+
+We formulate the problem as predicting the sales (`TargetSales`) during Q4 2011 for each customers who bought at least one item during Q1-Q3 2011. Note that we are interested in predicting the **spend per customer** as accurately as possible; this is common for marketing use cases such as determining what spend threshold to give each customer in a promotion, targeting customers for upselling, or detecting early signs of churns. It is notably different from predicting **total spend of all customers** during a time period, which usually requires a different approach.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+feature_period = {'start': '2011-01', 'end': '2011-09'}
+outcome_period = {'start': '2011-10', 'end': '2011-12'}
+
+feature_transaction = transaction_df[(transaction_df.yearmon>=feature_period['start'])&\
+                                      (transaction_df.yearmon<=feature_period['end'])]
+outcome_transaction = transaction_df[(transaction_df.yearmon>=outcome_period['start'])&\
+                                      (transaction_df.yearmon<=outcome_period['end'])]
+
+#aggregate sales during outcome period
+outcome_sales = outcome_transaction.groupby('CustomerID').Sales.sum().reset_index()
+
+#aggregate sales during feature period
+feature_sales = feature_transaction.groupby('CustomerID').Sales.sum().reset_index()
+
+#merge to get TargetSales including those who spent during feature period but not during outcome (zeroes)
+outcome_df = feature_sales[['CustomerID']].merge(outcome_sales, on='CustomerID', how='left')
+outcome_df['Sales'] = outcome_df['Sales'].fillna(0)
+outcome_df.columns = ['CustomerID', 'TargetSales']
+```
+
+We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing `Quantity` times `UnitPrice`. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with `{python} outcome_df.shape[0]` customers.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+#confirm zero-inflated, long/fat-tailed
+outcome_df.TargetSales.describe(percentiles=[i/10 for i in range(10)])
+```
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+#confirm zero-inflated, long/fat-tailed
+outcome_df[outcome_df.TargetSales<=10_000].TargetSales.hist(bins=100)
+```
+
+We represent a customer using traditional RFM features namely recency of purchase, purchase days, total sales, number of distinct products purchased, number of distinct category purchased, customer tenure within 2011, average purchase frequency, average purchase value, and percentage of purchase across all 9 categories. This is based on data from Q1-Q3 2011.
+
+Since the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) dataset does not have a category but only contains descriptions over 3,000 items, we use `LLaMA 3.2 90B` to infer categories based on randomly selected 1,000 descriptions. This is to make the category preference representation for each customer, which is more tractable than including features about all `{python} feature_transaction.Description.nunique()` items. After that, we use `Claude 3.5 v2` to label a category for each description as it performs structured output a little more reliably. The categories are:
+
+1. Home Decor
+2. Kitchen and Dining
+3. Fashion Accessories
+4. Stationary and Gifts
+5. Toys and Games
+6. Seasonal and Holiday
+7. Personal Care and Wellness
+8. Outdoor and Garden
+9. Others
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+descriptions = feature_transaction.Description.unique().tolist()
+print(descriptions[:5])
+
+#randomize descriptions with seed 112 to get which categories we should use
+np.random.seed(112)
+random_descriptions = np.random.choice(descriptions, 1000, replace=False)
+
+res = call_llama(
+    'You are a product categorization assistant at a retail website.',
+    'Given the following product descriptions, come up with a few product categories they should be classified into.'+'\n'.join(random_descriptions)
+)
+
+categories = [
+    'Home Decor',
+    'Kitchen and Dining',
+    'Fashion Accessories',
+    'Stationary and Gifts',
+    'Toys and Games',
+    'Seasonal and Holiday',
+    'Personal Care and Wellness',
+    'Outdoor and Garden',   
+]
+
+print(res['generation'])
+```
+
+```{python}
+#| eval: false
+#| echo: true
+#| output: false
+
+#loop through descriptions in batches of batch_size
+res_texts = []
+batch_size = 100
+for i in tqdm(range(0, len(descriptions), batch_size)):
+    batch = descriptions[i:i+batch_size]
+    d = "\n".join(batch)
+    inp = f'''Categorize the following product descriptions into {", ".join(categories)} or Others, if they do not fall into any. 
+Only answer in the following format:
+
+"product description of product #1"|"product category classified into"
+"product description of product #2"|"product category classified into"
+...
+"product description of product #n"|"product category classified into"
+
+Here are the product descriptions:
+{d}
+'''
+    while True:
+        res = call_claude('You are a product categorizer at a retail website', inp)
+        # if res['generation_token_count'] > 1: #for llama
+        if res['usage']['output_tokens'] > 1:
+            break
+        else:
+            print('Retrying...')
+            time.sleep(2)
+    res_text = res['content'][0]['text'].strip().split('\n')
+        #for llama
+        # .replace('[SYS]','').replace('<<SYS>>','')\
+        # .replace('[/SYS]','').replace('<</SYS>>','')\
+    if res_text!='':
+        res_texts.extend(res_text)
+
+with open('../../data/sales_prediction/product_description_category.csv','w') as f:
+    f.write('"product_description"|"category"\n')
+    for i in res_texts:
+        f.write(f'{i}\n')
+```
+
+Here is the share of product descriptions in each annotated category:
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+product_description_category = pd.read_csv('../../data/sales_prediction/product_description_category.csv',
+                                           sep='|')
+
+#clean product_description
+product_description_category['Description'] = descriptions
+product_description_category.category.value_counts(normalize=True)
+```
+
+We merge the RFM features with preference features, that is share of sales in each category for every customer, then the outcome `TargetSales` to create the universe set for the problem.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+feature_transaction_cat = feature_transaction.merge(product_description_category,
+                                                    how='inner',
+                                                    on = 'Description',)
+feature_transaction.shape, feature_transaction_cat.shape
+
+#convert invoice date to datetime
+feature_transaction_cat['InvoiceDate'] = pd.to_datetime(feature_transaction_cat['InvoiceDate'])
+
+# last date in feature set
+current_date = feature_transaction_cat['InvoiceDate'].max()
+
+#rfm
+customer_features = feature_transaction_cat.groupby('CustomerID').agg({
+    'InvoiceDate': [
+        ('recency', lambda x: (current_date - x.max()).days),
+        ('first_purchase_date', 'min'),
+        ('purchase_day', 'nunique'),
+    ],
+    'InvoiceNo': [('nb_invoice', 'nunique')],
+    'Sales': [
+        ('total_sales', 'sum')
+    ],
+    'StockCode': [('nb_product', 'nunique')],
+    'category': [('nb_category', 'nunique')]
+}).reset_index()
+
+# Flatten column names
+customer_features.columns = [
+    'CustomerID',
+    'recency',
+    'first_purchase_date',
+    'purchase_day',
+    'nb_invoice',
+    'total_sales',
+    'nb_product',
+    'nb_category'
+]
+
+customer_features['customer_lifetime'] = (current_date - customer_features['first_purchase_date']).dt.days
+customer_features['avg_purchase_frequency'] = customer_features['customer_lifetime'] / customer_features['purchase_day']
+customer_features['avg_purchase_value'] = customer_features['total_sales'] / customer_features['purchase_day']
+
+#category preference
+category_sales = feature_transaction_cat.pivot_table(
+    values='Sales', 
+    index='CustomerID', 
+    columns='category', 
+    aggfunc='sum', 
+    fill_value=0
+)
+category_sales.columns = [i.lower().replace(' ','_') for i in category_sales.columns]
+customer_features = customer_features.merge(category_sales, on='CustomerID', how='left')
+
+total_sales = customer_features['total_sales']
+for col in category_sales.columns:
+    percentage_col = f'per_{col}'
+    customer_features[percentage_col] = customer_features[col] / total_sales
+
+selected_features = [
+ 'recency',
+ 'purchase_day',
+ 'total_sales',
+ 'nb_product',
+ 'nb_category',
+ 'customer_lifetime',
+ 'avg_purchase_frequency',
+ 'avg_purchase_value',
+ 'per_fashion_accessories',
+ 'per_home_decor',
+ 'per_kitchen_and_dining',
+ 'per_others',
+ 'per_outdoor_and_garden',
+ 'per_personal_care_and_wellness',
+ 'per_seasonal_and_holiday',
+ 'per_stationary_and_gifts',
+ 'per_toys_and_games']
+
+outcome_variable = 'TargetSales'
+
+customer_features = customer_features[[ 'CustomerID']+selected_features]
+df = outcome_df.merge(customer_features, on='CustomerID').drop('CustomerID', axis=1)
+print(df.shape)
+df.sample(5)
+```
+
+Univariate correlation expectedly pinpoints `total_sales` in during Q1-Q3 2011 as the most predictive feature; however, we can see that it is still not very predictive. This shows that the problem is not a trivial one.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+print(df[['TargetSales','total_sales']].corr())
+
+#target and most predictive variable
+df[df.TargetSales<=25_000].plot.scatter(x='TargetSales',y='total_sales')
+```
+We randomly split the dataset into train and test sets at 80/20 ratio. We also confirm the distribution of `TargetSales` is similar across percentiles between train and test and only different at the upper end.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+#split into train-valid sets
+train_df, test_df = train_test_split(df,
+                                      test_size=0.2, 
+                                      random_state=112)
+pd.concat([train_df.TargetSales.describe(percentiles=[i/10 for i in range(10)]).reset_index(),
+test_df.TargetSales.describe(percentiles=[i/10 for i in range(10)]).reset_index(),], axis=1)
 ```
