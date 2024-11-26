@@ -464,7 +464,7 @@ metric_baseline
 outlier_per = 0.99
 outlier_cap_train = train_df['TargetSales'].quantile(outlier_per)
 ```
-An alternative approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. In our case, we cap the outlier at `{python} outlier_per*100`% or `TargetSales` equals `{python} f'{outlier_cap_train:,}'`. While this solves the long/fat-tailed issues, it does not deal with zero inflation and also introduce bias to the outcome. This leads to better performance when tested on the winsorized outcome, but not so much on the original outcome.
+An alternative approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. In our case, we cap the outlier at `{python} outlier_per*100`% or `TargetSales` equals `{python} f'{round(outlier_cap_train,2):,}'`. While this solves the long/fat-tailed issues, it does not deal with zero inflation and also introduce bias to the outcome. This leads to better performance when tested on the winsorized outcome, but not so much on the original outcome.
 
 ```{python}
 #| eval: true
@@ -577,7 +577,7 @@ train_df_nonzero['TargetSales_log'] = train_df_nonzero['TargetSales'].map(np.log
 test_df_nonzero['TargetSales_log'] = test_df_nonzero['TargetSales'].map(np.log)
 ```
 
-After that, we perform log-transformed regression on the examples with non-zero outcome (`{python} f'{train_df_nonzero.shape[0]:,}'` in train). Without the need to worry about `ln(0)` outcome, the regression is much more straightforward albeit with fewer examples to train on.
+After that, we perform log-transformed regression on the examples with non-zero outcome (`{python} f'{train_df_nonzero.shape[0]:,}'` examples in train). Without the need to worry about `ln(0)` outcome, the regression is much more straightforward albeit with fewer examples to train on.
 
 ```{python}
 #| eval: true
@@ -623,12 +623,17 @@ In the previous section, we have blissfully assumed that we can freely log-trans
 $$ln(y) = f(X) + \epsilon$$
 
 where 
+
 * $y$ is actual outcome.
+
 * $X$ is the features.
+
 * $f(.)$ is a trained model.
+
 * $\epsilon$ is the error term.
 
 when re-transforming
+
 $$
 \begin{align}
 y &= exp(ln(y)) \\
@@ -647,12 +652,15 @@ $$
 $$
 
 where 
+
 * $\hat \lambda$ is the Duan's smearing estimator of the bias from re-transformation $E[exp(\epsilon)]$
+
 * $\hat y$ is the prediction aka $f(X)$
 
 ```
-Fun Fact: If you assume Duan were a western name, you would have been pronouncing 
-the method's name incorrectly since it should be [twàn]'s method, NOT /dwɑn/'s method.
+Fun Fact: If you assume Duan were a western name, you would have been 
+pronouncing the method's name incorrectly since it should be [twàn]'s 
+method, NOT /dwɑn/'s method.
 ```
 
 We can easily derive Duan's smearing estimator by taking mean of error between actual and predicted `TargetSales` in the training set.
