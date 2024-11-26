@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="cstorm125">
+<meta name="dcterms.date" content="2024-11-23">
 
-<title>chariblog - technical writings in applied science – chariblog</title>
+<title>How to Have a Robustly Interesting Career in Data Science – chariblog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,24 +25,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-29e2c20b02301cfff04dc8050bf30c7e.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3fcf6f9ed68d419e61de4dc6f9dc2392.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-29e2c20b02301cfff04dc8050bf30c7e.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-3fcf6f9ed68d419e61de4dc6f9dc2392.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,77 +68,19 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="chariblog" href="index.xml" data-external="1"></head>
-
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">chariblog</span>
     </a>
   </div>
@@ -149,7 +91,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -175,146 +117,58 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">chariblog - technical writings in applied science</h1>
-                      </div>
-  </div>
-    
-  
-  <div class="quarto-title-meta column-page-left">
-
-      
-    
-      
-    </div>
-    
-  
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Y2FyZWVy">career <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aHVyZGxl">hurdle <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bG9uZyUyRmZhdC10YWlsZWQ=">long/fat-tailed <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmV0YWls">retail <span class="quarto-category-count">(1)</span></div><div class="category" data-category="emVyby1pbmZsYXRlZA==">zero-inflated <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
-
-
-
-
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-     <select id="listing-listing-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-listing'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-       <option value="" disabled="" selected="" hidden="">Order By</option>
-       <option value="index" data-direction="asc">Default</option>
-         <option value="listing-title" data-direction="asc">
-          Title
-        </option>
-         <option value="listing-date-sort" data-direction="asc">
-          Date - Oldest
-        </option>
-         <option value="listing-date-sort" data-direction="desc">
-          Date - Newest
-        </option>
-         <option value="listing-author" data-direction="asc">
-          Author
-        </option>
-     </select>
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">How to Have a Robustly Interesting Career in Data Science</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">career</div>
   </div>
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>cstorm125 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 23, 2024</p>
     </div>
-</div>
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="cmV0YWlsJTJDemVyby1pbmZsYXRlZCUyQ2xvbmclMkZmYXQtdGFpbGVkJTJDaHVyZGxl" data-listing-date-sort="1732492800000" data-listing-file-modified-sort="1732624377049" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="26" data-listing-word-count-sort="5112">
-<div class="thumbnail">
-<p><a href="./posts/sales_prediction/index.html" class="no-external"></a></p><a href="./posts/sales_prediction/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/sales_prediction/featured_image.jpg" class="thumbnail-image"></p>
-</a><p><a href="./posts/sales_prediction/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/sales_prediction/index.html" class="no-external">Predict How Much A Customer Will Spend</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/sales_prediction/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('cmV0YWls'); return false;">
-retail
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('emVyby1pbmZsYXRlZA=='); return false;">
-zero-inflated
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('bG9uZyUyRmZhdC10YWlsZWQ='); return false;">
-long/fat-tailed
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('aHVyZGxl'); return false;">
-hurdle
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/sales_prediction/index.html" class="no-external">I have spent nearly a decade as a data scientist in the retail sector, but I have been approaching customer spend predictions the wrong way until I attended Gregory M. Duncan…<strong></strong><strong></strong></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/sales_prediction/index.html" class="no-external">
-<div class="listing-date">
-2024-11-25
-</div>
-<div class="listing-author">
-cstorm125
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="Y2FyZWVy" data-listing-date-sort="1732320000000" data-listing-file-modified-sort="1732624377049" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1148">
-<div class="thumbnail">
-<p><a href="./posts/interesting_career/index.html" class="no-external"></a></p><a href="./posts/interesting_career/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/interesting_career/featured_image.jpg" class="thumbnail-image"></p>
-</a><p><a href="./posts/interesting_career/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/interesting_career/index.html" class="no-external">How to Have a Robustly Interesting Career in Data Science</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/interesting_career/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Y2FyZWVy'); return false;">
-career
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/interesting_career/index.html" class="no-external">I have been a data scientist👨‍💻 ever since around the time HBR popularized the term in its job sexiness article. My run started out of necessity, since back then it was…</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/interesting_career/index.html" class="no-external">
-<div class="listing-date">
-2024-11-23
-</div>
-<div class="listing-author">
-cstorm125
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>I have been a data scientist👨‍💻 ever since around the time <a href="https://hbr.org/2012/10/data-scientist-the-sexiest-job-of-the-21st-century">HBR popularized the term in its job sexiness article</a>. My run started out of necessity, since back then it was very difficult to get a job when you were an Econ graduate with an eclectic mix of skills in statistics and programming; suddenly it became one of the most sought-after skill combinations on the market. It has been about a decade since. Lately, I have been asked about how to have a successful career in the field. Success is quite the subjective term, but let me try to formulate my thoughts on how to keep it interesting doing what I love in spite of external circumstances.</p>
+<p><strong>Objective Function</strong> As any half decent scientist would do, let us begin at the desirable end state and work backwards. I have always optimized for business impact. I relish in seeing my models bring joy to customers, efficiency to selling partners, and productivity to fellow builders. Something as simple as seeing a widget on the home screen powered by one of my models makes my day. Thankfully, my data products have consistently delivered at least double-digit millions of dollars in value (cost savings and/or top-line uplifts) annually. And this keeps me sane in the midst of all the [insert-your-hype-keyword] FOMO. The key is to find an objective function that really matters to you, and not fall for the vanity metrics. For instance, I have written some research papers and did some fun open source projects, but a lot of these feel too abstract to quantify. If I were to try to optimize for them, I would likely end up chasing after citations, Github stars, or other arbitrary numbers. I would overfit them and the activities of writing papers and contributing to open source projects themselves would become secondary to the vanity metrics. This will not be the case if writing great research papers is something that really matters to you. You need to find an objective function that correlates almost perfectly with the joy you experience as a scientist.</p>
+<p><strong>Build with Stakes</strong> As you move to fulfill your objectives, it is important that you do so by building concrete products with high enough stakes. I strongly believe this is the only way to level up as a scientist. The anti-thesis to this is to get stuck in the learning loop; you keep taking online courses, overfitting toy datasets, hunting for certificates, and you wonder why your career is not going anywhere while the snakeoil vendors keep buying new sports cars. It is because these learning materials when taken in excess only serve to make you feel good about yourself. Yes, you learned something new and yes, you might have built some capstone projects. But these have virtually no consequence if you fail. In fact, they are structured in a way that it is more difficult for you to fail. You stop thinking for yourself and just enjoy the pseudo-intellectual force feeding. It comes as no surprise that you need to think for yourself to grow as a scientist. The stakes do not have to be monetary. It can be anything that matters if you fail to complete your tasks. Enter a competition that evaluates scientific prowess (avoid slide show contests), create an open source project that helps with your hobbies, or most likely propose a project at work that affects your compensation/promotion evaluation. Conduct experiments, write production codes, and document everything either as technical reports or research papers. Hold yourself to the highest standards.</p>
+<p><strong>Find The Right Party</strong> The most important person in your career is your mentor. Ideally, you want to find the person whose objective function aligns well with yours and have a clear track records of building with stakes. At different stages, you might have more than one for different aspects such as one for business and another for research, or for different perspectives. But if I were to be honest, you would be extremely lucky to find one at all. Your mentor should not only be the person you aspire to be, but also someone you think you would have a chance to overcome in a fair fight one day. Once you have found such person, you would usually be surrounded by good company. Humans are social animals and no matter how hard you try to follow your objective function and hold yourself to the highest standards, it will be almost impossible without people with similar mentality by your side. This is the most luck-dependent component. Be grateful if you can find the right party and be the party people would like to join one day.</p>
+<p><strong>Integrity</strong> Every action has a price. We are in a privileged position to have a skillset that often determines the outcome of the business and rarely people question. You could gain a small but decisive advantage almost scotch-free; keep randomizing the seeds in validation splits and/or model initialization to get a marginally good result in offline evaluation to justify a launch, slice and dice the control and treatment groups to get a statistically significant result, pick a seemingly strong model that is out-of-domain to compare with your specifically finetuned model and call your model SoTA, the list goes on. But you should never do any of this, not only because you are a good person who does not want to lose sleep, but because you will eventually pay the price. I can guarantee there is always a price. Any useful scientist will call you out on any of the examples I gave; if not, time and repeated online experiments will expose your fudging of the numbers. Your choice is to keep job hopping before this happens and keep the career Ponzi scheme alive. Or simply be an honest scientist, enjoys the scientific process, learns from your mistakes, and grow.</p>
+<p><strong>Side Quests</strong> Whatever you do, there is always a room for side quests. Your main quest is to satisfy your objective function, but as any good optimization method, exploration is needed to ensure a robust solution. A side quest is an excuse to try the new technology you have been raring to get your hands on, a low-stake confidence builder, and most importantly a great way to remind us how much we love the craft. These are things I hold closest to my heart as I navigate the fast-paced, uncertainty-filled landscape of data science. I have conducted a few dozens of model validation experiments and each one is never less anxiety-inducing than the last. We are in the business of results and results can be brutal. In these turbulent economic conditions, I hope these templates can be useful to you as much as they were to me in surviving some unpleasant situations that may be beyond our control and continuing to do the things we love.</p>
+<p>Be safe from scammers and snakeoil vendors. And I will see you around.</p>
+
+
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
