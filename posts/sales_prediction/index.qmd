@@ -145,8 +145,8 @@ transaction_df['Sales'] = transaction_df.UnitPrice * transaction_df.Quantity
 
 We use the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) dataset, which contain transactions from a UK-based, non-store online retail from `{python} transaction_df.yearmon.min()` and `{python} transaction_df.yearmon.max()`. We perform the following data processing:
 
-1. Remove transactions without `CustomerID`; from `{python} f'{original_nb:,}'` to `{python} f'{has_cid_nb:,}` transactions
-2. Filter out transactions where either `UnitPrice` or `Quantity` is less than zero; from `{python} f'{has_cid_nb:,}` to `{python} f'{has_sales_nb:,}` transactions
+1. Remove transactions without `CustomerID`; from `{python} f'{original_nb:,}'` to `{python} f'{has_cid_nb:,}'` transactions
+2. Filter out transactions where either `UnitPrice` or `Quantity` is less than zero; from `{python} f'{has_cid_nb:,}'` to `{python} f'{has_sales_nb:,}'` transactions
 3. Fill in missing product `Description` with value `UNKNOWN`.
 
 ```{python}
@@ -185,7 +185,7 @@ outcome_df['Sales'] = outcome_df['Sales'].fillna(0)
 outcome_df.columns = ['CustomerID', 'TargetSales']
 ```
 
-We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing `Quantity` times `UnitPrice`. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with `{python} f'{outcome_df.shape[0]:,}` customers.
+We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing `Quantity` times `UnitPrice`. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with `{python} f'{outcome_df.shape[0]:,}'` customers.
 
 ```{python}
 #| eval: true
@@ -207,7 +207,7 @@ outcome_df[outcome_df.TargetSales<=10_000].TargetSales.hist(bins=100)
 
 We represent a customer using traditional RFM features namely recency of purchase, purchase days, total sales, number of distinct products purchased, number of distinct category purchased, customer tenure within 2011, average purchase frequency, average purchase value, and percentage of purchase across all 9 categories. This is based on data from Q1-Q3 2011.
 
-Since the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) dataset does not have a category but only contains descriptions over 3,000 items, we use `LLaMA 3.2 90B` to infer categories based on randomly selected 1,000 descriptions. This is to make the category preference representation for each customer, which is more tractable than including features about all `{python} f'{feature_transaction.Description.nunique():,}` items. After that, we use `Claude 3.5 v2` to label a category for each description as it performs structured output a little more reliably. The categories are:
+Since the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) dataset does not have a category but only contains descriptions over 3,000 items, we use `LLaMA 3.2 90B` to infer categories based on randomly selected 1,000 descriptions. This is to make the category preference representation for each customer, which is more tractable than including features about all `{python} f'{feature_transaction.Description.nunique():,}'` items. After that, we use `Claude 3.5 v2` to label a category for each description as it performs structured output a little more reliably. The categories are:
 
 1. Home Decor
 2. Kitchen and Dining
