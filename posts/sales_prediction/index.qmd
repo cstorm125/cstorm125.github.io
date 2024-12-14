@@ -29,12 +29,15 @@ from tqdm.auto import tqdm
 import time
 from sklearn.model_selection import train_test_split
 from autogluon.tabular import TabularDataset, TabularPredictor
+import seaborn as sns
+
 
 from sklearn.metrics import (
     mean_squared_error, mean_absolute_error, r2_score, median_absolute_error,
     accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 )
 from scipy.stats import pearsonr, spearmanr, wasserstein_distance
+from statsmodels.stats.diagnostic import het_white
 
 def calculate_regression_metrics(y_true, y_pred):
     return {
@@ -666,8 +669,39 @@ pronouncing the method's name incorrectly since it should be [twàn]'s
 method, NOT /dwɑn/'s method.
 ```
 
-We can easily derive Duan's smearing estimator by taking mean of error between actual and predicted `TargetSales` in the training set.
+Before we proceed, the formulation of Duan's smearing estimator assumes that estimates of error terms (residuals) for log predictions be [independent and identically distributed](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables). Since we are dealing with individual customers, independence can be assumed. However, if we look at the plot of residuals vs predicted log values (based on training set), we can see that they do not look particularly identically distributed.
 
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+#plot residual and predicted log value
+train_df_nonzero['pred_log'] = predictor_reg.predict(train_df_nonzero[selected_features])
+train_df_nonzero['residual_log'] = (train_df_nonzero['pred_log'] - train_df_nonzero['TargetSales_log'])
+
+# Create the scatter plot
+sns.scatterplot(x='pred_log', y='residual_log', data=train_df_nonzero)
+
+# Add the Lowess smoothing line
+sns.regplot(x='pred_log', y='residual_log', data=train_df_nonzero, scatter_kws={'alpha': 0.5}, line_kws={'color': 'red'})
+```
+
+Although note that [White test](https://en.wikipedia.org/wiki/White_test) does not reject the null hypothesis of the residuals being homoscedastic in reference to the features. This counterintuitive result might stem from the fact that White test is assuming linear or quadratic relationships between outcome and features while the residuals are derived from a stacked ensemble of decision trees.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+white_stat, white_p_value, _, _ = het_white(train_df_nonzero['residual_log'], 
+                                            train_df_nonzero[selected_features])
+print(f"White Test Statistic: {white_stat}")
+print(f"P-value: {white_p_value}")
+```
+Our choice is to either trust the White test and ~~pretend~~ assume everything is fine; or trust our eyes and replace the non-zero regression model with one that produces iid residuals such as [generalized least squares (GLS)](https://en.wikipedia.org/wiki/Generalized_least_squares) with heteroscedasticity-robust standard errors. The tradeoff is that often models that produce homoscedastic residuals perform worse in terms of predictive power (see example of GLS implementation in [Assumption on Indepedent and Identically Distributed Residuals section of the notebook](https://github.com/cstorm125/cstorm125.github.io/blob/main/notebook/sales_prediction.ipynb)).
+
+Assuming we trust the White test, we can easily derive Duan's smearing estimator by taking mean of error between actual and predicted `TargetSales` in the training set.
 
 ```{python}
 #| eval: true
