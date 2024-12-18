@@ -234,7 +234,7 @@ window.Quarto = {
 <figcaption>featured_image</figcaption>
 </figure>
 </div>
-<div id="24823aac" class="cell" data-execution_count="1">
+<div id="6d675a4a" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -335,7 +335,7 @@ window.Quarto = {
 <section id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl" class="level2">
 <h2 class="anchored" data-anchor-id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl">This Is Not a Drill: Real-world Datasets, Meticulous Feature Engineering, State-of-the-art AutoML</h2>
 <p>To make this exercise as realistic as possible, we will use a real-world dataset (as opposed to a simulated one), perform as much feature engineering as we would in a real-world setting, and employ the best AutoML solution the market has to offer in <a href="https://auto.gluon.ai/dev/index.html">AutoGluon</a>.</p>
-<div id="43525072" class="cell" data-execution_count="2">
+<div id="bbfa68ee" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>online_retail <span class="op">=</span> fetch_ucirepo(<span class="bu">id</span><span class="op">=</span><span class="dv">352</span>) </span>
@@ -370,7 +370,7 @@ window.Quarto = {
 <li>Filter out transactions where either <code>UnitPrice</code> or <code>Quantity</code> is less than zero; from 406,829 to 397,884 transactions</li>
 <li>Fill in missing product <code>Description</code> with value <code>UNKNOWN</code>.</li>
 </ol>
-<div id="baa8b355" class="cell" data-execution_count="3">
+<div id="e4d6dd1b" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(transaction_df.shape)</span>
@@ -401,69 +401,69 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">148083</td>
-<td>555524</td>
-<td>22697</td>
-<td>GREEN REGENCY TEACUP AND SAUCER</td>
-<td>1</td>
-<td>6/5/2011 11:37</td>
-<td>2.95</td>
-<td>16923</td>
+<td data-quarto-table-cell-role="th">276682</td>
+<td>570008</td>
+<td>22598</td>
+<td>CHRISTMAS MUSICAL ZINC TREE</td>
+<td>12</td>
+<td>10/7/2011 9:30</td>
+<td>0.85</td>
+<td>13359</td>
 <td>United Kingdom</td>
-<td>2011-06</td>
-<td>2.95</td>
+<td>2011-10</td>
+<td>10.20</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">11535</td>
-<td>537773</td>
-<td>20978</td>
-<td>36 PENCILS TUBE SKULLS</td>
-<td>1</td>
-<td>12/8/2010 12:36</td>
-<td>1.25</td>
-<td>16016</td>
+<td data-quarto-table-cell-role="th">2894</td>
+<td>536746</td>
+<td>22604</td>
+<td>SET OF 4 NAPKIN CHARMS CUTLERY</td>
+<td>6</td>
+<td>12/2/2010 13:39</td>
+<td>2.55</td>
+<td>16510</td>
 <td>United Kingdom</td>
 <td>2010-12</td>
-<td>1.25</td>
+<td>15.30</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">44917</td>
-<td>542412</td>
-<td>21844</td>
-<td>RED RETROSPOT MUG</td>
-<td>3</td>
-<td>1/27/2011 16:49</td>
+<td data-quarto-table-cell-role="th">238815</td>
+<td>566361</td>
+<td>85123A</td>
+<td>WHITE HANGING HEART T-LIGHT HOLDER</td>
+<td>12</td>
+<td>9/12/2011 12:32</td>
 <td>2.95</td>
-<td>16725</td>
+<td>15253</td>
 <td>United Kingdom</td>
-<td>2011-01</td>
-<td>8.85</td>
+<td>2011-09</td>
+<td>35.40</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">185735</td>
-<td>560260</td>
-<td>15056N</td>
-<td>EDWARDIAN PARASOL NATURAL</td>
-<td>1</td>
-<td>7/17/2011 13:32</td>
-<td>5.95</td>
-<td>14044</td>
+<td data-quarto-table-cell-role="th">72407</td>
+<td>545830</td>
+<td>47590B</td>
+<td>PINK HAPPY BIRTHDAY BUNTING</td>
+<td>3</td>
+<td>3/7/2011 13:10</td>
+<td>5.45</td>
+<td>17634</td>
 <td>United Kingdom</td>
-<td>2011-07</td>
-<td>5.95</td>
+<td>2011-03</td>
+<td>16.35</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">232413</td>
-<td>565765</td>
-<td>22530</td>
-<td>MAGIC DRAWING SLATE DOLLY GIRL</td>
-<td>24</td>
-<td>9/6/2011 14:19</td>
-<td>0.42</td>
-<td>12526</td>
-<td>Germany</td>
-<td>2011-09</td>
-<td>10.08</td>
+<td data-quarto-table-cell-role="th">78138</td>
+<td>546538</td>
+<td>15044A</td>
+<td>PINK PAPER PARASOL</td>
+<td>6</td>
+<td>3/14/2011 14:51</td>
+<td>2.95</td>
+<td>16327</td>
+<td>United Kingdom</td>
+<td>2011-03</td>
+<td>17.70</td>
 </tr>
 </tbody>
 </table>
@@ -472,7 +472,7 @@ window.Quarto = {
 </div>
 </div>
 <p>We formulate the problem as predicting the sales (<code>TargetSales</code>) during Q4 2011 for each customers who bought at least one item during Q1-Q3 2011. Note that we are interested in predicting the <strong>spend per customer</strong> as accurately as possible; this is common for marketing use cases such as determining what spend threshold to give each customer in a promotion, targeting customers for upselling, or detecting early signs of churns. It is notably different from predicting <strong>total spend of all customers</strong> during a time period, which usually requires a different approach.</p>
-<div id="2e0dbbea" class="cell" data-execution_count="4">
+<div id="dd07bfca" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>feature_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-01'</span>, <span class="st">'end'</span>: <span class="st">'2011-09'</span>}</span>
@@ -496,7 +496,7 @@ window.Quarto = {
 </details>
 </div>
 <p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3,438 customers.</p>
-<div id="d87efac7" class="cell" data-execution_count="5">
+<div id="891ddfc0" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
@@ -521,7 +521,7 @@ max      168469.600000
 Name: TargetSales, dtype: float64</code></pre>
 </div>
 </div>
-<div id="1834587e" class="cell" data-execution_count="6">
+<div id="1e7b1a96" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
@@ -548,7 +548,7 @@ Name: TargetSales, dtype: float64</code></pre>
 <li>Outdoor and Garden</li>
 <li>Others</li>
 </ol>
-<div id="cc1c4f8c" class="cell" data-execution_count="7">
+<div id="bae30ac9" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> feature_transaction.Description.unique().tolist()</span>
@@ -588,35 +588,45 @@ Name: TargetSales, dtype: float64</code></pre>
 2. Kitchen and Dining:
     * Cookware and utensils
     * Tableware (e.g. plates, cups, etc.)
-    * Kitchen decor (e.g. wall art, etc.)
+    * Kitchen decor (e.g. signs, magnets, etc.)
     * Food and drink items (e.g. tea, coffee, etc.)
 3. Fashion and Accessories:
     * Jewelry (e.g. necklaces, earrings, etc.)
     * Handbags and wallets
     * Clothing and accessories (e.g. scarves, hats, etc.)
+    * Beauty and personal care items (e.g. cosmetics, skincare, etc.)
 4. Stationery and Gifts:
-    * Cards and gift wrap
+    * Greeting cards
+    * Gift wrap and bags
     * Stationery (e.g. notebooks, pens, etc.)
     * Gift items (e.g. mugs, keychains, etc.)
 5. Toys and Games:
     * Toys (e.g. stuffed animals, puzzles, etc.)
     * Games and puzzles
+    * Outdoor toys and games
 6. Seasonal and Holiday:
     * Christmas decorations and gifts
     * Easter decorations and gifts
-    * Other seasonal items (e.g. Halloween, etc.)
-7. Personal Care and Wellness:
-    * Beauty and personal care items (e.g. skincare, haircare, etc.)
-    * Wellness items (e.g. essential oils, etc.)
-8. Outdoor and Garden:
-    * Garden decor and accessories
-    * Outdoor furniture and decor
+    * Halloween decorations and gifts
+    * Other seasonal and holiday items
+7. Office and School:
+    * Office supplies (e.g. pens, paper, etc.)
+    * School supplies (e.g. backpacks, lunchboxes, etc.)
+    * Desk accessories (e.g. paperweights, etc.)
+8. Garden and Outdoor:
     * Gardening tools and supplies
+    * Outdoor decor (e.g. planters, etc.)
+    * Patio and outdoor furniture
+9. Baby and Kids:
+    * Baby clothing and accessories
+    * Kids' clothing and accessories
+    * Toys and games for kids
+    * Nursery decor and furniture
 
-Note that some products may fit into multiple categories, but I have assigned them to the one that seems most relevant.</code></pre>
+Note that some products may fit into multiple categories, but I've tried to categorize them based on their primary function or theme.</code></pre>
 </div>
 </div>
-<div id="f990d6f1" class="cell" data-execution_count="8">
+<div id="0514b157" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loop through descriptions in batches of batch_size</span></span>
@@ -658,7 +668,7 @@ Note that some products may fit into multiple categories, but I have assigned th
 </details>
 </div>
 <p>Here is the share of product descriptions in each annotated category:</p>
-<div id="4d225cfb" class="cell" data-execution_count="9">
+<div id="4e6b7752" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>product_description_category <span class="op">=</span> pd.read_csv(<span class="st">'../../data/sales_prediction/product_description_category.csv'</span>,</span>
@@ -683,7 +693,7 @@ Name: proportion, dtype: float64</code></pre>
 </div>
 </div>
 <p>We merge the RFM features with preference features, that is share of sales in each category for every customer, then the outcome <code>TargetSales</code> to create the universe set for the problem.</p>
-<div id="10eb2286" class="cell" data-execution_count="10">
+<div id="1340cfd0" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>feature_transaction_cat <span class="op">=</span> feature_transaction.merge(product_description_category,</span>
@@ -914,7 +924,7 @@ Name: proportion, dtype: float64</code></pre>
 </div>
 </div>
 <p>Univariate correlation expectedly pinpoints <code>total_sales</code> in during Q1-Q3 2011 as the most predictive feature; however, we can see that it is still not very predictive. This shows that the problem is not a trivial one.</p>
-<div id="9420c2fb" class="cell" data-execution_count="11">
+<div id="61b5f86d" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df[[<span class="st">'TargetSales'</span>,<span class="st">'total_sales'</span>]].corr())</span>
@@ -936,7 +946,7 @@ total_sales     0.558558     1.000000</code></pre>
 </div>
 </div>
 <p>We randomly split the dataset into train and test sets at 80/20 ratio. We also confirm the distribution of <code>TargetSales</code> is similar across percentiles between train and test and only different at the upper end.</p>
-<div id="faec1f58" class="cell" data-execution_count="12">
+<div id="179cc361" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#split into train-valid sets</span></span>
@@ -1076,7 +1086,7 @@ total_sales     0.558558     1.000000</code></pre>
 <section id="naive-baseline-regression" class="level2">
 <h2 class="anchored" data-anchor-id="naive-baseline-regression">Naive Baseline Regression</h2>
 <p>The most naive solution is to simply predict <code>TargetSales</code> based on the features. We use a stacked ensemble of LightGBM, CatBoost, XGBoost, Random Forest and Extra Trees via AutoGluon. We train with <code>good_quality</code> preset, stated to be <a href="https://auto.gluon.ai/stable/tutorials/tabular/tabular-essentials.html#presets">“Stronger than any other AutoML Framework”</a>, for speedy training and inference but feel free to try more performant options. We exclude the neural-network models as they require further preprocessing of the features. We use an industry-grade, non-parametric model to be as close to a real use case as possible and make a point that the methodology works not only in a toy-dataset setup.</p>
-<div id="1d50b4de" class="cell" data-execution_count="13">
+<div id="3fbfdc36" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>preset <span class="op">=</span> <span class="st">'good_quality'</span></span>
@@ -1088,7 +1098,7 @@ total_sales     0.558558     1.000000</code></pre>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_baseline'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="9377770b" class="cell" data-execution_count="14">
+<div id="7fed6cc4" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>metric_baseline <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_baseline'</span>])</span>
@@ -1110,7 +1120,7 @@ total_sales     0.558558     1.000000</code></pre>
 </section>
 <section id="regression-on-winsorized-outcome" class="level2">
 <h2 class="anchored" data-anchor-id="regression-on-winsorized-outcome">Regression on Winsorized Outcome</h2>
-<div id="f8b8d091" class="cell" data-execution_count="15">
+<div id="7a755145" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>outlier_per <span class="op">=</span> <span class="fl">0.99</span></span>
@@ -1118,7 +1128,7 @@ total_sales     0.558558     1.000000</code></pre>
 </details>
 </div>
 <p>An alternative approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. In our case, we cap the outlier at 99.0% or <code>TargetSales</code> equals 7,180.81. While this solves the long/fat-tailed issues, it does not deal with zero inflation and also introduce bias to the outcome. This leads to better performance when tested on the winsorized outcome, but not so much on the original outcome.</p>
-<div id="d29e8b05" class="cell" data-execution_count="16">
+<div id="84ff6b81" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#winsorize</span></span>
@@ -1133,7 +1143,7 @@ total_sales     0.558558     1.000000</code></pre>
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_winsorized'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="64244c76" class="cell" data-execution_count="17">
+<div id="67df490f" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>metric_winsorized <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_winsorized'</span>])</span>
@@ -1156,7 +1166,7 @@ total_sales     0.558558     1.000000</code></pre>
 <section id="regression-on-log-plus-one-transformed-outcome" class="level2">
 <h2 class="anchored" data-anchor-id="regression-on-log-plus-one-transformed-outcome">Regression on Log-plus-one-transformed Outcome</h2>
 <p>Log transformation handles long/fat-tailed distribution and is especially useful for certain models since the transformed distribution is closer normal. However, it cannot handle zero-valued outcome and oftentimes scientists end up adding 1 to the outcome (so often that <code>numpy</code> even has a function for it). This not only introduces bias to the prediction, but also does not solve the zero-inflation as it becomes one-inflation instead.</p>
-<div id="7ee4730a" class="cell" data-execution_count="18">
+<div id="21c4dbbd" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#log</span></span>
@@ -1175,7 +1185,7 @@ total_sales     0.558558     1.000000</code></pre>
 </div>
 </div>
 <p>We can see that this is the best performing approach so far, which is one of the reasons why so many scientists end up going for this not-entirely-correct approach.</p>
-<div id="b8eca599" class="cell" data-execution_count="19">
+<div id="0898834d" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>predictor <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log1p'</span>).fit(train_df[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log1p'</span>]],</span>
@@ -1187,7 +1197,7 @@ total_sales     0.558558     1.000000</code></pre>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log1p_expm1'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log1p'</span>].<span class="bu">map</span>(np.expm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="a8ca60f7" class="cell" data-execution_count="20">
+<div id="4f365169" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>metric_log1p <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_log1p_expm1'</span>])</span>
@@ -1210,7 +1220,7 @@ total_sales     0.558558     1.000000</code></pre>
 <section id="hurdle-model" class="level2">
 <h2 class="anchored" data-anchor-id="hurdle-model">Hurdle Model</h2>
 <p>Hurdle model is a two-stage approach that handles zero inflation by first having a classification model to predict if the outcome is zero or not, then a regression model, trained only on examples with actual non-zero outcomes, to fit a log-transformed outcome. When retransforming the predictions from log to non-log numbers, we perform correction of underestimation using Duan’s method. During inference time, we multiply the predictions from the classification and corrected regression model.</p>
-<div id="df507d30" class="cell" data-execution_count="21">
+<div id="2c9204b8" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'has_purchase'</span>] <span class="op">=</span> train_df.TargetSales.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
@@ -1224,7 +1234,7 @@ total_sales     0.558558     1.000000</code></pre>
 </details>
 </div>
 <p>For our splits, 51.42% of train and 53.05% of test include customers with non-zero purchase outcome. As with all two-stage approaches, we need to make sure the intermediate model performs reasonably in classifying zero/non-zero outcomes.</p>
-<div id="d58c9f70" class="cell" data-execution_count="22">
+<div id="0e36c242" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>caluclate_classification_metrics(test_df[<span class="st">'has_purchase'</span>], test_df[<span class="st">'pred_binary'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1238,7 +1248,7 @@ total_sales     0.558558     1.000000</code></pre>
         [118, 247]])}</code></pre>
 </div>
 </div>
-<div id="f067ac8d" class="cell" data-execution_count="23">
+<div id="df682b83" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero <span class="op">=</span> train_df[train_df.has_purchase<span class="op">==</span><span class="dv">1</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
@@ -1250,7 +1260,7 @@ total_sales     0.558558     1.000000</code></pre>
 </details>
 </div>
 <p>After that, we perform log-transformed regression on the examples with non-zero outcome (1,414 examples in train). Without the need to worry about <code>ln(0)</code> outcome, the regression is much more straightforward albeit with fewer examples to train on.</p>
-<div id="bb518cfb" class="cell" data-execution_count="24">
+<div id="16f28c1d" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'TargetSales_log'</span>].hist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1263,7 +1273,7 @@ total_sales     0.558558     1.000000</code></pre>
 </div>
 </div>
 </div>
-<div id="91903b32" class="cell" data-execution_count="25">
+<div id="d9b71569" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>predictor_reg <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log'</span>).fit(train_df_nonzero[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log'</span>]],</span>
@@ -1280,7 +1290,7 @@ total_sales     0.558558     1.000000</code></pre>
 </details>
 </div>
 <p>For inference, we combine the binary prediction (purchase/no purchase) from the classification model with the re-transformed (exponentialized) numerical prediction from the regression model by simply multiplying them together. As you can see, this approach yields the best performance so far and this is where I used to think everything has been accounted for.</p>
-<div id="07ecfacc" class="cell" data-execution_count="26">
+<div id="5bd23ed2" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>metric_hurdle <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle'</span>])</span>
@@ -1335,7 +1345,7 @@ E[y] &amp;= E[exp(f(X))] \cdot E[exp(\epsilon)]
 pronouncing the method's name incorrectly since it should be [twàn]'s 
 method, NOT /dwɑn/'s method.</code></pre>
 <p>Before we proceed, the formulation of Duan’s smearing estimator assumes that estimates of error terms (residuals) for log predictions be <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables">independent and identically distributed</a>. Since we are dealing with individual customers, independence can be assumed. However, if we look at the plot of residuals vs predicted log values (based on training set), we can see that they do not look particularly identically distributed.</p>
-<div id="8ec9c8da" class="cell" data-execution_count="27">
+<div id="67cc0233" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot residual and predicted log value</span></span>
@@ -1357,7 +1367,7 @@ method, NOT /dwɑn/'s method.</code></pre>
 </div>
 </div>
 <p>Although note that <a href="https://en.wikipedia.org/wiki/White_test">White test</a> does not reject the null hypothesis of the residuals being homoscedastic in reference to the features. This counterintuitive result might stem from the fact that White test is assuming linear or quadratic relationships between outcome and features while the residuals are derived from a stacked ensemble of decision trees.</p>
-<div id="7ec4d8c4" class="cell" data-execution_count="28">
+<div id="34b7aecb" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>white_stat, white_p_value, _, _ <span class="op">=</span> het_white(train_df_nonzero[<span class="st">'residual_log'</span>], </span>
@@ -1372,7 +1382,7 @@ P-value: 0.8761278601130765</code></pre>
 </div>
 <p>Our choice is to either trust the White test and <del>pretend</del> assume everything is fine; or trust our eyes and replace the non-zero regression model with one that produces iid residuals such as <a href="https://en.wikipedia.org/wiki/Generalized_least_squares">generalized least squares (GLS)</a> with heteroscedasticity-robust standard errors. The tradeoff is that often models that produce homoscedastic residuals perform worse in terms of predictive power (see example of GLS implementation in <a href="https://github.com/cstorm125/cstorm125.github.io/blob/main/notebook/sales_prediction.ipynb">Assumption on Indepedent and Identically Distributed Residuals section of the notebook</a>).</p>
 <p>Assuming we trust the White test, we can easily derive Duan’s smearing estimator by taking mean of error between actual and predicted <code>TargetSales</code> in the training set.</p>
-<div id="c0b4eaa1" class="cell" data-execution_count="29">
+<div id="1af5139d" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(train_df_nonzero[selected_features])</span>
@@ -1386,7 +1396,7 @@ P-value: 0.8761278601130765</code></pre>
 </div>
 </div>
 <p>We multiply this to the predictions of the hurdle model to correct the underestimation due to re-transformation bias.</p>
-<div id="9d937b98" class="cell" data-execution_count="30">
+<div id="f713e918" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp_corrected'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log_exp'</span>] <span class="op">*</span> smearing_estimator</span>
@@ -1412,7 +1422,7 @@ P-value: 0.8761278601130765</code></pre>
 <section id="the-eval-bar" class="level2">
 <h2 class="anchored" data-anchor-id="the-eval-bar">The Eval Bar</h2>
 <p>We can see that the hurdle model with Duan’s correction performs best across majority of the metrics. We will now deep dive on metrics where it did not to understand the caveats when taking this approach.</p>
-<div id="187903fb" class="cell" data-execution_count="31">
+<div id="f76de7a5" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>metric_df <span class="op">=</span> pd.DataFrame([metric_baseline,</span>
@@ -1533,7 +1543,7 @@ P-value: 0.8761278601130765</code></pre>
 </div>
 </div>
 </div>
-<div id="04ad5291" class="cell" data-execution_count="32">
+<div id="523aec69" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>metric_df.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1635,7 +1645,7 @@ P-value: 0.8761278601130765</code></pre>
 <section id="why-duans-correction-results-in-slightly-worse-mae" class="level3">
 <h3 class="anchored" data-anchor-id="why-duans-correction-results-in-slightly-worse-mae">Why Duan’s Correction Results in Slightly Worse MAE?</h3>
 <p>Duan’s method adjusts for underestimation from re-transformation of log outcome. This could lead to smaller extreme errors, but more frequent occurrences of less extreme ones. We verify this hypothesis by comparing mean absolute error before and after transformation for errors originally under and over 99th percentile. We confirm that is the case for our problem.</p>
-<div id="6a712204" class="cell" data-execution_count="33">
+<div id="0e41bb6d" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>err_hurdle <span class="op">=</span> (test_df[<span class="st">'TargetSales'</span>] <span class="op">-</span> test_df[<span class="st">'pred_hurdle'</span>]).<span class="bu">abs</span>()</span>
@@ -1662,7 +1672,7 @@ max      55731.205996
 dtype: float64</code></pre>
 </div>
 </div>
-<div id="002fb03a" class="cell" data-execution_count="34">
+<div id="657c4869" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Hurdle Model without correction'</span>)</span>
@@ -1686,7 +1696,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <section id="importance-of-classification-model" class="level3">
 <h3 class="anchored" data-anchor-id="importance-of-classification-model">Importance of Classification Model</h3>
 <p>The overperformance of log-transform regression over both hurdle model approarches in Spearman’s rank correlation and median absolute error demonstrates the importance of a classification model. At first glance, it is perplexing since we have just spent a large portion of this article to justify that hurdle models handle zero inflation better and re-transformation without Duan’s method is biased. However, it becomes clear once you compare performance of the hurdle model with a classification model (f1 = 0.69) and a hypothetical, perfect classification model. Other metrics also improved but not nearly as drastic as MedAE and Spearman’s rank correlation.</p>
-<div id="202bb853" class="cell" data-execution_count="35">
+<div id="87e3baa5" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>] <span class="op">=</span> test_df.has_purchase <span class="op">*</span> test_df.pred_log_exp_corrected</span>
@@ -1809,7 +1819,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <section id="remember-what-problem-we-are-solving" class="level3">
 <h3 class="anchored" data-anchor-id="remember-what-problem-we-are-solving">Remember What Problem We Are Solving</h3>
 <p>One last thing to remember is that we are trying to predict <strong>sales of each individual customer</strong>, not <strong>total sales of all customers</strong>. If we look at aggregated mean or sum of actual sales vs predicted sales, baseline regression performs best by far. This is due to the fact that without any constraints a regressor only minimizes the MSE loss and usually ends up predicting values around the mean to balance between under- and over-predictions. However, this level of prediction is often not very useful as a single point. Imagine you want to give promotions with higher or lower spend thresholds to customers according to their purchasing power; you will not be able to do so with a model that is accurate on aggregate but not so much on individual customers.</p>
-<div id="ba9a1a98" class="cell" data-execution_count="36">
+<div id="658fb602" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>test_df[[<span class="st">'TargetSales'</span>,<span class="st">'pred_baseline'</span>,<span class="st">'pred_winsorized'</span>,<span class="st">'pred_log1p_expm1'</span>,<span class="st">'pred_hurdle'</span>,<span class="st">'pred_hurdle_corrected'</span>]].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
