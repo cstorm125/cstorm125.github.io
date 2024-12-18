@@ -4,6 +4,8 @@ author: "cstorm125"
 date: "2024-11-25"
 categories: [retail, zero-inflated, long/fat-tailed, hurdle]
 image: "featured_image.jpg"
+sidebar:
+  contents: auto
 format:
   html:
     code-fold: true
