@@ -1,0 +1,1426 @@
+---
+title: "(Almost) All SQL You Need"
+author: "cstorm125"
+date: "2025-06-29"
+categories: [sql, tutorial]
+image: "featured_image.jpg"
+sidebar:
+  contents: auto
+format:
+  html:
+    code-fold: true
+jupyter: python3
+toc: true
+toc-location: left
+---
+
+Skill mastery is an endeavor of diminishing returns. You can get from zero to [good enough](http://act-r.psy.cmu.edu/wordpress/wp-content/uploads/2012/12/63ACS_JRA_PR.1982.pdf) (think first-time chess player to 500 online rating) within 100 hours of deliberate practice; however, it is exponentially more difficult to get from good enough to [mastered](https://www.researchgate.net/publication/224827585_The_Role_of_Deliberate_Practice_in_the_Acquisition_of_Expert_Performance) (think a 500-rated chess player trying to become a 2200-FIDE-rated Candidate Master), requiring over 100x more delibrate practice. SQL is the basic building blocks of data analysis and I posit that most peopleーproduct managers, marketers, salespeople, and other makeshift data analystsーsimply need to be good enough. 
+
+This tutorial aims to encapsulate almost all SQL techniques you need to glean actionable insights from your ([non-transactional](https://stackoverflow.com/questions/18884728/difference-between-transactional-and-non-transactional)) datasets. We will use the [Taobao User Behavior](https://www.kaggle.com/datasets/marwa80/userbehavior) dataset and [duckdb](https://duckdb.org/) to simulate a SQL interface. There will be idiosyncracies according to which flavors of SQL you are usingーPostgres, Presto, Redshift, BigQuery, and so onーbut you should be able to adapt the principles outlined here with a little help of modern coding assistants.
+
+I recommend that you first quickly skim through this post to have a rough idea of what SQL is all about, then move on to complete the [exercise](https://colab.research.google.com/github/cstorm125/cstorm125.github.io/blob/main/notebook/sql_almost_exercise.ipynb) for some hands-on shenanigans. While completing it, feel free to refer back to this post and read some sections more in details. The road to becoming a true SQL monkey starts with writing queries.
+
+![featured_image](featured_image.jpg)
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+import duckdb
+import pandas as pd
+pd.set_option('display.max_rows', 6) 
+import numpy as np
+import random
+from tqdm.auto import tqdm
+import os
+import timeit
+
+
+df = pd.read_csv('../../data/sql_almost/UserBehavior.csv',
+      header=None)
+df.columns = [
+  'user_id',
+  'item_id',
+  'category_id',
+  'behavior_type',
+  'timestamp']
+
+#sample 5M rows out of 100M to run in reasonable time
+df = df.sample(n=5_000_000, random_state=112).reset_index(drop=True)
+
+# # save to parquet
+# con = duckdb.connect()
+# con.register('transaction_tbl', df)
+# output_dir = '../../data/sql_almost/transaction_tbl'
+# os.makedirs(output_dir, exist_ok=True)
+
+# con.execute(f"""
+# COPY transaction_tbl
+# TO '{output_dir}'
+# (FORMAT PARQUET, PARTITION_BY (category_id, behavior_type), OVERWRITE_OR_IGNORE);
+# """)
+```
+
+## 0. Intuition
+
+Imagine you are at a library to look for a certain piece of information. The entire library is off limits to the general public. The only way you can access any information is by telling the librarian exactly what you want and let them fetch it for you. The entire library is your **database**. The librarian is your **query engine** and what you tell them is your **query**. In the library, there are a number of shelves (representing **tables**) that contain any number of books (representing **rows** in a table) to answer your query. Each book from the same shelf contains the same number of pages (representing **columns** or **fields** in a row), each page having a distinct piece of information. Following your instruction, the librarian may walk to different shelves, scour some books and pages, mix-and-match the information, then present the answer to you. Therefore, our task is to give an instruction such that the librarian can give us the most accurate answer using the shortest time and energy possible.
+
+## 1. Sanity Checks Keep You Sane
+
+We are treating the [Taobao User Behavior](https://www.kaggle.com/datasets/marwa80/userbehavior) dataset as our table called `transaction_tbl`. It is a 5M-row subset based on parquet files partitioned by `category_id` and `behavior_type`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: false
+
+con = duckdb.connect()
+
+#short-hand function to execute query with duckdb easily
+def execute_query(query): return con.execute(query).fetchdf()
+
+query = f"""
+CREATE OR REPLACE TABLE transaction_tbl AS
+SELECT *
+FROM read_parquet('../../data/sql_almost/transaction_tbl/*/*/*.parquet', hive_partitioning=true);
+"""
+
+#load saved, partitioned table as transaction_tbl
+execute_query(query)
+```
+
+The table is a run-of-the-mill user behavior log consisting of 
+
+* `user_id`: identifier of user
+* `item_id`: identifier of item
+* `timestamp`: unix timestamp of when action happened
+* `behavior_type`: what type of action it was
+* `category_id`: identifier of category the item belongs to
+
+
+### Example: `select *`
+
+The first thing you do with a table you have not seen before is to select a few rows to look at. The texts in variable `query` is what you would type in your SQL interface.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select * from transaction_tbl limit 100;
+"""
+
+execute_query(query)
+```
+
+`select *` returns all columns from a table, and is almost always followed by `limit [NUMBER OF ROWS YOU WANT]` in order to not return the entire table but a random subset of it. This is less of a problem in the day and age where most query engines have a built-in safeguard to not display the entire table as a result, otherwise you can crash your system by asking for a terabyte-level output.
+
+### Example: `describe`
+
+Another useful command is `describe`. It will tell you what the columns are, their data types, do they have null (missing) values and so on. Common data types are `int/bigint` for integers, `float` for approximate decimals, `varchar/string` for texts, `boolean` for true/false and `timestamp/date` for, well, timestamps and dates. However, they are always ever so slightly different depending on which SQL you are using so better confirm with the documentation such as [this one for Presto](https://prestodb.io/docs/current/language/types.html).
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+describe transaction_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: `count` and `count(distinct [COLUMN])`
+
+The last check you always want to do is to `count` how many rows exist in the table:
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select count(*) from transaction_tbl;
+"""
+
+execute_query(query)
+```
+
+We can also count how many unique values are in any column by adding `distinct` in front of the column name in `count`. You can also name your derived columns to know which ones mean what using `as`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+# count how many unique users
+query = f"""
+select 
+ count(*) as nb_event
+ ,count(distinct user_id) as nb_user
+from transaction_tbl;
+"""
+
+execute_query(query)
+```
+
+## 2. Assorted Platter of Selects
+
+Now that you know how to sanity-check a table, let us move on to selecting what you want. This is often done by filtering the result with conditions using the `where` clause. Here are some examples you want to familiarize yourself with.
+
+### Example: Who are the users that viewed item 2067266?
+
+Link multiple conditions with logical operators `and` / `or`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ distinct user_id
+from transaction_tbl
+where behavior_type = 'pv'
+ and item_id = 2067266;
+"""
+
+execute_query(query)
+```
+
+### Example: Who are the users that viewed item 2067266, ranked by who viewed last to who viewed first?
+
+We use `order by [COLUMN]` followed by `asc` for ascending order (default) and `desc` for descending order. 
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+
+query = f"""
+select 
+ user_id
+ ,timestamp
+from transaction_tbl
+where behavior_type = 'pv'
+ and item_id = 2067266
+order by timestamp desc;
+"""
+
+execute_query(query)
+```
+
+### Example: How many users did not buy?
+
+`<>` means not equal.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(distinct user_id) 
+from transaction_tbl
+where behavior_type <> 'buy';
+"""
+
+execute_query(query)
+```
+
+### Example: How many events happened before November 26, 2017 (timestamp 1511622000)?
+
+`>`, `<`, `>=`, `<=` also works with numeric columns.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(*)
+from transaction_tbl
+where timestamp < 1511622000;
+"""
+
+execute_query(query)
+```
+
+### Example: How many events happened between November 25, 2017 (timestamp 1511535600) and November 26, 2017 (timestamp 1511622000)?
+
+You can use `between` to replace `>=` and `<=`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(*)
+from transaction_tbl
+where timestamp between 1511535600 and 1511622000;
+"""
+
+execute_query(query)
+```
+
+### Example: How many events are either purchase (`buy`) or add-to-cart (`cart`)?
+
+We can use `in` in place of multiple `or`
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(*)
+from transaction_tbl
+where behavior_type in ('buy', 'cart');
+"""
+
+execute_query(query)
+```
+
+Check to see if multiple `or` really gives the same result.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(*)
+from transaction_tbl
+where behavior_type = 'buy' or behavior_type = 'cart';
+"""
+
+execute_query(query)
+```
+
+### Example: How many users interact (`pv`, `cart`, `fav`) with Taobao but never `buy`?
+
+We can use `not` as a negation for `in`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(distinct user_id)
+from transaction_tbl
+where behavior_type not in ('buy');
+"""
+
+execute_query(query)
+```
+
+### Example: How many `behavior_type` ends with a `v`?
+
+We use `like` to match texts that are similar what we want. `%` is the wild card to say anything can come before/after it. In this simple example, we already know the answer is 2: `pv` and `fav`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ count(distinct behavior_type)
+from transaction_tbl
+where behavior_type like '%v';
+"""
+
+execute_query(query)
+```
+
+## 3. Partitions, Partitions, Partitions
+
+Once you have mastered the basic select patterns, the next thing you must never forget when selecting from a table is to **ALWAYS SPECIFY THE PARTITIONS YOU NEED IN THE `WHERE` CLAUSE**. A modern SQL table is stored as multiple compressed files (most commonly `parquet`) in a nested subfolder structure as seen below. In this case, the partitions (subfolders) are columns `category_id` and `behavior_type`.
+
+> Fun Fact: Not only do you need to specify the partitions, you need to specify them with the **correct data types**. I once had a query than ran for 12 hours instead of 5 minutes, simply because I did not check if the partition was in datetime not string. Do not be me.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+def print_table_structure(table_path, first_category_id_dir):
+
+    #print root folder
+    print(table_path.split(os.sep)[-1])  
+
+    #get category_id partitions
+    category_ids = sorted([d for d in os.listdir(table_path) if os.path.isdir(os.path.join(table_path, d)) and d.startswith('category_id=')])
+
+    #print only the first category_id partition
+    category_id_path = os.path.join(table_path, first_category_id_dir)
+    print(f"  └── {first_category_id_dir}")
+
+    #get behavior_type partitions
+    behavior_types = sorted([d for d in os.listdir(category_id_path) if os.path.isdir(os.path.join(category_id_path, d)) and d.startswith('behavior_type=')])
+
+    #print all behavior_type partitions
+    for behavior_type_dir in behavior_types:
+      behavior_type_path = os.path.join(category_id_path, behavior_type_dir)
+      print(f"    └── {behavior_type_dir}")
+
+      #get all parquet files
+      files = sorted([f for f in os.listdir(behavior_type_path) if f.endswith('.parquet')])
+
+      #print all files under category_id, behavior_type partitions
+      for i, file in enumerate(files):
+          if i == len(files) - 1:
+              print(f"        └── {file}")
+          else:
+              print(f"        ├── {file}")
+
+    if len(category_ids) > 1:
+        print(f"  {len(category_ids) - 1} more category_id folders...")
+
+print_table_structure('../../data/sql_almost/transaction_tbl','category_id=1462446')
+```
+
+To understand why specifying partitions is crucial, let us try our first query again and see how long it takes to run. We conduct 100 trials of 100 runs each to get mean and standard deviation of query time.
+
+### Example: Who are the users that viewed item 2067266? Run WITHOUT partition in `where` clause.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = """
+select distinct user_id from transaction_tbl
+where item_id = 2067266;
+"""
+
+ts = timeit.repeat(
+  lambda: execute_query(query),
+  number=100,
+  repeat=100
+)
+
+print(f'Query time WITHOUT partition: {np.mean(ts):.2f}±{np.std(ts):.2f} seconds')
+```
+
+### Example: Who are the users that viewed item 2067266? Run WITH `category_id` partition in `where` clause.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+
+query = """
+select distinct user_id from transaction_tbl
+where item_id = 2067266
+ and category_id = 4339722;
+"""
+
+ts = timeit.repeat(
+  lambda: execute_query(query),
+  number=100,
+  repeat=100
+)
+
+print(f'Query time WITH partition: {np.mean(ts):.2f}±{np.std(ts):.2f} seconds')
+```
+
+What sorcery is this? The query time is roughly halved! This is because when we include partitions in the `where` clause, we are telling the query engine to *only look at the specific parts of the data* not the entire table. In real life, not specifying which partitions you need as detailed as possible can spell the difference between waiting for two hours or a few seconds.
+
+## 4. Column-wise Manipulation
+
+Before we move on, you might have noticed that our dataset is a little bland with only a timestamp and categorical columns (`timestamp`, `user_id`, `item_id`, `category_id`, `behavior_type`). In reality, such table as the one we are using often contains `price` of the item and `quantity` by which they were purchased. We can add that by manipulating existing columns.
+
+### Example: Add `price` column where price is `item_id` modulus 1000 + 50
+
+Here we add the `price` column we randomly generated to the result. You can manipulate any numeric columns with [arithmetic operators](https://www.geeksforgeeks.org/sql-arithmetic-operators/]).
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select 
+ *
+ ,item_id % 1000 + 50 as price
+from transaction_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: Add `quantity` column that is a random number between 1 and 10, only for `buy` events. For all other events, leave it as missing values (`null`).
+
+When you buy from a store, you need to specify a quantity of the items; however, for other events (when you view, favorite or add-to-cart), you do not. We must give the query engine an if-else logic depending on the values in each row. In SQL, we do this by using `case when [CONDITION] then [VALUE] else [DEFAULT VALUE] end`. We use `setseed` to keep the randomized numbers the same set.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+#random is randomizing number between 0 and 1 then floor rounds it down
+query = f"""
+select setseed(0.112);
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl
+"""
+
+execute_query(query)
+```
+
+We can also have as many `when` as we want. If we want to explicitly state the conditions for all `behavior_type`, it will look something like:
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case 
+   when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 
+   when behavior_type = 'pv' then null
+   when behavior_type = 'cart' then null
+   when behavior_type = 'fav' then null
+   else null 
+  end as quantity
+from transaction_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: Calculate `sales` by multiplying `price` and `quantity`
+
+We can do operations among columns of the table. This example necessitates us to perform `select` twice: first to create `price` and `quantity`, then to create `sales` by multiplying them together. We do this by writing a subquery.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ whatever_subquery_alias_you_want.*
+ ,price * quantity as sales
+from 
+(select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl) whatever_subquery_alias_you_want;
+"""
+
+execute_query(query)
+```
+
+You would notice that the query becomes exponentially less readable with subqueries. This is especially the case when you have multiple nested subqueries and they become unreadable even by you in the next 3 months. An elegant solution is to separate these subqueries with `with` clauses. This is especially useful if you have a subquery you would like to reuse later in *the same query*. There is no performance difference between subqueries and `with` clauses, so pick what is easiest to read for you.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+with t1_tbl as (
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl
+)
+
+select 
+ *
+ ,price * quantity as sales
+from t1_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: Fill in missing values in `sales` with zero.
+
+We use `coalesce` to fill in missing values. Notice that we can have multiple `with` clauses (consecutive ones puncutated by `,` and do not need `with`) depending on how you thin is most readable.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+with t1_tbl as (
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl
+),
+
+t2_tbl as (
+select 
+ *
+ ,price * quantity as sales
+from t1_tbl
+)
+
+select
+ user_id
+ ,item_id
+ ,timestamp
+ ,behavior_type
+ ,category_id
+ ,price
+ ,quantity
+ ,coalesce(sales, 0) as sales
+from t2_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: Convert timestamp from unix timestamp to `yyyy-mm-dd` format.
+
+Datetime conversion, as in any programming script, is a very confusing affair, so I highly recommend you refer to your specific SQL's documentation such as [this one for Spark](https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html). But the idea is simply applying some function over your columns. Here we use `to_timestamp` to convert from `int` to unix timestamp and then use `strftime` to convert to a string formatted as `yyyy-mm-dd`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+with t1_tbl as (
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl
+),
+
+t2_tbl as (
+select 
+ *
+ ,price * quantity as sales
+from t1_tbl
+),
+
+t3_tbl as (
+select
+ user_id
+ ,item_id
+ ,timestamp
+ ,behavior_type
+ ,category_id
+ ,price
+ ,quantity
+ ,coalesce(sales, 0) as sales
+from t2_tbl)
+
+select
+ *
+ ,to_timestamp(timestamp) as event_timestamp
+ ,strftime(to_timestamp(timestamp), '%Y-%m-%d') as event_date
+from t3_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: Make a string column `year_month` that takes only the `yyyy-mm` part from `event_timestamp`.
+
+Most query engines have built-in functions to manipulate texts such as [this one for duckdb](https://duckdb.org/docs/stable/sql/functions/text.html). However, in this case, since `event_timestamp` is a timestmap, we need to convert its data type to string before applying the function `substring` by using `cast([COLUMN] as [DATA TYPE])`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+with t1_tbl as (
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl
+),
+
+t2_tbl as (
+select 
+ *
+ ,price * quantity as sales
+from t1_tbl
+),
+
+t3_tbl as (
+select
+ user_id
+ ,item_id
+ ,timestamp
+ ,behavior_type
+ ,category_id
+ ,price
+ ,quantity
+ ,coalesce(sales, 0) as sales
+from t2_tbl),
+
+t4_tbl as (
+select
+ *
+ ,to_timestamp(timestamp) as event_timestamp
+ ,strftime(to_timestamp(timestamp), '%Y-%m-%d') as event_date
+from t3_tbl)
+
+select
+ *
+ ,substring(cast(event_timestamp as varchar),1,7) as year_month
+from t4_tbl;
+"""
+
+execute_query(query)
+```
+
+### Example: Save the manipulations done so far as a `view` to be used later.
+
+You'll notice that even with the `with` clauses, our query seems substantially more clunky now. We do not want to be re-writing these lines every time we reuse this set of results for other queries. Luckily, there is a solution called `view`. A view saves the query logic that can be used for other queries later. Unlike actual SQL tables, the data are not stored physically on your database, so the query saved to a view will still run every time it is called.
+
+This query creates the view:
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+create or replace view transaction_tbl_x as (
+
+with t1_tbl as (
+select 
+ *
+ ,item_id % 1000 + 50 as price
+ ,case when behavior_type = 'buy' then FLOOR(RANDOM() * 10) + 1 else null end as quantity
+from transaction_tbl
+),
+
+t2_tbl as (
+select 
+ *
+ ,price * quantity as sales
+from t1_tbl
+),
+
+t3_tbl as (
+select
+ user_id
+ ,item_id
+ ,timestamp
+ ,behavior_type
+ ,category_id
+ ,price
+ ,quantity
+ ,coalesce(sales, 0) as sales
+from t2_tbl),
+
+t4_tbl as (
+select
+ *
+ ,to_timestamp(timestamp) as event_timestamp
+ ,strftime(to_timestamp(timestamp), '%Y-%m-%d') as event_date
+from t3_tbl)
+
+select
+ *
+ ,substring(cast(event_timestamp as varchar),1,7) as year_month
+from t4_tbl
+)
+"""
+
+execute_query(query)
+```
+
+This query reuses it by a simple `select *`:
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select * from transaction_tbl_x limit 100;
+"""
+
+execute_query(query)
+```
+
+## 5. Aggregation aka Group By
+
+When you have millions of rows of data, you do not want to look at them one by one; you want to know how they appear in aggregateーhow many events there are for each type, which items are favorited the most/least, how many items users buy on average, and so on. In fact, you have already learned how to do some of this. `count` and `count(distinct [COLUMN])` are examples of aggregation over the entire table. In this section, we will also learn to use `group by` to get aggregated values according to the columns we want.
+
+### Example: How many events are there for each event type (`behavior_type`)?
+
+You can order by the newly created `nb_event` column to sort event types in descending order according to how many events they have. As expected, it is views, add-to-carts, favorites, then purchases.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ behavior_type
+ ,count(*) as nb_event
+from transaction_tbl_x
+group by behavior_type
+order by nb_event desc;
+"""
+
+execute_query(query)
+```
+
+One neat trick is that you do not have to write the column names in `group by` or `order by` and use numbering instead; for instance, 1 means the first column selected, in this case `behavior_type`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ behavior_type
+ ,count(*) as nb_event
+from transaction_tbl_x
+group by 1
+order by 2 desc;
+"""
+
+execute_query(query)
+```
+
+### Example: What are the top 10 items that got favorited by most number of unique customers?
+
+When used in conjunction with `where`, the `where` clause comes before `group by`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ item_id
+ ,count(distinct user_id) as nb_user
+from transaction_tbl_x
+where behavior_type = 'fav'
+group by 1
+order by 2 desc
+limit 10;
+"""
+
+execute_query(query)
+```
+
+### Example: What is the average, standard deviation, min, and max spend per user?
+
+First, we need to `sum` up all `sales` for each user then perform the `avg`, `stddev`, `min` and `max` aggregation over all users. We can also see quantiles using functions like `approx_quantile([COLUMN], [QUANTILE])`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select
+ min(spend) as min_spend
+ ,approx_quantile(spend, 0.25) as p25
+ ,avg(spend) as avg_spend
+ ,stddev(spend) as std_spend
+ ,approx_quantile(spend, 0.5) as p50
+ ,approx_quantile(spend, 0.75) as p75
+ ,max(spend) as max_spend
+from
+(select 
+ user_id
+ ,sum(sales) as spend
+from transaction_tbl_x
+group by 1
+) a;
+"""
+
+execute_query(query)
+```
+
+### Example: How many percentage of customer purchased at least once?
+
+As you might notice from the last example, most of the customers have spend equals zero. This is a typical distribution in a retail business where most users come to window shop and only a few will make a purchase. We can find out % of those who made at least one purchase by combining `avg` aggregation and the `case when` if-else logic.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select
+ avg(case when spend > 0 then 1 else 0 end) as conversion_rate
+from
+(select 
+ user_id
+ ,sum(sales) as spend
+from transaction_tbl_x
+group by 1
+) a;
+"""
+
+execute_query(query)
+```
+
+### Example: Give me only customers who have bought at least one item more expensive than $100.
+
+In the same manner we use `where` clause to filter `select`, we can also use `having` to filter aggregations. This works exactly the same where as how you would do aggregation first then filter it with a subquery. Most modern query engines treat them the same way in terms of performance so pick whichever is more readable to you.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ user_id
+ ,min(price) as min_price
+from transaction_tbl_x
+where behavior_type = 'buy'
+group by 1
+having min_price > 100
+order by min_price;
+"""
+
+execute_query(query)
+```
+
+### Example: For each user who have favorited anything, give me a list of items they have favorited ordered by timestamp in ascending order.
+
+Today you might run into preparing a sequence dataset to train LLMs, in which case you want to concatenate a series of values from a column. Most modern SQL handles this such as [Spark SQL](https://spark.apache.org/docs/latest/sql-ref-functions-builtin.html#array-functions) and [Presto](https://prestodb.io/docs/current/functions/array.html). In duckdb, we can use `string_agg` and keep order from earliest to latest timestamp by using `order by`.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ user_id
+ ,string_agg(item_id order by timestamp) as item_id_list
+from transaction_tbl_x
+where behavior_type = 'fav'
+group by 1
+"""
+
+execute_query(query)
+```
+
+## 6. Window Function
+
+Aggregation is very powerful, but a major downside is that it collapses the total rows into aggregated values. This means that after using `group by`, you lose the individual detail of each original row. You can no longer easily ask questions about the sequence of events, like "What happened just before this?" or "What is the third item in this list?". Window functions solve this by allowing you to perform calculations on a related set of rows (a "window") without making those rows disappear. They let you calculate things like rankings, running totals, or compare values across rows, all while keeping all your original data rows intact.
+
+### Example: For each user, find their second-to-last event.
+
+We might be able to use `min/max` aggregation with some subqueries to get the last event, but second-to-last event is a bit convoluted to retrieve with `group by` alone. This is trivial when we use `row_number() over (partition by [WINDOW COLUMN] order by [ORDERING COLUMN] asc/desc)` to get the ranking numbers (starting with 1), then filter only the rows we need (`rnk=2`).
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select * from
+(select 
+ *
+ ,row_number() over (partition by user_id order by timestamp desc) as rnk
+from transaction_tbl_x) a
+where rnk=2
+"""
+
+execute_query(query)
+```
+
+We can confirm that these are one second-to-last event each from users who have a least 2 events.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select count(*) from
+(select 
+ user_id
+ ,count(*) nb
+from transaction_tbl_x
+group by 1) a
+where nb>=2
+"""
+
+execute_query(query)
+```
+
+### Example: What is the first item in each category that each user view?
+
+We can also have multiple partitions as window.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select * from
+(select 
+ user_id
+ ,item_id
+ ,row_number() over (partition by user_id, category_id order by timestamp asc) as rnk
+from transaction_tbl_x
+where behavior_type = 'pv') a
+where rnk=1;
+"""
+
+execute_query(query)
+```
+
+### Example: For each user, what was their previous action before a `buy` action?
+
+We can use `lag/lead` to get value just before or after each row.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+pd.set_option('display.max_rows', 10) 
+
+query = f"""
+select setseed(0.112);
+
+select * from 
+(select
+    user_id,
+    event_timestamp,
+    behavior_type as current_event,
+    lag(behavior_type) over (partition by user_id order by event_timestamp asc) as previous_event
+from transaction_tbl_x
+order by user_id, event_timestamp asc) a
+where current_event = 'buy'
+limit 10
+"""
+
+execute_query(query)
+```
+
+Confirm the query works by looking at `user_id=50` (no event, `pv`, `buy`) and `user_id=41` (single `pv` event).
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+pd.set_option('display.max_rows', 30) 
+
+query = f"""
+select setseed(0.112);
+
+select
+ *
+from transaction_tbl_x
+where user_id in (50, 41)
+order by user_id, event_timestamp
+"""
+
+execute_query(query)
+```
+
+### Example: What is the contribution of each item to their overall category sales?
+
+We can also use aggregations like `sum` in conjuction with window function.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+pd.set_option('display.max_rows', 6) 
+
+query = f"""
+select setseed(0.112);
+
+select
+ item_id
+ ,category_id
+ ,item_sales / category_sales as percentage_category_sales
+from (
+  select
+   item_id
+   ,category_id
+   ,item_sales
+   ,sum(item_sales) over (partition by category_id) as category_sales
+  from (
+   select
+    item_id
+    ,category_id
+    ,sum(sales) as item_sales
+    from transaction_tbl_x
+    group by 1,2
+  ) a
+) b
+where category_sales > 0;
+"""
+
+execute_query(query)
+```
+
+## 7. Concatenation aka Union
+
+Sometimes you want to concatenate multiple tables with the same set of columns (called schema) together. `union all` is simple concatenation whereas `union` will also deduplicate the rows for you, only returning rows that are not perfectly identical to one another.
+
+### Example: Concatenate monthly summary of `2017-11` and `2017-12` together.
+
+We do not need to worry about duplicates here so we can simply use `union all`. See how we can combine `count`, `distinct` and `case when` to get monthly acitve customers and purchasers.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select * from
+(select 
+ year_month
+ ,count(distinct user_id) as nb_active_customer
+ ,count(distinct case when behavior_type='buy' then user_id else null end) as nb_purchaser
+ ,sum(sales) as total_sales
+from transaction_tbl_x
+where year_month = '2017-11'
+group by 1)
+union all
+(select 
+ year_month
+ ,count(distinct user_id) as nb_active_customer
+ ,count(distinct case when behavior_type='buy' then user_id else null end) as nb_purchaser
+ ,sum(sales) as total_sales
+from transaction_tbl_x
+where year_month = '2017-12'
+group by 1);
+"""
+
+execute_query(query)
+```
+
+### Example: Give me a list of unique users who made at least one purchase or viewed at least 5 unique items.
+
+Concatenate then deduplicate.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ user_id
+from transaction_tbl_x
+where behavior_type = 'buy'
+group by 1
+union
+select 
+ user_id
+from transaction_tbl_x
+where behavior_type = 'fav'
+group by 1
+having count(*)>=5
+"""
+
+execute_query(query)
+```
+
+Simple concatenation will give duplicates.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+select 
+ user_id
+from transaction_tbl_x
+where behavior_type = 'buy'
+group by 1
+union all
+select 
+ user_id
+from transaction_tbl_x
+where behavior_type = 'fav'
+group by 1
+having count(*)>=5
+"""
+
+execute_query(query)
+```
+
+## 8. Joins
+
+`join` connects data from one table to another based on columns they share. There are many types of joins but 95% of your life will revolve around `left join` and `inner join`.
+
+### Example: Among users who are active (have at least one event) on 2017-12-03, how many percent were active in 2017-11
+
+`left join` starts with all rows from the left-side table (the former one) and add rows from the right-side table (the latter one) to it, *if and only if* the rows meet the conditions given in the `on` clause. These conditions are usually for values in a column from the left-side table to be equal to, not equal to, or more/less than the ones in a column from the right-side table.
+
+Be sure to give aliases to columns you select and are joining `on`. Your query engine needs to know exactly from which table the columns came from if they have the same name.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+with november_active_tbl as (
+select
+ user_id
+ ,1 as active_in_november
+from transaction_tbl_x
+where year_month = '2017-11'
+group by 1,2
+),
+
+dec3_active_tbl as (
+select
+ user_id
+from transaction_tbl_x
+where event_date = '2017-12-03'
+group by 1
+)
+
+select
+ dec3.user_id
+ ,active_in_november
+from dec3_active_tbl dec3
+left join november_active_tbl nov
+on dec3.user_id = nov.user_id;
+"""
+
+execute_query(query)
+```
+
+As you can see, users who were not active in 2017-11 will have null values in their `active_in_november` column. This is because we need to make sure that all rows from the left-side table (`dec3_active_tbl`) are there. Lastly, we can find the percentage by a simple aggregation. This is how you calculate percentage of returning users.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = f"""
+select setseed(0.112);
+
+with november_active_tbl as (
+select
+ user_id
+ ,1 as active_in_november
+from transaction_tbl_x
+where year_month = '2017-11'
+group by 1,2
+),
+
+dec3_active_tbl as (
+select
+ user_id
+from transaction_tbl_x
+where event_date = '2017-12-03'
+group by 1
+)
+
+select
+ avg(coalesce(active_in_november,0)) as percent_active_last_month
+from dec3_active_tbl dec3
+left join november_active_tbl nov
+on dec3.user_id = nov.user_id;
+"""
+
+execute_query(query)
+```
+
+### Example: What is the daily contribution to its total monthly sales, expressed as percentage?
+
+`inner join` is used when you only want rows where the `on` conditions are satisfied for both tables. In this case, we know that `year_month`, the key we are joining on, exists in both daily and monthly sales tables, so we can use `inner join` without fear of losing information. `inner join` has the best performance than `left join` so prioritize it if you can, especially if you are working with huge tables.
+
+One sneaky thing you can do is that technically you can enter a condition only based on one table in the `on` clause such as `daily_sales > 0` below. It will have the same performance as when you do it on `where` clause.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+pd.set_option('display.max_rows', 10) 
+
+query = f"""
+select setseed(0.112);
+
+with monthly_sales_tbl as (
+select
+ year_month
+ ,sum(sales) as monthly_sales
+from transaction_tbl_x
+group by 1
+having sum(sales)>0
+),
+
+daily_sales_tbl as (
+select
+ year_month
+ ,event_date
+ ,sum(sales) as daily_sales
+from transaction_tbl_x
+group by 1,2
+)
+
+select
+ daily.year_month
+ ,event_date
+ ,daily_sales / monthly_sales as percentage_of_monthly_sales
+from daily_sales_tbl daily
+inner join monthly_sales_tbl monthly
+on daily.year_month = monthly.year_month
+ and daily_sales > 0
+order by event_date;
+"""
+
+execute_query(query)
+```
+
+## 9. Tribal Knowledge
+
+We have now gone through SQL techniques to accomplish most tasks as a SQL monkey. I would like to close with some tips and tricks I have learned over the years:
+
+- **Get your hands dirty.** Whether it is [the exercise](https://colab.research.google.com/github/cstorm125/cstorm125.github.io/blob/main/notebook/sql_almost_exercise.ipynb) or your own data. Get out there and make it happen!
+- **ALWAYS SPECIFY THE PARTITIONS YOU NEED IN THE `WHERE` CLAUSE**, and use the right data types.
+- **Sanity check** for data quality issues, namely duplicates, missing values, improbable values, and data types. Make sure values in columns you care about are distributed in a reasonable manner.
+- **Work with assumptions and experiments.** Have a set of clear hypotheses about what you are trying to learn/do, compose the query, run it and record the results. Work incrementally and not all at once; lest you will regret it during the debugging process. Do not just randomly write queries and hope for the best. The rabbit hole is too deep.
+- **Performance is king.** Always pick a pattern that results in better performance when possible. For instance, `inner join` over `left join`, `union all` over `union`, do not use `distinct` if values are already unique, and so on. 
+- **Query code styling must be readable and consistent**. In this day and age where a coding assistant can fix your code styling in a few seconds, the best code styling for your query is the one that is most readable to your team. Whether it is tab vs space identation, leading vs trailing commas, with vs subquery vs view, capitalized vs uncapitalized keywords, just pick one style and stick with it.
+- **When in doubt `explain`**. Most query engines will show you how it plans to execute your queries. If you are a beginner, this might not be extremely helpful, but at least you can catch some simple things like if the partitions you specified are being used, is the engine making some unncessary data type conversion, which part of the process takes the moast time and so on. `explain` will only show you the plan but `explain analyze` will execute the query then tell you how it went.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+query = """
+explain analyze
+select * from transaction_tbl
+where item_id = 2067266
+ and category_id = 4339722
+"""
+
+print(execute_query(query)['explain_value'][0])
+```
