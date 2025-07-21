@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="cstorm125">
+<meta name="dcterms.date" content="2025-07-21">
+
+<title>AI Builders Survey 2025: What Five Years of Teaching Kids to Build Good AI Looks Like – chariblog</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-46cbb8347319fcb2eb8c4f6a8afc9e17.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">chariblog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/cstorm125"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/cstorm125/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://scholar.google.com/citations?user=UX36NGkAAAAJ"> <i class="bi bi-google" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">AI Builders Survey 2025: What Five Years of Teaching Kids to Build Good AI Looks Like</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">ai-builders</div>
+    <div class="quarto-category">education</div>
+    <div class="quarto-category">survey</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>cstorm125 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 21, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="https://ai-builders.github.io/">AI Builders</a> is a 10-week, online program that teaches middle-to-high school students in Thailand to create an ML project they can be proud of. Every year, we select 40-60 students from 500+ applicants to participate in our intensive project development regimen. We start off with an orientation session and ice-breaking in the first week. Then, students are divided into 10-12 groups of 4-6 people with a mentor and teaching assistant responsbile. Each week, they learn from <a href="https://github%5D.com/ai-builders/curriculum/">an online lesson</a>, including videos and notebooks, and apply those freshly learned skills to work on their capstone project. At 7pm every Wednesday, students attend a one-to-two-hour long session with their mentors and teaching assistants to consult on the progress of their projects. Repeat this for 8 weeks and in the last week we <a href="https://ai-builders.github.io/orientation-2025/">score them</a> according to problem statement (15), metrics and baselines (15), data collection and cleaning (15), exploratory data analysis (20), modeling and error analysis (20), and deployment (15). Students need to score at least 70 points overall and not a single zero-scored criterion to pass.</p>
+<p>As we reach our half-decade milestone, we would like to shed some lights on our students based on both our student roster (their performance during the program) and a survey distributed in July, 2025 (their performance after the program).</p>
+<div id="13216723" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logging</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>logging.getLogger(<span class="st">'matplotlib.font_manager'</span>).setLevel(logging.ERROR)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>survey_fname <span class="op">=</span> <span class="st">'/Users/charipol/Work/admin/data/student_survey/aib2025_student_survey.csv'</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>roster_fname <span class="op">=</span> <span class="st">'/Users/charipol/Work/admin/data/student_roster/aib2025_student_roster_master.csv'</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.power <span class="im">import</span> NormalIndPower</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mizani.formatters <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> product</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> proportion_z_test(x1, n1, x2, n2, effect_size_alt<span class="op">=</span><span class="va">None</span>, alpha<span class="op">=</span><span class="fl">0.05</span>, alternative<span class="op">=</span><span class="st">'two-sided'</span>):</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">    Performs a Z-test for the difference between two population proportions</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">    and calculates the statistical power of the test if an effect size is provided.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">        x1 (int): Number of positives (successes) in sample 1.</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">        n1 (int): Total number of samples (trials) in group 1.</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">        x2 (int): Number of positives (successes) in sample 2.</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">        n2 (int): Total number of samples (trials) in group 2.</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">        effect_size_alt (float, optional): Directly specifies the effect size (Cohen's h)</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">                                           for power calculation. If None, power is not calculated.</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co">        alpha (float, optional): Significance level (Type I error rate) for power calculation.</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">                                 Defaults to 0.05.</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">        alternative (str, optional): Defines the alternative hypothesis for both the Z-test</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">                                     and power calculation. Can be 'two-sided', 'less', or 'greater'.</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co">                                     Defaults to 'two-sided'.</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co">        tuple: A tuple containing:</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co">            - z_statistic (float): The calculated Z-statistic.</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co">            - p_value (float): The p-value corresponding to the chosen alternative.</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co">            - power (float or None): The calculated statistical power. None if effect_size_alt</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co">                                     is not provided, or if calculation isn't possible.</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Validate alternative argument</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> alternative <span class="kw">not</span> <span class="kw">in</span> [<span class="st">'two-sided'</span>, <span class="st">'less'</span>, <span class="st">'greater'</span>]:</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"alternative must be 'two-sided', 'less', or 'greater'"</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate sample proportions</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    p1_hat <span class="op">=</span> x1 <span class="op">/</span> n1</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    p2_hat <span class="op">=</span> x2 <span class="op">/</span> n2</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the pooled proportion</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    p_pooled <span class="op">=</span> (x1 <span class="op">+</span> x2) <span class="op">/</span> (n1 <span class="op">+</span> n2)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the standard error of the difference</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> p_pooled <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> p_pooled <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>            se_difference <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>            se_difference <span class="op">=</span> np.sqrt(p_pooled <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_pooled) <span class="op">*</span> (<span class="dv">1</span><span class="op">/</span>n1 <span class="op">+</span> <span class="dv">1</span><span class="op">/</span>n2))</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan, np.nan, np.nan</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> se_difference <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan, np.nan, np.nan</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the Z-statistic</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    z_statistic <span class="op">=</span> (p1_hat <span class="op">-</span> p2_hat) <span class="op">/</span> se_difference</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the p-value based on the alternative hypothesis</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> alternative <span class="op">==</span> <span class="st">'two-sided'</span>:</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>        p_value <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> stats.norm.cdf(<span class="bu">abs</span>(z_statistic)))</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> alternative <span class="op">==</span> <span class="st">'greater'</span>:</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>        p_value <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> stats.norm.cdf(z_statistic)</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> alternative <span class="op">==</span> <span class="st">'less'</span>:</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>        p_value <span class="op">=</span> stats.norm.cdf(z_statistic)</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate power if an effect size is provided</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    power <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> effect_size_alt <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Use NormalIndPower for power calculation of Z-tests</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>            power_calculator <span class="op">=</span> NormalIndPower()</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>            power <span class="op">=</span> power_calculator.solve_power(</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>                effect_size<span class="op">=</span>effect_size_alt, <span class="co"># Directly use the provided effect_size_alt</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>                nobs1<span class="op">=</span>n1,</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>                alpha<span class="op">=</span>alpha,</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>                power<span class="op">=</span><span class="va">None</span>, <span class="co"># We want to solve for power</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>                ratio<span class="op">=</span>n2<span class="op">/</span>n1, <span class="co"># Ratio of sample sizes (n2 / n1)</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>                alternative<span class="op">=</span>alternative <span class="co"># Use the chosen alternative for power calc</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Warning: Could not calculate power. Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>            power <span class="op">=</span> np.nan</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> z_statistic, p_value, power</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>roster_df <span class="op">=</span> pd.read_csv(roster_fname)</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>survey_df <span class="op">=</span> pd.read_csv(survey_fname)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="featured_image.jpg" class="img-fluid figure-img"></p>
+<figcaption>featured_image</figcaption>
+</figure>
+</div>
+<section id="what-we-learned-from-our-student-roster" class="level2">
+<h2 class="anchored" data-anchor-id="what-we-learned-from-our-student-roster">What We Learned from Our Student Roster</h2>
+<p>From 2021 to 2025, AI Builders had 214 students attended the program, of which 170 (79.4%) have passed our criteria and successfully graduated.</p>
+<section id="study-level" class="level3">
+<h3 class="anchored" data-anchor-id="study-level">Study Level</h3>
+<p>When we started the official AI Builders in 2021, we expected high school students to be our target audience but a not-so-small portion (about 10%) of students turn out to be middle schoolers and below (our very first Judge’s Award was to <a href="https://github.com/GemmyTheGeek/FoodyDudy">GemmyTheGeek</a>, a sixth grader at the time).</p>
+<div id="1a034ee3" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#study level </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.study_level.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'study_level'</span>] <span class="op">=</span> d[<span class="st">'study_level'</span>].astype(<span class="bu">int</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'study_level'</span>, y<span class="op">=</span><span class="st">'proportion'</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        aes(label<span class="op">=</span>after_stat(<span class="st">'y * 100'</span>)), <span class="co"># Label the actual percentage value</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1f}</span><span class="st">%'</span> <span class="co"># Format to one decimal place and add '%'</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Secondary School Grade'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students'</span>) </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'Secondary Grades When Starting Program'</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(labels<span class="op">=</span>percent_format())</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_x_continuous(breaks <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">7</span>)])</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-3-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="location" class="level3">
+<h3 class="anchored" data-anchor-id="location">Location</h3>
+<p>Spring of 2021 was an unusual time where physically organizing a summer school was out-of-question. We took a conscious decision to make AI Builders 100% online in order to accommodate students outside of Bangkok Metropolitan Area (Bangkok, Nonthaburi, Nakhon Pathom, Pathum Thani, Samut Prakarn, and Samut Sakorn). As of <a href="https://www.citypopulation.de/en/thailand/prov/admin/">the 2019 census</a>, Bangkok Metropolian Area is over six times larger than the second-largest city Nakhon Ratchasima. This primate city issue represents uneven distribution of resources especially in education.</p>
+<div id="dd6cae4f" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#bangkok vs non-bangkok</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>greater_bangkok <span class="op">=</span> [<span class="st">'กรุงเทพมหานคร'</span>,<span class="st">'นนทบุรี'</span>,<span class="st">'นครปฐม'</span>,<span class="st">'ปทุมธานี'</span>,<span class="st">'สมุทรปราการ'</span>,<span class="st">'สมุทรสาคร'</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>roster_df[<span class="st">'province_grouped'</span>] <span class="op">=</span> roster_df.province.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'กรุงเทพฯและปริมณฑล'</span> <span class="cf">if</span> x <span class="kw">in</span> greater_bangkok <span class="cf">else</span> x)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>roster_df[<span class="st">'is_greater_bangkok'</span>] <span class="op">=</span> roster_df.province_grouped.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">==</span><span class="st">'กรุงเทพฯและปริมณฑล'</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.province_grouped.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The online format has allowed 38.3% of students to join from non-Bangkok provinces (see full list in Appendix), a feat that would not have been possible with offline format and our limited resources.</p>
+<p>However, we found a statistically significant lower pass rate for non-Bangkok students. This points towards room for growth in terms of supporting students outside of Bangkok Metropolitan Area.</p>
+<div id="9f86707b" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#discrepancies in pass rate by location</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.groupby(<span class="st">'is_greater_bangkok'</span>).agg({</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'student_name'</span>: [<span class="st">'count'</span>],</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'passed'</span>: [<span class="st">'sum'</span>],</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>}).reset_index()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>d.columns <span class="op">=</span> [<span class="st">'is_greater_bangkok'</span>,<span class="st">'nb_student'</span>,<span class="st">'nb_passed'</span>]<span class="co">#,'pct_passed']</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>d_m <span class="op">=</span> d.melt(id_vars<span class="op">=</span><span class="st">'is_greater_bangkok'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>d_m.columns <span class="op">=</span> [<span class="st">'is_greater_bangkok'</span>,<span class="st">'Pass/Total'</span>,<span class="st">'value'</span>]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>d_m[<span class="st">'is_greater_bangkok'</span>] <span class="op">=</span> d_m[<span class="st">'is_greater_bangkok'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'Bangkok Metropolitan'</span> <span class="cf">if</span> x<span class="op">==</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">'Other Provinces'</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>d_m[<span class="st">'Pass/Total'</span>] <span class="op">=</span> d_m[<span class="st">'Pass/Total'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'Passed'</span> <span class="cf">if</span> x<span class="op">==</span><span class="st">'nb_passed'</span> <span class="cf">else</span> <span class="st">'Total'</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> roster_df.groupby(<span class="st">'is_greater_bangkok'</span>).passed.mean().reset_index()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>p[<span class="st">'is_greater_bangkok'</span>] <span class="op">=</span> p[<span class="st">'is_greater_bangkok'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'Bangkok Metropolitan'</span> <span class="cf">if</span> x<span class="op">==</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">'Other Provinces'</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>p.columns <span class="op">=</span> [<span class="st">'is_greater_bangkok'</span>,<span class="st">'pass_rate'</span>]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>d_m_merged <span class="op">=</span> pd.merge(d_m, p, on<span class="op">=</span><span class="st">'is_greater_bangkok'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#hypothesis test for pass rate among bangkok vs non-bangkok; lacking quite a bit of power</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>z,p_value,power <span class="op">=</span> proportion_z_test(x1<span class="op">=</span><span class="dv">64</span>,n1<span class="op">=</span><span class="dv">89</span>,x2<span class="op">=</span><span class="dv">107</span>,n2<span class="op">=</span><span class="dv">125</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                  effect_size_alt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                  alpha<span class="op">=</span><span class="fl">0.05</span>, </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                  alternative<span class="op">=</span><span class="st">'two-sided'</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>z,p_value,power</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d_m_merged, aes(x<span class="op">=</span><span class="st">'is_greater_bangkok'</span>, y<span class="op">=</span><span class="st">'value'</span>, fill<span class="op">=</span><span class="st">'Pass/Total'</span>))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(position<span class="op">=</span><span class="st">'dodge'</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        d_m_merged[d_m_merged[<span class="st">'Pass/Total'</span>] <span class="op">==</span> <span class="st">'Passed'</span>],</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        aes(x<span class="op">=</span><span class="st">'is_greater_bangkok'</span>, y<span class="op">=</span><span class="st">'value'</span>, label<span class="op">=</span><span class="st">'pass_rate * 100'</span>),</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>, </span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1f}</span><span class="st">%'</span>,)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Location'</span>) <span class="op">+</span> ylab(<span class="st">'Number of Students'</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="ss">f'Students from Bangkok Metro Have Higher Pass Rate </span><span class="ch">\n</span><span class="ss"> p-value = </span><span class="sc">{</span>p_value<span class="sc">:.3f}</span><span class="ss">; power = </span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>power<span class="sc">:.1f}</span><span class="ss">%'</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_fill_manual(values<span class="op">=</span>{<span class="st">'Passed'</span>:<span class="st">'darkred'</span>, <span class="st">'Total'</span>:<span class="st">'grey'</span>})</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-5-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="biological-sex" class="level3">
+<h3 class="anchored" data-anchor-id="biological-sex">Biological Sex</h3>
+<div id="a920ba5e" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#female %</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>roster_df[<span class="st">'is_biological_female'</span>] <span class="op">=</span> roster_df.biological_sex.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">==</span><span class="st">'f'</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.groupby(<span class="st">'class_of'</span>).agg({</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'student_name'</span>: [<span class="st">'count'</span>],</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'is_biological_female'</span>: [<span class="st">'sum'</span>,<span class="st">'mean'</span>]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>}).reset_index()</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>d.columns <span class="op">=</span> [<span class="st">'class_of'</span>,<span class="st">'nb_student'</span>,<span class="st">'nb_f'</span>,<span class="st">'pct_f'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Similar to overall trends in STEM, biologically female students are a minority in our program at 22.4%. Nonetheless, we see a clear upward trend in participation over the last 5 years.</p>
+<div id="9b831bff" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'class_of'</span>, y<span class="op">=</span><span class="st">'pct_f'</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span>geom_point()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        aes(label<span class="op">=</span><span class="st">'pct_f'</span>), <span class="co"># Map the 'percentage_label' column to the label aesthetic</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1%}</span><span class="st">'</span>,         <span class="co"># Format it as a percentage with one decimal place</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.02</span>,                   <span class="co"># Nudge labels slightly above points (adjust as needed)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,                    <span class="co"># Vertical alignment to place text above the point                 # Adjust font size</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        show_legend<span class="op">=</span><span class="va">False</span>               <span class="co"># Often you don't need a legend for these labels</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_smooth(method<span class="op">=</span><span class="st">'glm'</span>, se<span class="op">=</span><span class="va">True</span>, color<span class="op">=</span><span class="st">'darkred'</span>, linetype<span class="op">=</span><span class="st">'dashed'</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(labels<span class="op">=</span>percent_format())</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Class of'</span>) <span class="op">+</span> ylab(<span class="st">'% Biological Female'</span>) <span class="op">+</span> ggtitle(<span class="st">'Biological Female Students on The Rise'</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>     )</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-7-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Moreover, unlike the Bangkok-vs-non-Bangkok situation, there is no statistically significant difference in pass rates among biologically male and female students. Once we get them into the program, they perform equally. The challenge is how to get more biologically female students into it.</p>
+<div id="8226f701" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#discrepancies in pass rate by location</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.groupby(<span class="st">'is_biological_female'</span>).agg({</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'student_name'</span>: [<span class="st">'count'</span>],</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'passed'</span>: [<span class="st">'sum'</span>],</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}).reset_index()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>d.columns <span class="op">=</span> [<span class="st">'is_biological_female'</span>,<span class="st">'nb_student'</span>,<span class="st">'nb_passed'</span>]<span class="co">#,'pct_passed']</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>d_m <span class="op">=</span> d.melt(id_vars<span class="op">=</span><span class="st">'is_biological_female'</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>d_m.columns <span class="op">=</span> [<span class="st">'is_biological_female'</span>,<span class="st">'Pass/Total'</span>,<span class="st">'value'</span>]</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>d_m[<span class="st">'is_biological_female'</span>] <span class="op">=</span> d_m[<span class="st">'is_biological_female'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'F'</span> <span class="cf">if</span> x<span class="op">==</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">'M'</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>d_m[<span class="st">'Pass/Total'</span>] <span class="op">=</span> d_m[<span class="st">'Pass/Total'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'Passed'</span> <span class="cf">if</span> x<span class="op">==</span><span class="st">'nb_passed'</span> <span class="cf">else</span> <span class="st">'Total'</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> roster_df.groupby(<span class="st">'is_biological_female'</span>).passed.mean().reset_index()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>p[<span class="st">'is_biological_female'</span>] <span class="op">=</span> p[<span class="st">'is_biological_female'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'F'</span> <span class="cf">if</span> x<span class="op">==</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">'M'</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>p.columns <span class="op">=</span> [<span class="st">'is_biological_female'</span>,<span class="st">'pass_rate'</span>]</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>d_m_merged <span class="op">=</span> pd.merge(d_m, p, on<span class="op">=</span><span class="st">'is_biological_female'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#hypothesis test for pass rate among sexes; lacking quite a bit of power</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>z,p_value,power <span class="op">=</span> proportion_z_test(x1<span class="op">=</span><span class="dv">134</span>,n1<span class="op">=</span><span class="dv">166</span>,x2<span class="op">=</span><span class="dv">37</span>,n2<span class="op">=</span><span class="dv">48</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                  effect_size_alt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                  alpha<span class="op">=</span><span class="fl">0.05</span>, </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                  alternative<span class="op">=</span><span class="st">'two-sided'</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d_m_merged, aes(x<span class="op">=</span><span class="st">'is_biological_female'</span>, y<span class="op">=</span><span class="st">'value'</span>, fill<span class="op">=</span><span class="st">'Pass/Total'</span>))</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(position<span class="op">=</span><span class="st">'dodge'</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        d_m_merged[d_m_merged[<span class="st">'Pass/Total'</span>] <span class="op">==</span> <span class="st">'Passed'</span>],</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        aes(x<span class="op">=</span><span class="st">'is_biological_female'</span>, y<span class="op">=</span><span class="st">'value'</span>, label<span class="op">=</span><span class="st">'pass_rate * 100'</span>),</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>, </span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1f}</span><span class="st">%'</span>,)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Biological Sex'</span>) <span class="op">+</span> ylab(<span class="st">'Number of Students'</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="ss">f'No Pass Rate Difference between Biological Sexes </span><span class="ch">\n</span><span class="ss"> p-value = </span><span class="sc">{</span>p_value<span class="sc">:.3f}</span><span class="ss">; power = </span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>power<span class="sc">:.1f}</span><span class="ss">%'</span>)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_fill_manual(values<span class="op">=</span>{<span class="st">'Passed'</span>:<span class="st">'darkred'</span>, <span class="st">'Total'</span>:<span class="st">'grey'</span>})</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="project-themes-and-data-types" class="level3">
+<h3 class="anchored" data-anchor-id="project-themes-and-data-types">Project Themes and Data Types</h3>
+<p>Let us look into what students like to build the most. Top three most popular combinations are medical imaging, literature mostly in Thai, and music. Other archetypes worth mentioning are hand sign projects (under acessibility/images), many types of secruity projects from fraud detection to hacking, education, and entertainment. These seem to be topics closest to the hearts and minds of middle-to-high schoolers.</p>
+<div id="0b49d254" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>all_combination <span class="op">=</span> <span class="bu">list</span>(product(roster_df.theme.unique(), roster_df.main_data_type.unique()))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>combined_df <span class="op">=</span> pd.DataFrame(all_combination, columns<span class="op">=</span>[<span class="st">'theme'</span>, <span class="st">'main_data_type'</span>])</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>combination_with_count <span class="op">=</span> roster_df.groupby([<span class="st">'theme'</span>, <span class="st">'main_data_type'</span>]).size().reset_index(name<span class="op">=</span><span class="st">'count'</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>combined_df <span class="op">=</span> combined_df[(<span class="op">~</span>combined_df.theme.isna())<span class="op">&amp;</span>(<span class="op">~</span>combined_df.main_data_type.isna())]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>heatmap_data <span class="op">=</span> combined_df.merge(combination_with_count, on<span class="op">=</span>[<span class="st">'theme'</span>, <span class="st">'main_data_type'</span>], how<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>heatmap_data[<span class="st">'count'</span>] <span class="op">=</span> heatmap_data[<span class="st">'count'</span>].fillna(<span class="dv">0</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    ggplot(heatmap_data, aes(x<span class="op">=</span><span class="st">'theme'</span>, y<span class="op">=</span><span class="st">'main_data_type'</span>, fill<span class="op">=</span><span class="st">'count'</span>))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_tile(aes(width<span class="op">=</span><span class="fl">0.9</span>, height<span class="op">=</span><span class="fl">0.9</span>), color<span class="op">=</span><span class="st">"white"</span>) <span class="co"># Add white borders for separation# Thickness of the line</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(aes(label<span class="op">=</span><span class="st">'count'</span>), color<span class="op">=</span><span class="st">'black'</span>, size<span class="op">=</span><span class="dv">10</span>) <span class="co"># Add count numbers</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> scale_fill_gradient(low<span class="op">=</span><span class="st">'lightyellow'</span>, high<span class="op">=</span><span class="st">'darkred'</span>) <span class="co"># Choose a color scale</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> labs(</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">'Project Themes vs Main Data Types'</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="st">'Themes'</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="st">'Main Data Types'</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        fill<span class="op">=</span><span class="st">'Count'</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme_xkcd()</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme(</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>), <span class="co"># Rotate x-axis labels if they overlap</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        panel_background<span class="op">=</span>element_text(fill<span class="op">=</span><span class="st">'white'</span>), <span class="co"># Set background to white</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        plot_background<span class="op">=</span>element_text(fill<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-9-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Strong interests in healthcare could stem from the cultural expectation that well-performing students would go on to medical school (more on this later). Considering the popularity of music projects despite our curriculumn not containing an audio track, we will create one starting in 2026.</p>
+<div id="e16dd4dc" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.theme.value_counts().reset_index()<span class="op">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">'count'</span>,ascending<span class="op">=</span><span class="va">False</span>).reset_index()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'theme'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'theme'</span>], categories<span class="op">=</span>d[<span class="st">'theme'</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'theme'</span>, y<span class="op">=</span><span class="st">'count'</span>,label<span class="op">=</span><span class="st">'count'</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Project Themes'</span>) <span class="op">+</span> ylab(<span class="st">'Number of Projects'</span>) </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'Project Theme Ranking'</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">32</span>))</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-10-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Images being the most prevalent data type is understandable since they are the most beginner-friendly when it comes to deep learning; a well-versed student can spin up an image classification project end-to-end in a few hours while it would probably take a few weeks for them to do the same for a reinforcement learning simulation. Thai being a medium-resource language and the fact that many of our mentors work on <a href="https://github.com/PyThaiNLP/pythainlp">PyThaiNLP</a>, the largest Thai language processing library, might also have inspired many Thai NLP projects.</p>
+<div id="3d98737a" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.main_data_type.value_counts().reset_index()<span class="op">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">'count'</span>,ascending<span class="op">=</span><span class="va">False</span>).reset_index()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'main_data_type'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'main_data_type'</span>], categories<span class="op">=</span>d[<span class="st">'main_data_type'</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'main_data_type'</span>, y<span class="op">=</span><span class="st">'count'</span>,label<span class="op">=</span><span class="st">'count'</span>))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Project Data Types'</span>) <span class="op">+</span> ylab(<span class="st">'Number of Projects'</span>) </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'Project Data Type Ranking'</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">91</span>))</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-11-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="what-students-do-after-the-program" class="level2">
+<h2 class="anchored" data-anchor-id="what-students-do-after-the-program">What Students Do After the Program</h2>
+<div id="34d452fa" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#standardize columns</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>survey_df[<span class="st">'biological_sex'</span>] <span class="op">=</span> survey_df.gender.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'f'</span> <span class="cf">if</span> x<span class="op">==</span><span class="st">'หญิง'</span> <span class="cf">else</span> <span class="st">'m'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>survey_df[<span class="st">'study_level'</span>] <span class="op">=</span> survey_df.secondary_grade</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>survey_no_latest <span class="op">=</span> survey_df[survey_df.class_of<span class="op">!=</span><span class="dv">2025</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This July right after AI Builders 2025 ended, we sent out a survey to all our students from 2021 to 2025 (technically also to a few students we prototyped the project on in 2020). We heard back from 72 out of 214 students (33.6%). Here are what they have to say about their lives after AI Builders.</p>
+<blockquote class="blockquote">
+<p>Disclaimer: It goes without saying that there is self selection among those who responded to the survey. The result might seem “too good to be true” but we argue that even if we assume the remaining 66.4% responded in the worst way possible, our result would still look decent.</p>
+</blockquote>
+<section id="who-answered-the-survey" class="level3">
+<h3 class="anchored" data-anchor-id="who-answered-the-survey">Who Answered the Survey</h3>
+<p>Understandably, response rate drops off for students from earlier class-ofs. From 70% in the current year to 30% for students 1-2 years prior and 15% for those earlier. This 15% is most likely students who have become teaching assistants in subsequent programs and kept contact in our Discord server. From 2022 onwards, almost all of our teaching assistants were program alumni.</p>
+<div id="35761541" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> survey_df.class_of.value_counts(normalize<span class="op">=</span><span class="va">False</span>).reset_index()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>d_roster <span class="op">=</span> roster_df.class_of.value_counts(normalize<span class="op">=</span><span class="va">False</span>).reset_index()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>d_combined <span class="op">=</span> d.merge(d_roster, on<span class="op">=</span><span class="st">'class_of'</span>,how<span class="op">=</span><span class="st">'left'</span>).dropna()</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>d_combined[<span class="st">'response_rate'</span>] <span class="op">=</span> d_combined.count_x<span class="op">/</span>d_combined.count_y</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d_combined, aes(x<span class="op">=</span><span class="st">'class_of'</span>, y<span class="op">=</span><span class="st">'response_rate'</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span>geom_point(color<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span>geom_line(color<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        aes(label<span class="op">=</span><span class="st">'response_rate'</span>), <span class="co"># Map the 'percentage_label' column to the label aesthetic</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1%}</span><span class="st">'</span>,         <span class="co"># Format it as a percentage with one decimal place</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.02</span>,                   <span class="co"># Nudge labels slightly above points (adjust as needed)</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,                    <span class="co"># Vertical alignment to place text above the point                 # Adjust font size</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        show_legend<span class="op">=</span><span class="va">False</span>               <span class="co"># Often you don't need a legend for these labels</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(labels<span class="op">=</span>percent_format())</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Class of'</span>) <span class="op">+</span> ylab(<span class="st">'Response Rate'</span>) <span class="op">+</span> ggtitle(<span class="st">'Response Rate by Class-of'</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>     )</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-13-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We found that respondents are similarly distributed in terms of biological sexes to the student roster. However, we have a bit of a skew towards secondary grade 6 in the survey.</p>
+<div id="29546ca4" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>d_roster <span class="op">=</span> roster_df.biological_sex.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>d_roster[<span class="st">'source'</span>] <span class="op">=</span> <span class="st">'roster'</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>d_survey <span class="op">=</span> survey_df.biological_sex.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>d_survey[<span class="st">'source'</span>] <span class="op">=</span> <span class="st">'survey'</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.concat([d_roster,d_survey],axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'biological_sex'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'biological_sex'</span>], categories<span class="op">=</span>[<span class="st">'m'</span>,<span class="st">'f'</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'source'</span>, y<span class="op">=</span><span class="st">'proportion'</span>, fill<span class="op">=</span><span class="st">'biological_sex'</span>))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_col()</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        d[d.biological_sex<span class="op">==</span><span class="st">'f'</span>],</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        aes(x<span class="op">=</span><span class="st">'source'</span>, y<span class="op">=</span><span class="st">'proportion'</span>, label<span class="op">=</span><span class="st">'proportion * 100'</span>),</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>, </span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1f}</span><span class="st">%'</span>,)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Data Source'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students/Survey Respondents'</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="ss">f'Biological Sex Distribution of Student Roster vs Survey'</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(labels<span class="op">=</span>percent_format())</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_fill_manual(values<span class="op">=</span>{<span class="st">'f'</span>:<span class="st">'darkred'</span>, <span class="st">'m'</span>:<span class="st">'darkblue'</span>})</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-14-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="5b2a3ff2" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d_roster <span class="op">=</span> roster_df.study_level.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>d_roster[<span class="st">'source'</span>] <span class="op">=</span> <span class="st">'roster'</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>d_survey <span class="op">=</span> survey_df.study_level.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>d_survey[<span class="st">'source'</span>] <span class="op">=</span> <span class="st">'survey'</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.concat([d_roster,d_survey],axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'study_level'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'study_level'</span>], categories<span class="op">=</span>[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'source'</span>, y<span class="op">=</span><span class="st">'proportion'</span>, fill<span class="op">=</span><span class="st">'study_level'</span>))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_col()</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Data Source'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students'</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="ss">f'Study Grades When Starting Program</span><span class="ch">\n</span><span class="ss">Student Roster vs Survey'</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(labels<span class="op">=</span>percent_format())</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-15-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="university" class="level3">
+<h3 class="anchored" data-anchor-id="university">University</h3>
+<p>Unsurprisingly, a large portion of our alumni is still pre-college. However, for those who are in university, a significant portion is in computer science and engineering and almost all of them are in STEM. Anecdotally, we have heard from students that participating in AI Builders changed their educational choice towards AI-related majors.</p>
+<div id="f05249dc" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> survey_df.major.fillna(<span class="st">'Still Not in University'</span>).value_counts().reset_index()</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'major'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'major'</span>], categories<span class="op">=</span>d[<span class="st">'major'</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'major'</span>, y<span class="op">=</span><span class="st">'count'</span>,label<span class="op">=</span><span class="st">'count'</span>))</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'University Major'</span>) <span class="op">+</span> ylab(<span class="st">'Number of Students'</span>) </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'What Our Students Major in at University'</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">30</span>))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-16-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Top university choices for our students are domestic ones strong in STEM such as Chulalongkorn and KMUTT. Surprisingly, 10 out of 72 respondents pursued their higher education overseas.</p>
+<div id="71fefe3d" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> survey_df.university.fillna(<span class="st">'Still Not in University'</span>).value_counts().reset_index()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'university'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'university'</span>], categories<span class="op">=</span>d[<span class="st">'university'</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'university'</span>, y<span class="op">=</span><span class="st">'count'</span>,label<span class="op">=</span><span class="st">'count'</span>))</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'University'</span>) <span class="op">+</span> ylab(<span class="st">'Number of Students'</span>) </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'Where Students Go to University'</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">31</span>))</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-17-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="do-students-think-we-upgraded-them" class="level3">
+<h3 class="anchored" data-anchor-id="do-students-think-we-upgraded-them">Do Students Think We Upgraded Them</h3>
+<p>We asked students if they think participating in AI Builders have improved their AI skills and expanded their networks of likeminded people, on a scale of 1-5 (1 being the worst and 5 being the best). Luckily, we seems to be thought of as effective, especially for skill improvement where all the scores are 3 and above.</p>
+<div id="ad4fde88" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>combi <span class="op">=</span> pd.DataFrame({<span class="st">'skill_upgrade'</span>:[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>]})</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> combi.merge(survey_df.skill_upgrade.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index(), on<span class="op">=</span><span class="st">'skill_upgrade'</span>,how<span class="op">=</span><span class="st">'left'</span>).fillna(<span class="dv">0</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># d['skill_upgrade'] = pd.Categorical(d['skill_upgrade'], categories=d['skill_upgrade'], ordered=True)</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'skill_upgrade'</span>, y<span class="op">=</span><span class="st">'proportion'</span>,label<span class="op">=</span><span class="st">'proportion'</span>))</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1%}</span><span class="st">'</span>,  </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'1: Worse, 5: Best'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students'</span>) </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'Have AI Builders Helped You Improve Your AI Skills?'</span>)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="fl">.6</span>),labels<span class="op">=</span>percent_format())</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-18-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="2ad9c434" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>combi <span class="op">=</span> pd.DataFrame({<span class="st">'network_upgrade'</span>:[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>]})</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> combi.merge(survey_df.network_upgrade.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index(), on<span class="op">=</span><span class="st">'network_upgrade'</span>,how<span class="op">=</span><span class="st">'left'</span>).fillna(<span class="dv">0</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'network_upgrade'</span>, y<span class="op">=</span><span class="st">'proportion'</span>,label<span class="op">=</span><span class="st">'proportion'</span>))</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1%}</span><span class="st">'</span>,  </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'1: Worse, 5: Best'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students'</span>) </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'Have AI Builders Broadened Your Network?'</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="fl">.6</span>),labels<span class="op">=</span>percent_format())</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-19-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="activities-student-engage-in-after-the-program" class="level3">
+<h3 class="anchored" data-anchor-id="activities-student-engage-in-after-the-program">Activities Student Engage in After the Program</h3>
+<p>We asked about activities they have taken part after obtaining the skills in AI Builders in the following domains: school activity, hackathon, project competition, personal project, research, internship and work. Fortunately, most of the students have used what they learn to at least work on a personal project, which has always been our intention. About half of them have used it for events available to the middle-to-high school age group. And some even leapfrogged a bit to internship and work.</p>
+<div id="ea752479" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>usage_dict <span class="op">=</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'กิจกรรมในโรงเรียน'</span>: <span class="st">'School Activity'</span>,  </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'งานแข่ง Hackathon'</span>: <span class="st">'Hackathon'</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ประกวดโครงงาน'</span>: <span class="st">'Project Competition'</span>, </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'โปรเจคต์ส่วนตัว'</span>: <span class="st">'Personal Project'</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'งานวิจัย'</span>: <span class="st">'Research'</span>,  </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'การฝึกงาน'</span>: <span class="st">'Internship'</span>,  </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ทำงาน'</span>: <span class="st">'Work'</span>,  </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> val <span class="kw">in</span> usage_dict.keys():</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    survey_df[usage_dict[val]] <span class="op">=</span> survey_df.usage.fillna(<span class="st">'unknown'</span>).<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> (val <span class="kw">in</span> x) <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>usage_flags <span class="op">=</span> [usage_dict[k] <span class="cf">for</span> k <span class="kw">in</span> usage_dict.keys()]</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> survey_df[usage_flags].mean().reset_index().sort_values(<span class="dv">0</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>d.columns <span class="op">=</span> [<span class="st">'activity'</span>,<span class="st">'proportion'</span>]</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>d[<span class="st">'activity'</span>] <span class="op">=</span> pd.Categorical(d[<span class="st">'activity'</span>], categories<span class="op">=</span>d[<span class="st">'activity'</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'activity'</span>, y<span class="op">=</span><span class="st">'proportion'</span>,label<span class="op">=</span><span class="st">'proportion'</span>))</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1%}</span><span class="st">'</span>,  </span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'After-Program Activity'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students'</span>) </span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'How Have You Applied What You Learned from AI Builders?'</span>)</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme(axis_text_x<span class="op">=</span>element_text(angle<span class="op">=</span><span class="dv">45</span>, hjust<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="fl">.9</span>),labels<span class="op">=</span>percent_format())</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-20-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Looking a bit deeper, we can see that the median AI Builder engaged in about 3 after-program activity categories whereas some small percentage of seemingly superhuman alumni engage in all 7 categories.</p>
+<div id="a2661e87" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>survey_df[<span class="st">'nb_activity'</span>] <span class="op">=</span> survey_df[usage_flags].<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> survey_df[<span class="st">'nb_activity'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> (ggplot(d, aes(x<span class="op">=</span><span class="st">'nb_activity'</span>, y<span class="op">=</span><span class="st">'proportion'</span>,label<span class="op">=</span><span class="st">'proportion'</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> geom_col(fill<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_text(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        nudge_y<span class="op">=</span><span class="fl">0.0001</span>, <span class="co"># Adjust this value to move labels slightly above the bars</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        va<span class="op">=</span><span class="st">'bottom'</span>,  <span class="co"># Vertical alignment: 'bottom' places text just above the 'y' coordinate</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        format_string<span class="op">=</span><span class="st">'</span><span class="sc">{:.1%}</span><span class="st">'</span>,  </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> xlab(<span class="st">'Number of After-Program Activities'</span>) <span class="op">+</span> ylab(<span class="st">'Percentage of Students'</span>) </span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> ggtitle(<span class="st">'How Many Activities Have You Applied What</span><span class="ch">\n</span><span class="st">You Learned from AI Builders to?'</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> theme_xkcd()</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_y_continuous(limits<span class="op">=</span>(<span class="dv">0</span>,<span class="fl">.27</span>),labels<span class="op">=</span>percent_format())</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>     <span class="op">+</span> scale_x_continuous(breaks<span class="op">=</span>[i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)],)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-21-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="more-on-after-program-activities" class="level3">
+<h3 class="anchored" data-anchor-id="more-on-after-program-activities">More on After-Program Activities</h3>
+<p>We had a few free-text questions for students to tell us about the details of their after-program activities in events, research and knowledge sharing. Here is a sampler of their achievements at domestic and international levels, which we hope we were at least a tiny part of:</p>
+<section id="after-program-events" class="level4">
+<h4 class="anchored" data-anchor-id="after-program-events">After-Program Events</h4>
+<p><strong>International Achievements</strong>:</p>
+<p>• Silver Medal at Genius Olympiad 2024</p>
+<p>• Breakthrough Pioneer Award at International Student Science Fair</p>
+<p>• Finalist at nwHack (University of British Columbia)</p>
+<p>• Excellence Award at Shanghai AI Global Innovation Competition</p>
+<p><strong>National Competitions</strong>:</p>
+<p>• Multiple wins at Siriraj Hackathon (2022-2024)</p>
+<p>• Gold Medal in Super AI Engineer</p>
+<p>• First Prize in Computer Software Projects Competition (Sillapa70)</p>
+<p>• Multiple awards in National Software Contest (NSC)</p>
+<p>• Success in APICTA and TICTA competitions</p>
+<p><strong>Hackathons</strong>:</p>
+<p>• Champion at SAS x CBS Hackathon 2023</p>
+<p>• 2nd Runner-up at AIhack Thailand 2023</p>
+<p>• Finalist positions in multiple events:</p>
+<ul>
+<li><p>BDI Hackathon</p></li>
+<li><p>SEA-Qthon 2025</p></li>
+<li><p>Rehack Search 2024</p></li>
+<li><p>SPU AI Prompt Mini Hackathon</p></li>
+</ul>
+<p><strong>Professional Development</strong>:</p>
+<p>• Multiple internships at Agoda (2023-2025)</p>
+<p>• Internships at Provincial Electricity Authority</p>
+<p>• Internship at Ramathibodi Hospital</p>
+<p><strong>Technical Projects &amp; Research</strong>:</p>
+<p>• Healthcare: EEG seizure detection, PPG vital sign monitoring</p>
+<p>• Agriculture: Durian tree health analysis system</p>
+<p>• AI/ML: Various projects involving computer vision, NLP, and machine learning</p>
+</section>
+<section id="after-program-research-works" class="level4">
+<h4 class="anchored" data-anchor-id="after-program-research-works">After-Program Research Works</h4>
+<p><strong>Publications &amp; Presentations</strong>:</p>
+<p>• Published and presented at JCSSE2023, receiving Best Presentation Award</p>
+<p>• Selected for poster presentation at EMBC 2025 in Denmark</p>
+<p>• Authored paper on graph embedding methods for drug discovery</p>
+<p><strong>Academic Institutions</strong>:</p>
+<p>• Research Assistant positions at:</p>
+<ul>
+<li><p>Kasetsart University (Document Analysis)</p></li>
+<li><p>VISTEC (Multiple EEG and PPG processing projects)</p></li>
+<li><p>Brown University</p></li>
+<li><p>University of Wisconsin-Madison (MRI processing)</p></li>
+<li><p>Beijing Institute of Technology (Agent and Embodied Agent research)</p></li>
+</ul>
+<p><strong>Medical Research</strong>:</p>
+<p>• Siriraj Hospital:</p>
+<ul>
+<li><p>Cardiac Center research collaboration</p></li>
+<li><p>VISTEC joint research project</p></li>
+<li><p>Mr.Rehab medical consultant</p></li>
+</ul>
+<p><strong>Industry Collaboration</strong>:</p>
+<p>• SCBX - AI Researcher Intern</p>
+<p>• American Family Insurance - DS/ML Intern</p>
+<p>• AI Singapore - Student Assistance (Quality Assurance)</p>
+<p><strong>Specialized Projects</strong>:</p>
+<p>• Virtual Power Plant AI implementation with Walailak University</p>
+<p>• Disaster Management System Development at Nakhon Ratchasima Rajabhat University</p>
+<p>• Individual Study projects at Chulalongkorn University</p>
+<p><strong>Notable Scholarships</strong>:</p>
+<p>• JSTP Scholarship 2024 Researcher</p>
+<p>• พสวท. (DPST) Scholar</p>
+</section>
+<section id="after-program-knowledge-sharing" class="level4">
+<h4 class="anchored" data-anchor-id="after-program-knowledge-sharing">After-Program Knowledge Sharing</h4>
+<p><strong>University Level Involvement</strong>:</p>
+<p>• Teaching Assistant positions at:</p>
+<ul>
+<li><p>Brown University (CSCI0410)</p></li>
+<li><p>Kasetsart University (Machine Learning Systems)</p></li>
+<li><p>Various Computer Programming courses</p></li>
+</ul>
+<p><strong>Secondary Education Impact</strong>:</p>
+<p>• Organized and taught at multiple high school programs:</p>
+<ul>
+<li><p>Comcamp36 (Data Science Fundamentals)</p></li>
+<li><p>NSTDA’s RAC Program (AI &amp; Data Science Camp)</p></li>
+<li><p>Robotics workshops</p></li>
+<li><p>Computer Olympics training</p></li>
+</ul>
+<p><strong>Community Initiatives</strong>:</p>
+<p>• Founded and led technical clubs:</p>
+<ul>
+<li><p>Information System Development club at Chulalongkorn University</p></li>
+<li><p>KU Tech club activities</p></li>
+<li><p>CU Dev Club workshops</p></li>
+</ul>
+<p><strong>Digital Content Creation</strong>:</p>
+<p>• Created educational content:</p>
+<ul>
+<li><p>YouTube channel for AI programming using Kittenblock</p></li>
+<li><p>E-book: “AI &amp; Machine Learning for Kids”</p></li>
+</ul>
+<p><strong>Event Organization</strong>:</p>
+<p>• Hackathons and Workshops:</p>
+<ul>
+<li><p>SI Hackathon 2023</p></li>
+<li><p>I-Squared Hackathon (Data Science and ML)</p></li>
+<li><p>ChAMP Data Career Track</p></li>
+<li><p>Machine Learning in Computer Vision workshop (40 participants)</p></li>
+</ul>
+<p><strong>Technical Projects</strong>:</p>
+<p>• Developed backend systems:</p>
+<ul>
+<li><p>Registration and event management APIs</p></li>
+<li><p>Pet adoption website backend</p></li>
+<li><p>Various student-focused technical solutions</p></li>
+</ul>
+<p><strong>Mentorship</strong>:</p>
+<p>• Provided guidance for:</p>
+<ul>
+<li><p>Technology club members</p></li>
+<li><p>Project competition participants</p></li>
+<li><p>Career preparation in data science fields</p></li>
+<li><p>School technology initiatives</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="closing-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="closing-remarks">Closing Remarks</h2>
+<p>By cross-tabulating the roster and survey, we have reaffirmed the effectiveness of our project-based learning approach, the advantage of the all-online format, and the growing community based on no-nonsense, impact-driven buildership. Looking forward, we will tackle our gap in lession (audio track), support for non-Bangkok students, and pipeline intake for biologically female students.</p>
+<p>If you are an organization or a person that share our vision for building, please feel free to reach out for any kind of sponsorship, code contribution, mentorship, and moral support.</p>
+<p>No influencers. No scammers. Just builders.</p>
+</section>
+<section id="appendiex" class="level2">
+<h2 class="anchored" data-anchor-id="appendiex">Appendiex</h2>
+<section id="student-location" class="level3">
+<h3 class="anchored" data-anchor-id="student-location">Student Location</h3>
+<div id="996e0caf" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#bangkok vs non-bangkok</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>greater_bangkok <span class="op">=</span> [<span class="st">'กรุงเทพมหานคร'</span>,<span class="st">'นนทบุรี'</span>,<span class="st">'นครปฐม'</span>,<span class="st">'ปทุมธานี'</span>,<span class="st">'สมุทรปราการ'</span>,<span class="st">'สมุทรสาคร'</span>]</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>roster_df[<span class="st">'province_grouped'</span>] <span class="op">=</span> roster_df.province.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="st">'กรุงเทพฯและปริมณฑล'</span> <span class="cf">if</span> x <span class="kw">in</span> greater_bangkok <span class="cf">else</span> x)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>roster_df[<span class="st">'is_greater_bangkok'</span>] <span class="op">=</span> roster_df.province_grouped.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">==</span><span class="st">'กรุงเทพฯและปริมณฑล'</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> roster_df.province_grouped.value_counts(normalize<span class="op">=</span><span class="va">True</span>).reset_index()</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>d</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="96">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">province_grouped</th>
+<th data-quarto-table-cell-role="th">proportion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>กรุงเทพฯและปริมณฑล</td>
+<td>0.616822</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>เชียงใหม่</td>
+<td>0.098131</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>สงขลา</td>
+<td>0.051402</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>นครศรีธรรมราช</td>
+<td>0.023364</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>เชียงราย</td>
+<td>0.023364</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>สระบุรี</td>
+<td>0.023364</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>ชลบุรี</td>
+<td>0.023364</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>บุรีรัมย์</td>
+<td>0.014019</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>ตรัง</td>
+<td>0.009346</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>พิษณุโลก</td>
+<td>0.009346</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>สุราษฎร์ธานี</td>
+<td>0.009346</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>ขอนแก่น</td>
+<td>0.009346</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>ภูเก็ต</td>
+<td>0.009346</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>ระยอง</td>
+<td>0.009346</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>สตูล</td>
+<td>0.009346</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>ฉะเชิงเทรา</td>
+<td>0.009346</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>มหาสารคาม</td>
+<td>0.004673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>เพชรบูรณ์</td>
+<td>0.004673</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>นครราชสีมา</td>
+<td>0.004673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>กำแพงเพชร</td>
+<td>0.004673</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">20</td>
+<td>เลย</td>
+<td>0.004673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">21</td>
+<td>มุกดาหาร</td>
+<td>0.004673</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">22</td>
+<td>ตาก</td>
+<td>0.004673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">23</td>
+<td>เพชรบุรี</td>
+<td>0.004673</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">24</td>
+<td>ศรีสะเกษ</td>
+<td>0.004673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">25</td>
+<td>ลำปาง</td>
+<td>0.004673</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26</td>
+<td>ลพบุรี</td>
+<td>0.004673</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/cstorm125\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
