@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://cstorm125.github.io/notebook/sql_almost_exercise.html</loc>
-    <lastmod>2025-07-21T09:59:52.373Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/posts/aib2025_survey/index.html</loc>
-    <lastmod>2025-07-21T09:59:52.373Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/posts/sql_almost/index.html</loc>
-    <lastmod>2025-07-21T09:59:52.374Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/index.html</loc>
-    <lastmod>2025-07-21T09:59:52.371Z</lastmod>
-  </url>
-  <url>
     <loc>https://cstorm125.github.io/about.html</loc>
-    <lastmod>2025-07-21T09:59:46.718Z</lastmod>
+    <lastmod>2025-10-03T18:08:38.124Z</lastmod>
   </url>
   <url>
-    <loc>https://cstorm125.github.io/posts/sales_prediction/index.html</loc>
-    <lastmod>2025-07-21T09:59:52.374Z</lastmod>
+    <loc>https://cstorm125.github.io/notebook/sql_almost_exercise.html</loc>
+    <lastmod>2025-10-03T18:08:41.359Z</lastmod>
   </url>
   <url>
     <loc>https://cstorm125.github.io/posts/interesting_career/index.html</loc>
-    <lastmod>2025-07-21T09:59:52.373Z</lastmod>
+    <lastmod>2025-10-03T18:08:41.361Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/aib2025_survey/index.html</loc>
+    <lastmod>2025-10-03T18:08:41.359Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/index.html</loc>
+    <lastmod>2025-10-03T18:08:41.357Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/sales_prediction/index.html</loc>
+    <lastmod>2025-10-03T18:08:41.361Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/sql_almost/index.html</loc>
+    <lastmod>2025-10-03T18:08:41.362Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/dml/index.html</loc>
+    <lastmod>2025-10-03T18:08:41.360Z</lastmod>
   </url>
   <url>
     <loc>https://cstorm125.github.io/notebook/sales_prediction.html</loc>
-    <lastmod>2025-07-21T09:59:52.372Z</lastmod>
+    <lastmod>2025-10-03T18:08:41.358Z</lastmod>
   </url>
 </urlset>

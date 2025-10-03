@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../../">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-46cbb8347319fcb2eb8c4f6a8afc9e17.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-fa6ebe1abc24c69c1ddb9a141d0fa116.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -122,7 +123,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -148,6 +149,8 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">chariblog</span>
     </a>
@@ -239,7 +242,7 @@ window.Quarto = {
 <div id="6d675a4a" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ucimlrepo <span class="im">import</span> fetch_ucirepo </span>
@@ -331,7 +334,7 @@ window.Quarto = {
 <span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>                                   accept<span class="op">=</span><span class="st">'application/json'</span>)</span>
 <span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>    response_body <span class="op">=</span> json.loads(response.get(<span class="st">'body'</span>).read())</span>
 <span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>   </span>
-<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response_body</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <section id="this-is-not-a-drill-real-world-datasets-meticulous-feature-engineering-state-of-the-art-automl" class="level2">
@@ -340,7 +343,7 @@ window.Quarto = {
 <div id="bbfa68ee" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>online_retail <span class="op">=</span> fetch_ucirepo(<span class="bu">id</span><span class="op">=</span><span class="dv">352</span>) </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>online_retail <span class="op">=</span> fetch_ucirepo(<span class="bu">id</span><span class="op">=</span><span class="dv">352</span>) </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>transaction_df <span class="op">=</span> online_retail[<span class="st">'data'</span>][<span class="st">'original'</span>]</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>original_nb <span class="op">=</span> transaction_df.shape[<span class="dv">0</span>]</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -363,7 +366,7 @@ window.Quarto = {
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>has_sales_nb <span class="op">=</span> transaction_df.shape[<span class="dv">0</span>]</span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#add sales</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>transaction_df[<span class="st">'Sales'</span>] <span class="op">=</span> transaction_df.UnitPrice <span class="op">*</span> transaction_df.Quantity</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>transaction_df[<span class="st">'Sales'</span>] <span class="op">=</span> transaction_df.UnitPrice <span class="op">*</span> transaction_df.Quantity</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We use the <a href="https://archive.ics.uci.edu/dataset/352/online+retail">UCI Online Retail</a> dataset, which contain transactions from a UK-based, non-store online retail from 2010-12 and 2011-12. We perform the following data processing:</p>
@@ -375,8 +378,8 @@ window.Quarto = {
 <div id="e4d6dd1b" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(transaction_df.shape)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>transaction_df.sample(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(transaction_df.shape)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>transaction_df.sample(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>(397884, 10)</code></pre>
@@ -385,7 +388,7 @@ window.Quarto = {
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -403,7 +406,7 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">276682</td>
+<th data-quarto-table-cell-role="th">276682</th>
 <td>570008</td>
 <td>22598</td>
 <td>CHRISTMAS MUSICAL ZINC TREE</td>
@@ -416,7 +419,7 @@ window.Quarto = {
 <td>10.20</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">2894</td>
+<th data-quarto-table-cell-role="th">2894</th>
 <td>536746</td>
 <td>22604</td>
 <td>SET OF 4 NAPKIN CHARMS CUTLERY</td>
@@ -429,7 +432,7 @@ window.Quarto = {
 <td>15.30</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">238815</td>
+<th data-quarto-table-cell-role="th">238815</th>
 <td>566361</td>
 <td>85123A</td>
 <td>WHITE HANGING HEART T-LIGHT HOLDER</td>
@@ -442,7 +445,7 @@ window.Quarto = {
 <td>35.40</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">72407</td>
+<th data-quarto-table-cell-role="th">72407</th>
 <td>545830</td>
 <td>47590B</td>
 <td>PINK HAPPY BIRTHDAY BUNTING</td>
@@ -455,7 +458,7 @@ window.Quarto = {
 <td>16.35</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">78138</td>
+<th data-quarto-table-cell-role="th">78138</th>
 <td>546538</td>
 <td>15044A</td>
 <td>PINK PAPER PARASOL</td>
@@ -477,7 +480,7 @@ window.Quarto = {
 <div id="dd07bfca" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>feature_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-01'</span>, <span class="st">'end'</span>: <span class="st">'2011-09'</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>feature_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-01'</span>, <span class="st">'end'</span>: <span class="st">'2011-09'</span>}</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>outcome_period <span class="op">=</span> {<span class="st">'start'</span>: <span class="st">'2011-10'</span>, <span class="st">'end'</span>: <span class="st">'2011-12'</span>}</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>feature_transaction <span class="op">=</span> transaction_df[(transaction_df.yearmon<span class="op">&gt;=</span>feature_period[<span class="st">'start'</span>])<span class="op">&amp;\</span></span>
@@ -494,15 +497,15 @@ window.Quarto = {
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#merge to get TargetSales including those who spent during feature period but not during outcome (zeroes)</span></span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>outcome_df <span class="op">=</span> feature_sales[[<span class="st">'CustomerID'</span>]].merge(outcome_sales, on<span class="op">=</span><span class="st">'CustomerID'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>outcome_df[<span class="st">'Sales'</span>] <span class="op">=</span> outcome_df[<span class="st">'Sales'</span>].fillna(<span class="dv">0</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>outcome_df.columns <span class="op">=</span> [<span class="st">'CustomerID'</span>, <span class="st">'TargetSales'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>outcome_df.columns <span class="op">=</span> [<span class="st">'CustomerID'</span>, <span class="st">'TargetSales'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We transform the transaction dataset into a customer-level dataset where we calculate features using transactions between 2011-01 to 2011-09 and outcome using transactions between 2011-10 to 2011-12, summing <code>Quantity</code> times <code>UnitPrice</code>. We left-join the customers in feature set to outcome set. This will result in the zero-inflated nature of the outcome as not all customers will come back in Q4. The distribution of non-zero sales is naturally long/fat-tailed with a few customers having extraordinarily high amount of sales in Q4. This resulted in a customer-level dataset with 3,438 customers.</p>
 <div id="891ddfc0" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>outcome_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>outcome_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>count      3438.000000
@@ -526,8 +529,8 @@ Name: TargetSales, dtype: float64</code></pre>
 <div id="1e7b1a96" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>outcome_df[outcome_df.TargetSales<span class="op">&lt;=</span><span class="dv">10_000</span>].TargetSales.hist(bins<span class="op">=</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#confirm zero-inflated, long/fat-tailed</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>outcome_df[outcome_df.TargetSales<span class="op">&lt;=</span><span class="dv">10_000</span>].TargetSales.hist(bins<span class="op">=</span><span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -553,7 +556,7 @@ Name: TargetSales, dtype: float64</code></pre>
 <div id="bae30ac9" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> feature_transaction.Description.unique().tolist()</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> feature_transaction.Description.unique().tolist()</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(descriptions[:<span class="dv">5</span>])</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#randomize descriptions with seed 112 to get which categories we should use</span></span>
@@ -576,7 +579,7 @@ Name: TargetSales, dtype: float64</code></pre>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Outdoor and Garden'</span>,   </span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>]</span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res[<span class="st">'generation'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res[<span class="st">'generation'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>['JUMBO BAG PINK POLKADOT', 'BLUE POLKADOT WRAP', 'RED RETROSPOT WRAP ', 'RECYCLING BAG RETROSPOT ', 'RED RETROSPOT SHOPPER BAG']
@@ -631,7 +634,7 @@ Note that some products may fit into multiple categories, but I've tried to cate
 <div id="0514b157" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loop through descriptions in batches of batch_size</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loop through descriptions in batches of batch_size</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>res_texts <span class="op">=</span> []</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">100</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(descriptions), batch_size)):</span>
@@ -666,19 +669,19 @@ Note that some products may fit into multiple categories, but I've tried to cate
 <span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'../../data/sales_prediction/product_description_category.csv'</span>,<span class="st">'w'</span>) <span class="im">as</span> f:</span>
 <span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    f.write(<span class="st">'"product_description"|"category"</span><span class="ch">\n</span><span class="st">'</span>)</span>
 <span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> res_texts:</span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        f.write(<span class="ss">f'</span><span class="sc">{</span>i<span class="sc">}</span><span class="ch">\n</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        f.write(<span class="ss">f'</span><span class="sc">{</span>i<span class="sc">}</span><span class="ch">\n</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Here is the share of product descriptions in each annotated category:</p>
 <div id="4e6b7752" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>product_description_category <span class="op">=</span> pd.read_csv(<span class="st">'../../data/sales_prediction/product_description_category.csv'</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>product_description_category <span class="op">=</span> pd.read_csv(<span class="st">'../../data/sales_prediction/product_description_category.csv'</span>,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                                           sep<span class="op">=</span><span class="st">'|'</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#clean product_description</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>product_description_category[<span class="st">'Description'</span>] <span class="op">=</span> descriptions</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>product_description_category.category.value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>product_description_category.category.value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>category
@@ -698,7 +701,7 @@ Name: proportion, dtype: float64</code></pre>
 <div id="1340cfd0" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>feature_transaction_cat <span class="op">=</span> feature_transaction.merge(product_description_category,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>feature_transaction_cat <span class="op">=</span> feature_transaction.merge(product_description_category,</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                                                    how<span class="op">=</span><span class="st">'inner'</span>,</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                                                    on <span class="op">=</span> <span class="st">'Description'</span>,)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>feature_transaction.shape, feature_transaction_cat.shape</span>
@@ -780,7 +783,7 @@ Name: proportion, dtype: float64</code></pre>
 <span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>customer_features <span class="op">=</span> customer_features[[ <span class="st">'CustomerID'</span>]<span class="op">+</span>selected_features]</span>
 <span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> outcome_df.merge(customer_features, on<span class="op">=</span><span class="st">'CustomerID'</span>).drop(<span class="st">'CustomerID'</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span>
-<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>df.sample(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>df.sample(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>(3438, 18)</code></pre>
@@ -789,7 +792,7 @@ Name: proportion, dtype: float64</code></pre>
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -815,7 +818,7 @@ Name: proportion, dtype: float64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2606</td>
+<th data-quarto-table-cell-role="th">2606</th>
 <td>0.00</td>
 <td>53</td>
 <td>2</td>
@@ -836,7 +839,7 @@ Name: proportion, dtype: float64</code></pre>
 <td>0.024854</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">196</td>
+<th data-quarto-table-cell-role="th">196</th>
 <td>0.00</td>
 <td>78</td>
 <td>2</td>
@@ -857,7 +860,7 @@ Name: proportion, dtype: float64</code></pre>
 <td>0.000000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2900</td>
+<th data-quarto-table-cell-role="th">2900</th>
 <td>3893.79</td>
 <td>10</td>
 <td>6</td>
@@ -878,7 +881,7 @@ Name: proportion, dtype: float64</code></pre>
 <td>0.004830</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">2187</td>
+<th data-quarto-table-cell-role="th">2187</th>
 <td>0.00</td>
 <td>227</td>
 <td>1</td>
@@ -899,7 +902,7 @@ Name: proportion, dtype: float64</code></pre>
 <td>0.000000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">322</td>
+<th data-quarto-table-cell-role="th">322</th>
 <td>0.00</td>
 <td>68</td>
 <td>1</td>
@@ -929,10 +932,10 @@ Name: proportion, dtype: float64</code></pre>
 <div id="61b5f86d" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df[[<span class="st">'TargetSales'</span>,<span class="st">'total_sales'</span>]].corr())</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df[[<span class="st">'TargetSales'</span>,<span class="st">'total_sales'</span>]].corr())</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#target and most predictive variable</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>df[df.TargetSales<span class="op">&lt;=</span><span class="dv">25_000</span>].plot.scatter(x<span class="op">=</span><span class="st">'TargetSales'</span>,y<span class="op">=</span><span class="st">'total_sales'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>df[df.TargetSales<span class="op">&lt;=</span><span class="dv">25_000</span>].plot.scatter(x<span class="op">=</span><span class="st">'TargetSales'</span>,y<span class="op">=</span><span class="st">'total_sales'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             TargetSales  total_sales
@@ -951,18 +954,18 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="179cc361" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#split into train-valid sets</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#split into train-valid sets</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>train_df, test_df <span class="op">=</span> train_test_split(df,</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                                      test_size<span class="op">=</span><span class="fl">0.2</span>, </span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                                      random_state<span class="op">=</span><span class="dv">112</span>)</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>pd.concat([train_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]).reset_index(),</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>test_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]).reset_index(),], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>test_df.TargetSales.describe(percentiles<span class="op">=</span>[i<span class="op">/</span><span class="dv">10</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]).reset_index(),], axis<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -974,105 +977,105 @@ total_sales     0.558558     1.000000</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>count</td>
 <td>2750.000000</td>
 <td>count</td>
 <td>688.000000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>mean</td>
 <td>642.650436</td>
 <td>mean</td>
 <td>760.558808</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>std</td>
 <td>4015.305436</td>
 <td>std</td>
 <td>4024.524400</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>min</td>
 <td>0.000000</td>
 <td>min</td>
 <td>0.000000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>0%</td>
 <td>0.000000</td>
 <td>0%</td>
 <td>0.000000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<th data-quarto-table-cell-role="th">5</th>
 <td>10%</td>
 <td>0.000000</td>
 <td>10%</td>
 <td>0.000000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
+<th data-quarto-table-cell-role="th">6</th>
 <td>20%</td>
 <td>0.000000</td>
 <td>20%</td>
 <td>0.000000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
+<th data-quarto-table-cell-role="th">7</th>
 <td>30%</td>
 <td>0.000000</td>
 <td>30%</td>
 <td>0.000000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
+<th data-quarto-table-cell-role="th">8</th>
 <td>40%</td>
 <td>0.000000</td>
 <td>40%</td>
 <td>0.000000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
+<th data-quarto-table-cell-role="th">9</th>
 <td>50%</td>
 <td>91.350000</td>
 <td>50%</td>
 <td>113.575000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
+<th data-quarto-table-cell-role="th">10</th>
 <td>60%</td>
 <td>260.308000</td>
 <td>60%</td>
 <td>277.836000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
+<th data-quarto-table-cell-role="th">11</th>
 <td>70%</td>
 <td>426.878000</td>
 <td>70%</td>
 <td>418.187000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12</td>
+<th data-quarto-table-cell-role="th">12</th>
 <td>80%</td>
 <td>694.164000</td>
 <td>80%</td>
 <td>759.582000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13</td>
+<th data-quarto-table-cell-role="th">13</th>
 <td>90%</td>
 <td>1272.997000</td>
 <td>90%</td>
 <td>1255.670000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">14</td>
+<th data-quarto-table-cell-role="th">14</th>
 <td>max</td>
 <td>168469.600000</td>
 <td>max</td>
@@ -1091,21 +1094,21 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="3fbfdc36" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>preset <span class="op">=</span> <span class="st">'good_quality'</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>preset <span class="op">=</span> <span class="st">'good_quality'</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>predictor <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales'</span>).fit(train_df[selected_features <span class="op">+</span> [<span class="st">'TargetSales'</span>]], </span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                                                      presets<span class="op">=</span>preset,</span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                                                      )</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_baseline'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_baseline'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div id="7fed6cc4" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>metric_baseline <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_baseline'</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>metric_baseline <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_baseline'</span>])</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>metric_baseline[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'baseline'</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>metric_baseline</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>metric_baseline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>{'root_mean_squared_error': 3162.478744240967,
@@ -1125,15 +1128,15 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="7a755145" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>outlier_per <span class="op">=</span> <span class="fl">0.99</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>outlier_cap_train <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].quantile(outlier_per)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>outlier_per <span class="op">=</span> <span class="fl">0.99</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>outlier_cap_train <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].quantile(outlier_per)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>An alternative approach to deal with long/fat-tailed outcome is to train on a winsorized outcome. In our case, we cap the outlier at 99.0% or <code>TargetSales</code> equals 7,180.81. While this solves the long/fat-tailed issues, it does not deal with zero inflation and also introduce bias to the outcome. This leads to better performance when tested on the winsorized outcome, but not so much on the original outcome.</p>
 <div id="84ff6b81" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#winsorize</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#winsorize</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'TargetSales_win'</span>] <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: outlier_cap_train <span class="cf">if</span> x<span class="op">&gt;</span> outlier_cap_train <span class="cf">else</span> x)</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'TargetSales_win'</span>] <span class="op">=</span> test_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: outlier_cap_train <span class="cf">if</span> x<span class="op">&gt;</span> outlier_cap_train <span class="cf">else</span> x)</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1142,15 +1145,15 @@ total_sales     0.558558     1.000000</code></pre>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_winsorized'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_winsorized'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div id="67df490f" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>metric_winsorized <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_winsorized'</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>metric_winsorized <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_winsorized'</span>])</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>metric_winsorized[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'winsorized'</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>metric_winsorized</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>metric_winsorized</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>{'root_mean_squared_error': 3623.576377551195,
@@ -1171,12 +1174,12 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="21c4dbbd" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#log</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#log</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'TargetSales_log1p'</span>] <span class="op">=</span> train_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log1p)</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'TargetSales_log1p'</span>] <span class="op">=</span> test_df[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log1p)</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#from zero-inflated to one-inflated</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'TargetSales_log1p'</span>].hist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'TargetSales_log1p'</span>].hist()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -1190,21 +1193,21 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="0898834d" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>predictor <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log1p'</span>).fit(train_df[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log1p'</span>]],</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>predictor <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log1p'</span>).fit(train_df[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log1p'</span>]],</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                                                      presets<span class="op">=</span>preset,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>                                                      )</span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log1p'</span>] <span class="op">=</span> predictor.predict(test_df[selected_features])</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log1p_expm1'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log1p'</span>].<span class="bu">map</span>(np.expm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log1p_expm1'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log1p'</span>].<span class="bu">map</span>(np.expm1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div id="4f365169" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>metric_log1p <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_log1p_expm1'</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>metric_log1p <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_log1p_expm1'</span>])</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>metric_log1p[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'log1p'</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>metric_log1p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>metric_log1p</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>{'root_mean_squared_error': 3725.342295894091,
@@ -1225,21 +1228,21 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="2c9204b8" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'has_purchase'</span>] <span class="op">=</span> train_df.TargetSales.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>train_df[<span class="st">'has_purchase'</span>] <span class="op">=</span> train_df.TargetSales.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'has_purchase'</span>] <span class="op">=</span> test_df.TargetSales.<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span>)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>predictor_cls <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'has_purchase'</span>).fit(train_df[selected_features<span class="op">+</span>[<span class="st">'has_purchase'</span>]],</span>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                                                      presets<span class="op">=</span>preset,</span>
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
 <span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                                                      )</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_binary'</span>] <span class="op">=</span> predictor_cls.predict(test_df[selected_features])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_binary'</span>] <span class="op">=</span> predictor_cls.predict(test_df[selected_features])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>For our splits, 51.42% of train and 53.05% of test include customers with non-zero purchase outcome. As with all two-stage approaches, we need to make sure the intermediate model performs reasonably in classifying zero/non-zero outcomes.</p>
 <div id="0e36c242" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>caluclate_classification_metrics(test_df[<span class="st">'has_purchase'</span>], test_df[<span class="st">'pred_binary'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>caluclate_classification_metrics(test_df[<span class="st">'has_purchase'</span>], test_df[<span class="st">'pred_binary'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>{'accuracy': 0.6918604651162791,
@@ -1253,19 +1256,19 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="df682b83" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero <span class="op">=</span> train_df[train_df.has_purchase<span class="op">==</span><span class="dv">1</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero <span class="op">=</span> train_df[train_df.has_purchase<span class="op">==</span><span class="dv">1</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>test_df_nonzero <span class="op">=</span> test_df[test_df.has_purchase<span class="op">==</span><span class="dv">1</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">#log</span></span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">=</span> train_df_nonzero[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log)</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>test_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">=</span> test_df_nonzero[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>test_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">=</span> test_df_nonzero[<span class="st">'TargetSales'</span>].<span class="bu">map</span>(np.log)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>After that, we perform log-transformed regression on the examples with non-zero outcome (1,414 examples in train). Without the need to worry about <code>ln(0)</code> outcome, the regression is much more straightforward albeit with fewer examples to train on.</p>
 <div id="16f28c1d" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'TargetSales_log'</span>].hist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'TargetSales_log'</span>].hist()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -1278,7 +1281,7 @@ total_sales     0.558558     1.000000</code></pre>
 <div id="d9b71569" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>predictor_reg <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log'</span>).fit(train_df_nonzero[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log'</span>]],</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>predictor_reg <span class="op">=</span> TabularPredictor(label<span class="op">=</span><span class="st">'TargetSales_log'</span>).fit(train_df_nonzero[selected_features<span class="op">+</span>[<span class="st">'TargetSales_log'</span>]],</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                                                      presets<span class="op">=</span>preset,</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                                                      excluded_model_types<span class="op">=</span>[<span class="st">'NN_TORCH'</span>,<span class="st">'FASTAI'</span>,<span class="st">'KNN'</span>],</span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                                                      )</span>
@@ -1288,16 +1291,16 @@ total_sales     0.558558     1.000000</code></pre>
 <span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(test_df[selected_features])</span>
 <span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log'</span>].<span class="bu">map</span>(np.exp)</span>
 <span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle'</span>] <span class="op">=</span> test_df.pred_binary <span class="op">*</span> test_df.pred_log_exp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle'</span>] <span class="op">=</span> test_df.pred_binary <span class="op">*</span> test_df.pred_log_exp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>For inference, we combine the binary prediction (purchase/no purchase) from the classification model with the re-transformed (exponentialized) numerical prediction from the regression model by simply multiplying them together. As you can see, this approach yields the best performance so far and this is where I used to think everything has been accounted for.</p>
 <div id="5bd23ed2" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>metric_hurdle <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle'</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>metric_hurdle <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle'</span>])</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>metric_hurdle[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle'</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="25">
 <pre><code>{'root_mean_squared_error': 3171.760744960863,
@@ -1350,7 +1353,7 @@ method, NOT /dwɑn/'s method.</code></pre>
 <div id="67cc0233" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot residual and predicted log value</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot residual and predicted log value</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(train_df_nonzero[selected_features])</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'residual_log'</span>] <span class="op">=</span> (train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">-</span> train_df_nonzero[<span class="st">'TargetSales_log'</span>])</span>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1358,7 +1361,7 @@ method, NOT /dwɑn/'s method.</code></pre>
 <span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(x<span class="op">=</span><span class="st">'pred_log'</span>, y<span class="op">=</span><span class="st">'residual_log'</span>, data<span class="op">=</span>train_df_nonzero)</span>
 <span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the Lowess smoothing line</span></span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>sns.regplot(x<span class="op">=</span><span class="st">'pred_log'</span>, y<span class="op">=</span><span class="st">'residual_log'</span>, data<span class="op">=</span>train_df_nonzero, scatter_kws<span class="op">=</span>{<span class="st">'alpha'</span>: <span class="fl">0.5</span>}, line_kws<span class="op">=</span>{<span class="st">'color'</span>: <span class="st">'red'</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>sns.regplot(x<span class="op">=</span><span class="st">'pred_log'</span>, y<span class="op">=</span><span class="st">'residual_log'</span>, data<span class="op">=</span>train_df_nonzero, scatter_kws<span class="op">=</span>{<span class="st">'alpha'</span>: <span class="fl">0.5</span>}, line_kws<span class="op">=</span>{<span class="st">'color'</span>: <span class="st">'red'</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -1372,10 +1375,10 @@ method, NOT /dwɑn/'s method.</code></pre>
 <div id="34b7aecb" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>white_stat, white_p_value, _, _ <span class="op">=</span> het_white(train_df_nonzero[<span class="st">'residual_log'</span>], </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>white_stat, white_p_value, _, _ <span class="op">=</span> het_white(train_df_nonzero[<span class="st">'residual_log'</span>], </span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>                                            train_df_nonzero[selected_features])</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"White Test Statistic: </span><span class="sc">{</span>white_stat<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"P-value: </span><span class="sc">{</span>white_p_value<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"P-value: </span><span class="sc">{</span>white_p_value<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>White Test Statistic: 129.31318320644837
@@ -1387,11 +1390,11 @@ P-value: 0.8761278601130765</code></pre>
 <div id="1af5139d" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(train_df_nonzero[selected_features])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log'</span>] <span class="op">=</span> predictor_reg.predict(train_df_nonzero[selected_features])</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>train_df_nonzero[<span class="st">'pred_log_exp'</span>] <span class="op">=</span> train_df_nonzero[<span class="st">'pred_log'</span>].<span class="bu">map</span>(np.exp)</span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>smearing_estimator <span class="op">=</span> np.mean(np.exp(train_df_nonzero[<span class="st">'TargetSales_log'</span>] <span class="op">-</span> train_df_nonzero[<span class="st">'pred_log'</span>]))</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>smearing_estimator</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>smearing_estimator</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="28">
 <pre><code>1.2280991653046711</code></pre>
@@ -1401,12 +1404,12 @@ P-value: 0.8761278601130765</code></pre>
 <div id="f713e918" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp_corrected'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log_exp'</span>] <span class="op">*</span> smearing_estimator</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_log_exp_corrected'</span>] <span class="op">=</span> test_df[<span class="st">'pred_log_exp'</span>] <span class="op">*</span> smearing_estimator</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected'</span>] <span class="op">=</span> test_df.pred_binary <span class="op">*</span> test_df.pred_log_exp_corrected</span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected'</span>])</span>
 <span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle_corrected'</span></span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="29">
 <pre><code>{'root_mean_squared_error': 3055.3207868281233,
@@ -1427,7 +1430,7 @@ P-value: 0.8761278601130765</code></pre>
 <div id="f76de7a5" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>metric_df <span class="op">=</span> pd.DataFrame([metric_baseline,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>metric_df <span class="op">=</span> pd.DataFrame([metric_baseline,</span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>                       metric_winsorized,</span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>                       metric_log1p,</span>
 <span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle,</span>
@@ -1441,13 +1444,13 @@ P-value: 0.8761278601130765</code></pre>
 <span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>        rank_df[<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_rank'</span>] <span class="op">=</span> rank_df[col].rank(ascending<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>rank_df <span class="op">=</span> rank_df.drop(metric_df.columns.tolist()[:<span class="op">-</span><span class="dv">1</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>rank_df[<span class="st">'avg_rank'</span>] <span class="op">=</span> rank_df.iloc[:,<span class="dv">1</span>:].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>rank_df.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>rank_df.transpose()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="30">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1460,7 +1463,7 @@ P-value: 0.8761278601130765</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">model</td>
+<th data-quarto-table-cell-role="th">model</th>
 <td>baseline</td>
 <td>winsorized</td>
 <td>log1p</td>
@@ -1468,7 +1471,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>hurdle_corrected</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">root_mean_squared_error_rank</td>
+<th data-quarto-table-cell-role="th">root_mean_squared_error_rank</th>
 <td>2.0</td>
 <td>4.0</td>
 <td>5.0</td>
@@ -1476,7 +1479,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">mean_squared_error_rank</td>
+<th data-quarto-table-cell-role="th">mean_squared_error_rank</th>
 <td>2.0</td>
 <td>4.0</td>
 <td>5.0</td>
@@ -1484,7 +1487,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">mean_absolute_error_rank</td>
+<th data-quarto-table-cell-role="th">mean_absolute_error_rank</th>
 <td>5.0</td>
 <td>4.0</td>
 <td>3.0</td>
@@ -1492,7 +1495,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>2.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">r2_rank</td>
+<th data-quarto-table-cell-role="th">r2_rank</th>
 <td>2.0</td>
 <td>4.0</td>
 <td>5.0</td>
@@ -1500,7 +1503,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">pearsonr_rank</td>
+<th data-quarto-table-cell-role="th">pearsonr_rank</th>
 <td>3.0</td>
 <td>5.0</td>
 <td>4.0</td>
@@ -1508,7 +1511,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>1.5</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">spearmanr_rank</td>
+<th data-quarto-table-cell-role="th">spearmanr_rank</th>
 <td>5.0</td>
 <td>4.0</td>
 <td>1.0</td>
@@ -1516,7 +1519,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>2.5</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">median_absolute_error_rank</td>
+<th data-quarto-table-cell-role="th">median_absolute_error_rank</th>
 <td>5.0</td>
 <td>3.0</td>
 <td>1.0</td>
@@ -1524,7 +1527,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>4.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">earths_mover_distance_rank</td>
+<th data-quarto-table-cell-role="th">earths_mover_distance_rank</th>
 <td>3.0</td>
 <td>4.0</td>
 <td>5.0</td>
@@ -1532,7 +1535,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>1.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">avg_rank</td>
+<th data-quarto-table-cell-role="th">avg_rank</th>
 <td>3.375</td>
 <td>4.0</td>
 <td>3.625</td>
@@ -1548,13 +1551,13 @@ P-value: 0.8761278601130765</code></pre>
 <div id="523aec69" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>metric_df.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>metric_df.transpose()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="31">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1567,7 +1570,7 @@ P-value: 0.8761278601130765</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">root_mean_squared_error</td>
+<th data-quarto-table-cell-role="th">root_mean_squared_error</th>
 <td>3162.478744</td>
 <td>3623.576378</td>
 <td>3725.342296</td>
@@ -1575,7 +1578,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>3055.320787</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">mean_squared_error</td>
+<th data-quarto-table-cell-role="th">mean_squared_error</th>
 <td>10001271.807776</td>
 <td>13130305.763947</td>
 <td>13878175.221577</td>
@@ -1583,7 +1586,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>9334985.110424</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">mean_absolute_error</td>
+<th data-quarto-table-cell-role="th">mean_absolute_error</th>
 <td>715.644266</td>
 <td>627.788007</td>
 <td>618.976847</td>
@@ -1591,7 +1594,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>613.394664</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">r2</td>
+<th data-quarto-table-cell-role="th">r2</th>
 <td>0.381617</td>
 <td>0.188147</td>
 <td>0.141906</td>
@@ -1599,7 +1602,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>0.422813</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">pearsonr</td>
+<th data-quarto-table-cell-role="th">pearsonr</th>
 <td>0.619072</td>
 <td>0.575799</td>
 <td>0.581717</td>
@@ -1607,7 +1610,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>0.67697</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">spearmanr</td>
+<th data-quarto-table-cell-role="th">spearmanr</th>
 <td>0.470085</td>
 <td>0.504302</td>
 <td>0.533816</td>
@@ -1615,7 +1618,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>0.510708</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">median_absolute_error</td>
+<th data-quarto-table-cell-role="th">median_absolute_error</th>
 <td>232.982083</td>
 <td>219.622481</td>
 <td>89.554954</td>
@@ -1623,7 +1626,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>232.555574</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">earths_mover_distance</td>
+<th data-quarto-table-cell-role="th">earths_mover_distance</th>
 <td>287.777288</td>
 <td>432.128843</td>
 <td>581.049444</td>
@@ -1631,7 +1634,7 @@ P-value: 0.8761278601130765</code></pre>
 <td>241.618399</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">model</td>
+<th data-quarto-table-cell-role="th">model</th>
 <td>baseline</td>
 <td>winsorized</td>
 <td>log1p</td>
@@ -1650,11 +1653,11 @@ P-value: 0.8761278601130765</code></pre>
 <div id="0e41bb6d" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>err_hurdle <span class="op">=</span> (test_df[<span class="st">'TargetSales'</span>] <span class="op">-</span> test_df[<span class="st">'pred_hurdle'</span>]).<span class="bu">abs</span>()</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>err_hurdle <span class="op">=</span> (test_df[<span class="st">'TargetSales'</span>] <span class="op">-</span> test_df[<span class="st">'pred_hurdle'</span>]).<span class="bu">abs</span>()</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>err_hurdle_corrected <span class="op">=</span> (test_df[<span class="st">'TargetSales'</span>] <span class="op">-</span> test_df[<span class="st">'pred_hurdle_corrected'</span>]).<span class="bu">abs</span>()</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Distribution of errors for Hurdle model without correction'</span>)</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>err_hurdle.describe(percentiles<span class="op">=</span>[<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.9</span>, <span class="fl">.95</span>, <span class="fl">.99</span>]) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>err_hurdle.describe(percentiles<span class="op">=</span>[<span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">.9</span>, <span class="fl">.95</span>, <span class="fl">.99</span>]) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Distribution of errors for Hurdle model without correction</code></pre>
@@ -1677,13 +1680,13 @@ dtype: float64</code></pre>
 <div id="657c4869" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Hurdle Model without correction'</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Hurdle Model without correction'</span>)</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean absolute error under 99th percentile: </span><span class="sc">{</span>err_hurdle[err_hurdle<span class="op">&lt;</span><span class="fl">6763.777844</span>]<span class="sc">.</span>mean()<span class="sc">}</span><span class="ss">'</span>)</span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean absolute error over 99th percentile: </span><span class="sc">{</span>err_hurdle[err_hurdle<span class="op">&gt;</span><span class="fl">6763.777844</span>]<span class="sc">.</span>mean()<span class="sc">}</span><span class="ss">'</span>)</span>
 <span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Hurdle Model with correction'</span>)</span>
 <span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean absolute error under 99th percentile: </span><span class="sc">{</span>err_hurdle_corrected[err_hurdle<span class="op">&lt;</span><span class="fl">6763.777844</span>]<span class="sc">.</span>mean()<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean absolute error over 99th percentile: </span><span class="sc">{</span>err_hurdle_corrected[err_hurdle<span class="op">&gt;</span><span class="fl">6763.777844</span>]<span class="sc">.</span>mean()<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean absolute error over 99th percentile: </span><span class="sc">{</span>err_hurdle_corrected[err_hurdle<span class="op">&gt;</span><span class="fl">6763.777844</span>]<span class="sc">.</span>mean()<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Hurdle Model without correction
@@ -1701,7 +1704,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <div id="87e3baa5" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>] <span class="op">=</span> test_df.has_purchase <span class="op">*</span> test_df.pred_log_exp_corrected</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>] <span class="op">=</span> test_df.has_purchase <span class="op">*</span> test_df.pred_log_exp_corrected</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls <span class="op">=</span> calculate_regression_metrics(test_df[<span class="st">'TargetSales'</span>], test_df[<span class="st">'pred_hurdle_corrected_perfect_cls'</span>])</span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>metric_hurdle_corrected_perfect_cls[<span class="st">'model'</span>] <span class="op">=</span> <span class="st">'hurdle_corrected_perfect_cls'</span></span>
 <span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1711,13 +1714,13 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle,</span>
 <span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected,</span>
 <span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>                       metric_hurdle_corrected_perfect_cls,])</span>
-<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>metric_df2.transpose()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>metric_df2.transpose()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="34">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1731,7 +1734,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">root_mean_squared_error</td>
+<th data-quarto-table-cell-role="th">root_mean_squared_error</th>
 <td>3162.478744</td>
 <td>3623.576378</td>
 <td>3725.342296</td>
@@ -1740,7 +1743,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>3030.854831</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">mean_squared_error</td>
+<th data-quarto-table-cell-role="th">mean_squared_error</th>
 <td>10001271.807776</td>
 <td>13130305.763947</td>
 <td>13878175.221577</td>
@@ -1749,7 +1752,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>9186081.006625</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">mean_absolute_error</td>
+<th data-quarto-table-cell-role="th">mean_absolute_error</th>
 <td>715.644266</td>
 <td>627.788007</td>
 <td>618.976847</td>
@@ -1758,7 +1761,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>479.558294</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">r2</td>
+<th data-quarto-table-cell-role="th">r2</th>
 <td>0.381617</td>
 <td>0.188147</td>
 <td>0.141906</td>
@@ -1767,7 +1770,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>0.43202</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">pearsonr</td>
+<th data-quarto-table-cell-role="th">pearsonr</th>
 <td>0.619072</td>
 <td>0.575799</td>
 <td>0.581717</td>
@@ -1776,7 +1779,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>0.687639</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">spearmanr</td>
+<th data-quarto-table-cell-role="th">spearmanr</th>
 <td>0.470085</td>
 <td>0.504302</td>
 <td>0.533816</td>
@@ -1785,7 +1788,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>0.929419</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">median_absolute_error</td>
+<th data-quarto-table-cell-role="th">median_absolute_error</th>
 <td>232.982083</td>
 <td>219.622481</td>
 <td>89.554954</td>
@@ -1794,7 +1797,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>34.991964</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">earths_mover_distance</td>
+<th data-quarto-table-cell-role="th">earths_mover_distance</th>
 <td>287.777288</td>
 <td>432.128843</td>
 <td>581.049444</td>
@@ -1803,7 +1806,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <td>234.587018</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">model</td>
+<th data-quarto-table-cell-role="th">model</th>
 <td>baseline</td>
 <td>winsorized</td>
 <td>log1p</td>
@@ -1824,7 +1827,7 @@ Mean absolute error over 99th percentile: 22076.839798471465</code></pre>
 <div id="658fb602" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>test_df[[<span class="st">'TargetSales'</span>,<span class="st">'pred_baseline'</span>,<span class="st">'pred_winsorized'</span>,<span class="st">'pred_log1p_expm1'</span>,<span class="st">'pred_hurdle'</span>,<span class="st">'pred_hurdle_corrected'</span>]].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>test_df[[<span class="st">'TargetSales'</span>,<span class="st">'pred_baseline'</span>,<span class="st">'pred_winsorized'</span>,<span class="st">'pred_log1p_expm1'</span>,<span class="st">'pred_hurdle'</span>,<span class="st">'pred_hurdle_corrected'</span>]].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="35">
 <pre><code>TargetSales              760.558808
@@ -1897,13 +1900,14 @@ dtype: float64</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

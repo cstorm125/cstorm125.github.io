@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="cstorm125">
+<meta name="dcterms.date" content="2025-10-03">
+
+<title>Understanding Double/debiased machine learning (DML) – chariblog</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-fa6ebe1abc24c69c1ddb9a141d0fa116.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">chariblog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/cstorm125"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/cstorm125/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://scholar.google.com/citations?user=UX36NGkAAAAJ"> <i class="bi bi-google" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Understanding Double/debiased machine learning (DML)</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">causal-inference</div>
+    <div class="quarto-category">double-machine-learning</div>
+    <div class="quarto-category">frisch-waugh-lovell</div>
+    <div class="quarto-category">neyman-orthogonality</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>cstorm125 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 3, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="https://arxiv.org/pdf/1608.00060">Double/debiased machine learning (DML)</a> is one of the most prominent causal inference algorithms in modern practice from pricing, promotion targeting to multi-million-dollar, one-way-door infrastructure decisions. At its crux is <a href="https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-38/issue-6/On-Optimal-Asymptotic-Tests-of-Composite-Statistical-Hypotheses/10.1214/aoms/1177698617.full">Neyman orthogonality</a>. It posits that given observed data <span class="math inline">\(W\)</span> and true causal parameter <span class="math inline">\(\theta_0\)</span>, a score function <span class="math inline">\(\psi\)</span> is Neyman-orthogonal if and only if its first derivative with respect to parameter of the nuisance function <span class="math inline">\(\eta\)</span>, evaluated at true parameter <span class="math inline">\(\eta_0\)</span>, has an expectation of zero.</p>
+<p><span class="math display">\[
+\left. \frac{\partial}{\partial \eta} \, \mathbb{E}\!\left[ \psi(W; \theta_0, \eta) \right]
+\right|_{\eta = \eta_0} = 0
+\]</span></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="featured_image.jpg" class="img-fluid figure-img"></p>
+<figcaption>featured_image</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p>Side note #1: <span class="math inline">\(\eta_0\)</span> is the true nuisance function, which is unknown. <span class="math inline">\(\eta\)</span> represents any candidate nuisance function which can be plugged in for theoretical analysis. <span class="math inline">\(\hat{\eta}\)</span> is the estimated nuisance parameter from observed data.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>Side note #2: <span class="math inline">\(\frac{\partial}{\partial \eta} f(\eta)|_{\eta = \eta_0}\)</span> notation is <a href="https://en.wikipedia.org/wiki/Gateaux_derivative">Gateaux derivative</a>, which I think of as partial derivative with respect to a small perturbation in the direction of function <span class="math inline">\(\eta\)</span>.</p>
+</blockquote>
+<p>That is, small perturbations of estimated nuisance parameter <span class="math inline">\(\hat{\eta}\)</span>, aka <em>errors in estimation</em>, do not prevent the score function from converging at <span class="math inline">\(n^{-\frac{1}{2}}\)</span> rate.</p>
+<section id="partially-linear-regression-plr-variant" class="level2">
+<h2 class="anchored" data-anchor-id="partially-linear-regression-plr-variant">Partially Linear Regression (PLR) Variant</h2>
+<p>Specifically for DML, it will hold as long as both nuisance functions (outcome estimator <span class="math inline">\(g\)</span> and treatment estimator <span class="math inline">\(m\)</span>) converges at <span class="math inline">\(n^{-\frac{1}{4}}\)</span> rate. Let us look at a simple variant <a href="https://docs.doubleml.org/stable/guide/models.html#partially-linear-models-plm">partially linear regression (PLR)</a> where we are estimating average treatment effect (ATE) <span class="math inline">\(\theta_0\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y &amp;= g_0(X) + \theta_0 D + U \quad; E[U|X,D] = 0 \\
+D &amp;= m_0(X) + V \quad; E[V|X] = 0
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(Y\)</span>: <span class="math inline">\(n \times 1\)</span> outcome vector where <span class="math inline">\(n\)</span> is number of examples <span class="math inline">\(X\)</span>: <span class="math inline">\(n \times k\)</span> feature vector where <span class="math inline">\(k\)</span> is number of features <span class="math inline">\(\theta_0\)</span>: scalar coefficient of causal effect <span class="math inline">\(g_0\)</span> and <span class="math inline">\(m_0\)</span>: <span class="math inline">\(n \times 1\)</span> outcome vectors of nuisance functions <span class="math inline">\(U\)</span> and <span class="math inline">\(V\)</span>: <span class="math inline">\(n \times 1\)</span> error vectors</p>
+</section>
+<section id="population-moment-condition" class="level2">
+<h2 class="anchored" data-anchor-id="population-moment-condition">Population Moment Condition</h2>
+<p>We derive the population <a href="https://en.wikipedia.org/wiki/Generalized_method_of_moments">moment condition</a> to solve for <span class="math inline">\(\theta_0\)</span> as:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[U \cdot V] &amp;= 0 \\
+&amp;= E[E[U \cdot V|X,D]] \quad \text{by Law of Iterated Expectation} \\
+&amp;= E[V \cdot E[U|X,D]] \quad \text{; }V = D - m_0(X)\\
+&amp;= E[V \cdot 0] \quad \text{; }E[U|X,D] = 0\\
+&amp;= 0 \\
+E[(Y - g_0(X) - \theta_0 D) \cdot (D - m_0(X))] &amp;= 0 \\
+\end{aligned}
+\]</span></p>
+</section>
+<section id="score-function-based-on-residualized-regression" class="level2">
+<h2 class="anchored" data-anchor-id="score-function-based-on-residualized-regression">Score Function based on Residualized Regression</h2>
+<p>This looks remarkably similar to an OLS moment condition to solve for a consistent <span class="math inline">\(\theta_0\)</span> where we regress the residuals of <span class="math inline">\(Y\)</span> on those of <span class="math inline">\(D\)</span>. Given:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\tilde{Y} &amp;= Y - g_0(X) \\
+\tilde{D} &amp;= D - m_0(X) \\
+\end{aligned}
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[(Y - g_0(X) - \theta_0 D) \cdot (D - m_0(X))] &amp;= E[(\tilde{Y} - \theta D) \cdot \tilde{D}] \\
+&amp;= E[\big(\tilde{Y} - \theta (\tilde{D} + m_0(X))\big) \cdot \tilde{D]} \\
+&amp;= E[\big(\tilde{Y} - \theta \tilde{D}\big) \cdot \tilde{D}]  - E[\theta m_0(X) \tilde{D}] \\
+\end{aligned}
+\]</span></p>
+<p>The latter term <span class="math inline">\(E[\theta m_0(X) \tilde{D}]\)</span> simplifies to zero:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[\theta m_0(X) \tilde{D}] &amp;=\theta E[m_0(X) \tilde{D}] \\
+&amp;= \theta E[m_0(X) \cdot (D-m_0(X))] \\
+\text{By Law of Iterated Expectations,} \\
+&amp;= \theta E[E[m_0(X) \cdot (D-m_0(X))]|X] \\
+&amp;= \theta E\big[m_0(X) \cdot E[m_0(X)-m_0(X)]\big] \text{ ; as } E[D|X] = m_0(X) \\
+&amp;=0
+\end{aligned}
+\]</span></p>
+<p>Therefore the population moment condition can in fact be rewritten as:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[(Y - g_0(X) - \theta_0 D) \cdot (D - m_0(X))]
+&amp;= E[\big(\tilde{Y} - \theta \tilde{D}\big) \cdot \tilde{D}]   \\
+&amp;= (Y-g(X) - \theta (D-m(X))) \cdot (D - m(X))
+\end{aligned}
+\]</span></p>
+<p>The moment condition represents the following residualized regression:</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y &amp;= g_0(X) + \theta_0 D + U \\
+\tilde{Y} &amp;=  \theta_0 (\tilde{D} + m_0(X)) + U \\
+&amp;= \theta_0 \tilde{D} + \theta_0 m_0(X) + U \\
+&amp;= \theta_0 \tilde{D} + \varepsilon
+\end{aligned}
+\]</span></p>
+<p>This can be interpreted as a generalization of the <a href="https://en.wikipedia.org/wiki/Frisch%E2%80%93Waugh%E2%80%93Lovell_theorem">Frisch–Waugh–Lovell (FWL) theorem</a>. However, unlike in FWL, <span class="math inline">\(\varepsilon\)</span> does NOT satisfy other OLS assumptions such as zero-mean of errors <span class="math inline">\(E[\varepsilon] = 0\)</span>, exogeneity <span class="math inline">\(E[\varepsilon|\tilde{D}] = 0\)</span> and homoskedasticity <span class="math inline">\(Var(\varepsilon|\tilde{D}) = \sigma^2\)</span>. Nonetheless, it estimates a consistent <span class="math inline">\(\theta_0\)</span> as:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[\varepsilon \cdot \tilde{D}] &amp;= 0 \\
+&amp;= E[(\tilde{Y} - \theta_0 \tilde{D}) \cdot \tilde{D}] \\
+&amp;= E[\tilde{Y}\tilde{D} - \theta_0 \tilde{D^2}]\\
+&amp;= E[\tilde{Y}\tilde{D}] - \theta_0 E[\tilde{D^2}]  \text{; } \theta_0 \text{ is a constant vector }\\
+\theta_0&amp;= \frac{E[\tilde{Y}\tilde{D}]}{E[\tilde{D^2}]}  \text{; true parameter derivation}\\
+\hat{\theta} &amp;= \frac{\sum_{i=1}^{N} \tilde{D}_i \tilde{Y}_i}{\sum_{i=1}^{N} \tilde{D}_i^2}  \text{; estimation}\\
+\end{aligned}
+\]</span></p>
+</section>
+<section id="score-function-that-satisfies-neyman-orthogonality" class="level2">
+<h2 class="anchored" data-anchor-id="score-function-that-satisfies-neyman-orthogonality">Score Function That Satisfies Neyman Orthogonality</h2>
+<p>This moment condition satisfies Neyman orthogonality because:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial}{\partial g} E[(Y-g(X) - \theta_0 (D-m_0(X))) \cdot (D - m(X)) \cdot h_g(X)]|_{g = g_0} &amp;= 0 \\
+\frac{\partial}{\partial m} E[(Y-g_0(X) - \theta_0 (D-m(X))) \cdot (D - m(X)) \cdot h_m(X)]|_{m = m_0} &amp;= 0 \\
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(h_g(X)\)</span> and <span class="math inline">\(h_m(X)\)</span> are functional perturbations in nuisance function estimation. Specifically:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[\frac{\partial \psi(W;\theta_0,g,m_0)}{\partial g} \cdot h_g] |_{g = g_0} &amp;= 0 \\
+&amp;= E[\frac{\partial (Y-g(X) - \theta_0 (D-m_0(X))) \cdot (D - m(X)))}{\partial g} \cdot h_g] \\
+&amp;= E[-1 \cdot (D - m_0(X)) \cdot h_g] \\
+\text{By Law of Iterated Expecations,} \\
+&amp;= E[E[(m_0(X) - D) \cdot h_g]|X]  \\
+\text{Since } E[h_g(X)|X] = h_g(X), \\
+&amp;= E[h_g(X) \cdot E[m_0(X) - D|X]] \\
+\text{Since } E[D|X] = m_0(X), \\
+&amp;= E[h_g(X) \cdot 0] \\
+&amp;= 0
+\end{aligned}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\;E\Big[\frac{\partial \psi(W;\theta_0,g_0,m)}{\partial m}\cdot h_m\Big]\Big|_{m=m_0}
+= E\Big[\frac{\partial\big((Y-g_0(X)-\theta_0(D-m(X)))(D-m(X))\big)}{\partial m}\cdot h_m\Big]_{m=m_0} \\
+&amp;\text{Let } A := Y-g_0(X)-\theta_0(D-m(X)),\quad B := D-m(X) \\
+&amp;\text{Then } \psi = A\cdot B,\quad
+\frac{\partial A}{ \partial m}= \theta_0\,\quad
+\frac{\partial B}{\partial m} = -1 \\
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+E[\frac{\partial \psi(W;\theta_0,g_0,m)}{\partial m} \cdot h_m] |_{m = m_0} &amp;= E[h_m \cdot (-A + \theta_0 B)] \\
+&amp;= E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))] \\
+\text{By Law of Iterated Expecations:} \\
+&amp;= E[E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))|X]] \\
+\text{Since } E[h_m(X)|X] = h_m(X): \\
+&amp;= E[h_m \cdot \Big(E[-Y + g_0(X) + 2\theta_0(D-m(X)|X]\Big)]  \\
+\text{Since } E[D|X] = m_0(X) \text{ and } E[Y|X] = g_0(X): \\
+&amp;= E[h_m \cdot 0]  \\
+&amp;= 0
+\end{aligned}
+\]</span></p>
+</section>
+<section id="neyman-orthogonality-ensures-n-frac12-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="neyman-orthogonality-ensures-n-frac12-convergence">Neyman Orthogonality Ensures <span class="math inline">\(n^{-\frac{1}{2}}\)</span> Convergence</h2>
+<p>To demonstrate that Neyman orthogonality ensures a <span class="math inline">\(n^{-\frac{1}{2}}\)</span> convergence for our DML/PLR estimator, we can derive <span class="math inline">\(\hat{\theta} - \theta_0\)</span> from the <a href="https://en.wikipedia.org/wiki/Taylor_series">Taylor expansion</a> of the estimated score function around true parameters <span class="math inline">\(\theta_0, g_0, m_0\)</span>, where remainder term <span class="math inline">\(R\)</span> represents higher-order effects:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\psi(W;\hat{\theta}, \hat{g}, \hat{m}) &amp;= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) \\
+&amp;\quad + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial m} (\hat{m}-m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial g} (\hat{g}-g_0) + R \\
+&amp;= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) \\
+\text{By Neyman orthogonality,}\\
+&amp;\quad + 0 \cdot  (\hat{m}-m_0) + 0 \cdot (\hat{g}-g_0) + R \\
+&amp;= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) + R\\
+\end{aligned}
+\]</span></p>
+<p>Due to sample moment condition <span class="math inline">\(\frac{1}{n} \sum_{i=1}^{N} \psi(W_i;\hat{\theta}, \hat{g}, \hat{m}) =0\)</span>,</p>
+<p><span class="math display">\[
+\begin{aligned}
+0&amp;=\psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) + R\\
+\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) &amp;= - \psi(\theta_0, g_0, m_0) - R \\
+\hat{\theta} - \theta_0 &amp;= \big[-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} \big]^{-1} \big[  \psi(\theta_0, g_0, m_0) + R\big] \\
+\end{aligned}
+\]</span></p>
+<p>First, let us consider why <span class="math inline">\(n^{\frac{1}{2}} \cdot (\hat{\theta} - \theta_0) \xrightarrow{distribution} \mathcal{N}(0, \Sigma)\)</span>. Let <span class="math inline">\(C = \big[-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} \big]^{-1}\)</span> be a constant matrix.</p>
+<p><span class="math display">\[
+\begin{aligned}
+n^{\frac{1}{2}} \cdot (\hat{\theta} - \theta_0) &amp;= C \cdot \big[ \psi(\theta_0, g_0, m_0) + R\big] \\
+&amp;= n^{\frac{1}{2}} \cdot C \cdot \big(\psi(\theta_0, g_0, m_0) + R \big) \\
+&amp;= n^{\frac{1}{2}} \cdot C \cdot \psi(\theta_0, g_0, m_0) + n^{\frac{1}{2}} \cdot C \cdot R
+\end{aligned}
+\]</span></p>
+<p>For the leading term <span class="math inline">\(n^{\frac{1}{2}} \cdot C \cdot \psi(\theta_0, g_0, m_0)\)</span>, it converges to <span class="math inline">\(\mathcal{N}(0, C \cdot E[\psi \psi^\top] \cdot C^\top)\)</span> because:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[n^{\frac{1}{2}} \cdot C \cdot \psi(W;\theta_0, g_0, m_0)] &amp;= n^{\frac{1}{2}} \cdot C \cdot E[\psi(W;\theta_0, g_0, m_0)] \\
+&amp;= n^{\frac{1}{2}} \cdot C \cdot 0 \quad \text{By population moment condition} \\
+&amp;= 0 \\
+Var(n^{\frac{1}{2}} \cdot C \cdot \psi(W;\theta_0, g_0, m_0)) &amp;=  n \cdot C \cdot Var(\psi(W;\theta_0, g_0, m_0)) \cdot C^\top\\
+\text{By estimation using sample average,} \\
+&amp;= n \cdot C \cdot Var(\frac{1}{n}\sum_{i=1}^n \psi_i(W_i;\theta_0, g_0, m_0)) \cdot C^\top \\
+&amp;= n \cdot C \cdot \frac{1}{n^2} Var(\sum_{i=1}^n \psi_i(W_i;\theta_0, g_0, m_0)) \cdot C^\top \\
+&amp;= n \cdot C \cdot \frac{1}{n^2} \sum_{i=1}^n Var(\psi_i(W_i;\theta_0, g_0, m_0)) \cdot C^\top \quad \text{by i.i.d.} \\
+&amp;= n \cdot C \cdot \frac{1}{n^2} \cdot n \cdot E[\psi \psi^\top] \cdot C^\top  \\
+&amp;=  C \cdot E[\psi \psi^\top] \cdot C^\top  \\
+\end{aligned}
+\]</span></p>
+<p>For the trailing term:</p>
+<p><span class="math display">\[
+\begin{aligned}
+R &amp;=\frac{1}{2} (\hat \theta - \theta_0)^\top \, \partial^2_{\theta\theta} \psi \, (\hat \theta - \theta_0) \\
+&amp;\quad + \frac{1}{2} (\hat g - g_0)^\top \, \partial^2_{gg} \psi \, (\hat g - g_0)
++ \frac{1}{2} (\hat m - m_0)^\top \, \partial^2_{mm} \psi \, (\hat m - m_0) \\
+&amp;\quad + (\hat \theta - \theta_0)^\top \, \partial^2_{\theta g} \psi \, (\hat g - g_0)
++ (\hat \theta - \theta_0)^\top \, \partial^2_{\theta m} \psi \, (\hat m - m_0)
++ (\hat g - g_0)^\top \, \partial^2_{g m} \psi \, (\hat m - m_0) + R^{3+}
+\end{aligned}
+\]</span></p>
+<p>Since we have shown that <span class="math inline">\(\hat \theta - \theta_0\)</span> converges at <span class="math inline">\(n^{-\frac{1}{2}}\)</span>, we can ignore terms that involve it. Therefore, as long as <span class="math inline">\((\hat m - m_0)^\top(\hat g - g_0)\)</span>, <span class="math inline">\((\hat g - g_0)^\top(\hat g - g_0)\)</span> and <span class="math inline">\((\hat m - m_0)^\top(\hat m - m_0)\)</span> converges faster than <span class="math inline">\(n^{-\frac{1}{2}}\)</span>ーthat is the sum of convergence rates among <span class="math inline">\(\hat{g}\)</span> and <span class="math inline">\(\hat{m}\)</span>ーlarger than <span class="math inline">\(n^{-\frac{1}{2}}\)</span>, the term will have <span class="math inline">\(n^{-\frac{1}{2}}\)</span> convergence rate. This is also the minimum condition such that terms in <span class="math inline">\(R^{3+}\)</span> converge at at least <span class="math inline">\(n^{-\frac{1}{2}}\)</span>.</p>
+</section>
+<section id="now-that-we-have-nailed-the-theory" class="level2">
+<h2 class="anchored" data-anchor-id="now-that-we-have-nailed-the-theory">Now That We Have Nailed The Theory</h2>
+<p>DML relies on Neyman orthogonality to make the final estimate insensitive to errors in nuisance function estimation, as long as the nuisance function estimators converge at at least <span class="math inline">\(n^{-\frac{1}{4}}\)</span>. It is one of the most beautiful piece of statistical frameworks I have ever studied. However, the lingering question is how do we know our models are converging at <span class="math inline">\(n^{-\frac{1}{4}}\)</span>? The original paper formulates techniques to encourage faster convergence and avoid overfitting such as <a href="https://docs.doubleml.org/stable/guide/resampling.html">cross-fitting</a>, but to the best of my knowledge, did not provide any concrete metric to monitor. In the next installment, I will try to lay out some practical metrics and techniques I use to solve this problem.</p>
+</section>
+<section id="appendix" class="level2">
+<h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
+<section id="n-frac12-convergence-rate" class="level3">
+<h3 class="anchored" data-anchor-id="n-frac12-convergence-rate"><span class="math inline">\(n^{-\frac{1}{2}}\)</span> Convergence Rate</h3>
+<p>An estimator <span class="math inline">\(\hat{\theta}\)</span> with true parameter <span class="math inline">\(\theta_0\)</span> has convergence rate of <span class="math inline">\(n^{-\frac{1}{2}}\)</span> when:</p>
+<p><span class="math display">\[
+n^{\frac{1}{2}} \, (\hat{\theta} - \theta_0) \xrightarrow{distribution} \mathcal{N}(0, \sigma^2)
+\]</span></p>
+<section id="sample-mean" class="level4">
+<h4 class="anchored" data-anchor-id="sample-mean">Sample Mean</h4>
+<p>An example would be sample mean <span class="math inline">\(\bar{X}\)</span>, which is an estimator of true mean <span class="math inline">\(\mu\)</span> of a distribution. By <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem (CLT)</a>, a distribution of sample means approaches a normal distribution of mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\frac{\sigma^2}{n}\)</span>.</p>
+<p>Note that the estimator converges to <span class="math inline">\(\mathcal{N}(0, \sigma^2)\)</span> when we substract <span class="math inline">\(\mu\)</span> and multiply it by <span class="math inline">\(n^{\frac{1}{2}}\)</span> (effectively the residuals multiplied by <span class="math inline">\(n^{\frac{1}{2}}\)</span>) because</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[X] &amp;= \mu \\
+E[X] - \mu &amp;= 0 \\
+(E[X] - \mu) \cdot n^{\frac{1}{2}} &amp;= 0 \cdot n^{\frac{1}{2}} \\
+&amp;= 0
+\end{aligned}
+\]</span></p>
+<p>and</p>
+$$
+<span class="math display">\[\begin{aligned}
+Var(X) &amp;= E[(X-E[X])^2] \\
+Var(X - \mu) &amp;= E[(X - \mu - E[X - \mu])^2] \\
+&amp;= E[(X - \mu - E[X] + \mu)^2] \\
+&amp;= E[(X- E[X])^2] \\
+&amp;= Var(X) \\
+
+Var(X) \cdot n^{\frac{1}{2}} &amp;= E[(X \cdot n^{\frac{1}{2}} - E[X \cdot n^{\frac{1}{2}}])^2] \\
+&amp;= E[(X \cdot n^{\frac{1}{2}} - E[X] \cdot n^{\frac{1}{2}}])^2] \\
+&amp;= E[(n \cdot (X-E[X]))^2] \\
+&amp;= n \cdot E[(X-E[X])^2] \\
+&amp;= n \cdot \frac{\sigma^2}{n} \\
+&amp;= \sigma^2
+\end{aligned}\]</span>
+<p>$$</p>
+</section>
+<section id="ordinary-least-squares-ols" class="level4">
+<h4 class="anchored" data-anchor-id="ordinary-least-squares-ols">Ordinary Least Squares (OLS)</h4>
+<p>Similarly, an <a href="https://en.wikipedia.org/wiki/Linear_regression">OLS</a> estimator also converges at <span class="math inline">\(n^{-\frac{1}{2}}\)</span> due to given:</p>
+<p><span class="math display">\[
+Y = X\beta_0 + \varepsilon
+\]</span></p>
+<p>where <span class="math inline">\(Y\)</span>: <span class="math inline">\(n \times 1\)</span> outcome vector where <span class="math inline">\(n\)</span> is number of examples <span class="math inline">\(X\)</span>: <span class="math inline">\(n \times k\)</span> feature vector where <span class="math inline">\(k\)</span> is number of features <span class="math inline">\(\beta_0\)</span>: <span class="math inline">\(k \times 1\)</span> coefficient vector <span class="math inline">\(\varepsilon\)</span>: <span class="math inline">\(n \times 1\)</span> error vector</p>
+<p>Solve for:</p>
+<p><span class="math display">\[
+\hat\beta = \arg\min_\beta (Y - X\beta)^\top (Y - X\beta)
+\]</span></p>
+<p>Taking derivative of <span class="math inline">\(\beta\)</span>:</p>
+$$
+<span class="math display">\[\begin{aligned}
+L &amp;= (Y - X\beta)^\top (Y - X\beta) \\
+&amp;= Y^\top Y - Y^\top X \beta - (X\beta)^\top Y + (X\beta)^\top X \beta \\
+&amp;= Y^\top Y - 2 X^\top \beta^\top Y + \beta^\top X^\top X \beta  \quad \text{; 2nd and 3rd terms are the same scala} \\
+
+\frac{\partial L}{\partial \beta} &amp;= 0 \quad \text{; not related to } \beta \\
+  &amp; - 2X^\top Y \quad ; \frac{\partial x^\top B}{\partial x} = B \\
+  &amp; + 2 X^\top X \beta \quad ; \frac{\partial x^\top B x}{\partial x} = 2Bx \\
+\end{aligned}\]</span>
+<p>$$</p>
+<p>Then setting it to zero, we derive the exact solution as:</p>
+<p><span class="math display">\[
+\begin{aligned}
+-2X^\top Y + 2 X^\top X \beta &amp;= 0 \\
+\hat\beta = (X^\top X)^{-1} X^\top Y
+\end{aligned}
+\]</span></p>
+<p>Substituting <span class="math inline">\(Y = X\beta_0 + \varepsilon\)</span> gives</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat\beta &amp;= (X^\top X)^{-1} X^\top Y \\
+&amp;= (X^\top X)^{-1} X^\top (X\beta_0 + \varepsilon) \\
+&amp;= \beta_0 + (X^\top X)^{-1} X^\top \varepsilon \\
+\hat\beta -  \beta_0 &amp;= (X^\top X)^{-1} X^\top \varepsilon
+\end{aligned}
+\]</span></p>
+<p>Multiplying both sides by <span class="math inline">\(n^\frac{1}{2}\)</span>:</p>
+<p><span class="math display">\[
+n^\frac{1}{2}(\hat\beta - \beta_0)
+= \left(\frac{1}{n} X^\top X\right)^{-1}
+  \left( \frac{1}{n^\frac{1}{2}} X^\top \varepsilon \right)
+\]</span></p>
+<p>The first term, <span class="math inline">\(\frac{1}{n}X^\top X\)</span>, is the <em>sample</em> uncentered second moment matrix (dimension <span class="math inline">\(k \times k\)</span>) that converges to <em>population</em> uncentered second moment matrix <span class="math inline">\(Q = E[X_i X_i^\top]\)</span> for <span class="math inline">\(i = 1, 2, ..., n\)</span> and <span class="math inline">\(X_i\)</span> has dimension <span class="math inline">\(k \times 1\)</span> by <a href="https://en.wikipedia.org/wiki/Law_of_large_numbers">Law of Large Numbers (LLN)</a>.</p>
+<p><span class="math display">\[
+\frac{1}{n}X^\top X \xrightarrow{probability} Q
+\]</span></p>
+<p>The second term, <span class="math inline">\(\frac{1}{n^\frac{1}{2}} X^\top \varepsilon\)</span>, is the scaled sum of random variables (cross products between features and errors, both of which are random variables by assumptions; dimension <span class="math inline">\(k \times 1\)</span>). This converges to a normal distribution by <a href="https://en.wikipedia.org/wiki/Central_limit_theorem">Central Limit Theorem (CLT)</a>.</p>
+<p>The cross product terms <span class="math inline">\(X_i\varepsilon_i\)</span> are zero-mean due to [exogeneity] assumption <span class="math inline">\(E[\varepsilon_i|X_i] = 0\)</span> and <a href="https://en.wikipedia.org/wiki/Law_of_total_expectation">Law of Iterated Expectation</a>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[\frac{1}{n^\frac{1}{2}} X^\top \varepsilon] &amp;= \frac{1}{n^\frac{1}{2}}E[ X_i \varepsilon_i] \\
+E[ X_i \varepsilon_i] &amp; =E[E[X_i \varepsilon_i | X_i]] \quad \text{by Law of Iterated Expectation} \\
+&amp;= E[X_i \cdot E[\varepsilon_i | X_i]] \quad \text{due to } E[X_i|X_i] = X_i \\
+&amp; = E[X_i \cdot 0] \quad \text{by exogeneity assumption}  \\
+&amp;= 0
+\end{aligned}
+\]</span></p>
+<p>Due to <a href="(https://en.wikipedia.org/wiki/Homoscedasticity_and_heteroscedasticity)">homoskedasticity</a> assumption, the covariance matrix <span class="math inline">\(\Omega\)</span> (dimension <span class="math inline">\(k \times k\)</span>) is</p>
+<p><span class="math display">\[
+\begin{aligned}
+\Omega &amp;= Var(X_i \varepsilon_i) \\
+&amp;= E[(X_i \varepsilon_i - E[X_i \varepsilon_i])(X_i \varepsilon_i - E[X_i \varepsilon_i])^T] \\
+&amp;= E[(X_i \varepsilon_i - 0)(X_i \varepsilon_i - 0)^T] \\
+&amp;= E[\varepsilon_i^2 X_i X_i^T] \quad \text{as errors are scala} \\
+&amp;= E[E[\varepsilon_i^2 X_i X_i^T|X_i]] \quad \text{by Law of Iterated Expectation} \\
+&amp; =E[X_i X_i^T \cdot E[\varepsilon_i^2|X_i]] \text{ due to } E[X_i X_i^T|X_i] = X_i X_i^T \\
+&amp; =E[X_i X_i^T \cdot \sigma^2] \quad \text{by homosckedasticity assumption} \\
+&amp;= \sigma^2 Q \quad \text{as } \sigma^2 \text{ is constant}
+\end{aligned}
+\]</span></p>
+<p>With these derivations, we can say that</p>
+<p><span class="math display">\[
+\begin{aligned}
+\left(\frac{1}{n} X^\top X\right)^{-1} \xrightarrow{probability} Q^{-1} \\
+\left(\frac{1}{n^\frac{1}{2}} X^\top \varepsilon \right) \xrightarrow{distribution} \mathcal{N}(0, \sigma^2 Q)
+\end{aligned}
+\]</span></p>
+<p>With <a href="https://en.wikipedia.org/wiki/Slutsky%27s_theorem">Slutsky’s Theorem</a> and the fact that <span class="math inline">\(Q = E[X_i X_i^\top]\)</span> is a symmetrical matrix of covariances <span class="math inline">\((Q^{-1})^\top = Q^{-1}\)</span>, we can say that the entire term converges to a normal distribution.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\left(\frac{1}{n} X^\top X\right)^{-1} \left(\frac{1}{n^\frac{1}{2}} X^\top \varepsilon \right)  \xrightarrow{distribution} \mathcal{N}(0, Q^{-1} (\sigma^2 Q) (Q^{-1})^\top)  \\
+\xrightarrow{distribution} \mathcal{N}(0, Q^{-1} \sigma^2 Q Q^{-1})) \quad \quad \\
+\xrightarrow{distribution} \mathcal{N}(0, Q^{-1} \sigma^2) \quad \quad \quad \quad \quad \\
+\end{aligned}
+\]</span></p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/cstorm125\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

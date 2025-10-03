@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/dml/index.html",
       "/posts/aib2025_survey/index.html",
       "/posts/sql_almost/index.html",
       "/posts/sales_prediction/index.html",

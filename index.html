@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -34,14 +34,15 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-46cbb8347319fcb2eb8c4f6a8afc9e17.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fa6ebe1abc24c69c1ddb9a141d0fa116.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -113,7 +114,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -139,6 +140,8 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">chariblog</span>
     </a>
@@ -197,7 +200,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="YWktYnVpbGRlcnM=">ai-builders <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y2FyZWVy">career <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZWR1Y2F0aW9u">education <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aHVyZGxl">hurdle <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bG9uZyUyRmZhdC10YWlsZWQ=">long/fat-tailed <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmV0YWls">retail <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3Fs">sql <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3VydmV5">survey <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div><div class="category" data-category="emVyby1pbmZsYXRlZA==">zero-inflated <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(5)</span></div><div class="category" data-category="YWktYnVpbGRlcnM=">ai-builders <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y2FyZWVy">career <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y2F1c2FsLWluZmVyZW5jZQ==">causal-inference <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZG91YmxlLW1hY2hpbmUtbGVhcm5pbmc=">double-machine-learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZWR1Y2F0aW9u">education <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZnJpc2NoLXdhdWdoLWxvdmVsbA==">frisch-waugh-lovell <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aHVyZGxl">hurdle <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bG9uZyUyRmZhdC10YWlsZWQ=">long/fat-tailed <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bmV5bWFuLW9ydGhvZ29uYWxpdHk=">neyman-orthogonality <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cmV0YWls">retail <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3Fs">sql <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3VydmV5">survey <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div><div class="category" data-category="emVyby1pbmZsYXRlZA==">zero-inflated <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -236,7 +239,43 @@ window.Quarto = {
     </div>
 </div>
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="YWktYnVpbGRlcnMlMkNlZHVjYXRpb24lMkNzdXJ2ZXk=" data-listing-date-sort="1753056000000" data-listing-file-modified-sort="1753091992373" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5490">
+<div class="quarto-post image-right" data-index="0" data-categories="Y2F1c2FsLWluZmVyZW5jZSUyQ2RvdWJsZS1tYWNoaW5lLWxlYXJuaW5nJTJDZnJpc2NoLXdhdWdoLWxvdmVsbCUyQ25leW1hbi1vcnRob2dvbmFsaXR5" data-listing-date-sort="1759449600000" data-listing-file-modified-sort="1759514921360" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2206">
+<div class="thumbnail"><a href="./posts/dml/index.html" class="no-external">
+
+<img loading="lazy" src="./posts/dml/featured_image.jpg" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/dml/index.html" class="no-external">Understanding Double/debiased machine learning (DML)</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('Y2F1c2FsLWluZmVyZW5jZQ=='); return false;">causal-inference</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZG91YmxlLW1hY2hpbmUtbGVhcm5pbmc='); return false;">double-machine-learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZnJpc2NoLXdhdWdoLWxvdmVsbA=='); return false;">frisch-waugh-lovell</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bmV5bWFuLW9ydGhvZ29uYWxpdHk='); return false;">neyman-orthogonality</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts/dml/index.html" class="no-external">
+Double/debiased machine learning (DML) is one of the most prominent causal inference algorithms in modern practice from pricing, promotion targeting to multi-million-dollar…<span class="math inline"></span><span class="math inline"></span><span class="math inline"></span><span class="math inline"></span><span class="math inline"></span>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/dml/index.html" class="no-external">
+<div class="listing-date">
+2025-10-03
+</div>
+<div class="listing-author">
+cstorm125
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="YWktYnVpbGRlcnMlMkNlZHVjYXRpb24lMkNzdXJ2ZXk=" data-listing-date-sort="1753056000000" data-listing-file-modified-sort="1759514921359" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5490">
 <div class="thumbnail"><a href="./posts/aib2025_survey/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/aib2025_survey/featured_image.jpg" class="thumbnail-image">
@@ -270,7 +309,7 @@ cstorm125
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="c3FsJTJDdHV0b3JpYWw=" data-listing-date-sort="1751155200000" data-listing-file-modified-sort="1753091992374" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5332">
+<div class="quarto-post image-right" data-index="2" data-categories="c3FsJTJDdHV0b3JpYWw=" data-listing-date-sort="1751155200000" data-listing-file-modified-sort="1759514921362" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5332">
 <div class="thumbnail"><a href="./posts/sql_almost/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/sql_almost/featured_image.jpg" class="thumbnail-image">
@@ -302,7 +341,7 @@ cstorm125
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="cmV0YWlsJTJDemVyby1pbmZsYXRlZCUyQ2xvbmclMkZmYXQtdGFpbGVkJTJDaHVyZGxl" data-listing-date-sort="1732492800000" data-listing-file-modified-sort="1753091992374" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5420">
+<div class="quarto-post image-right" data-index="3" data-categories="cmV0YWlsJTJDemVyby1pbmZsYXRlZCUyQ2xvbmclMkZmYXQtdGFpbGVkJTJDaHVyZGxl" data-listing-date-sort="1732492800000" data-listing-file-modified-sort="1759514921361" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5420">
 <div class="thumbnail"><a href="./posts/sales_prediction/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/sales_prediction/featured_image.jpg" class="thumbnail-image">
@@ -338,7 +377,7 @@ cstorm125
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="Y2FyZWVy" data-listing-date-sort="1732320000000" data-listing-file-modified-sort="1753091992373" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1148">
+<div class="quarto-post image-right" data-index="4" data-categories="Y2FyZWVy" data-listing-date-sort="1732320000000" data-listing-file-modified-sort="1759514921361" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1148">
 <div class="thumbnail"><a href="./posts/interesting_career/index.html" class="no-external">
 
 <img loading="lazy" src="./posts/interesting_career/featured_image.jpg" class="thumbnail-image">
@@ -422,13 +461,14 @@ cstorm125
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
