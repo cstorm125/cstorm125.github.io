@@ -1,0 +1,419 @@
+---
+title: "Understanding Double/debiased machine learning (DML)"
+author: "cstorm125"
+date: "2025-10-03"
+categories: [causal-inference, double-machine-learning, frisch-waugh-lovell, neyman-orthogonality]
+image: "featured_image.jpg"
+sidebar:
+  contents: auto
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+[Double/debiased machine learning (DML)](https://arxiv.org/pdf/1608.00060) is one of the most prominent causal inference algorithms in modern practice from pricing, promotion targeting to multi-million-dollar, one-way-door infrastructure decisions. At its crux is [Neyman orthogonality](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-38/issue-6/On-Optimal-Asymptotic-Tests-of-Composite-Statistical-Hypotheses/10.1214/aoms/1177698617.full). It posits that given observed data $W$ and true causal parameter $\theta_0$, a score function $\psi$ is Neyman-orthogonal if and only if its first derivative with respect to parameter of the nuisance function $\eta$, evaluated at true parameter $\eta_0$, has an expectation of zero.
+
+$$
+\left. \frac{\partial}{\partial \eta} \, \mathbb{E}\!\left[ \psi(W; \theta_0, \eta) \right] 
+\right|_{\eta = \eta_0} = 0
+$$
+
+![featured_image](featured_image.jpg)
+
+> Side note #1: $\eta_0$ is the true nuisance function, which is unknown. $\eta$ represents any candidate nuisance function which can be plugged in for theoretical analysis. $\hat{\eta}$ is the estimated nuisance parameter from observed data.
+
+> Side note #2: $\frac{\partial}{\partial \eta} f(\eta)|_{\eta = \eta_0}$ notation is [Gateaux derivative](https://en.wikipedia.org/wiki/Gateaux_derivative), which I think of as partial derivative with respect to a small perturbation in the direction of function $\eta$.
+
+That is, small perturbations of estimated nuisance parameter $\hat{\eta}$, aka *errors in estimation*, do not prevent the score function from converging at $n^{-\frac{1}{2}}$ rate. 
+
+## Partially Linear Regression (PLR) Variant
+
+Specifically for DML, it will hold as long as both nuisance functions (outcome estimator $g$ and treatment estimator $m$) converges at $n^{-\frac{1}{4}}$ rate. Let us look at a simple variant [partially linear regression (PLR)](https://docs.doubleml.org/stable/guide/models.html#partially-linear-models-plm) where we are estimating average treatment effect (ATE) $\theta_0$:
+
+$$
+\begin{aligned}
+Y &= g_0(X) + \theta_0 D + U \quad; E[U|X,D] = 0 \\
+D &= m_0(X) + V \quad; E[V|X] = 0
+\end{aligned}
+$$
+
+where 
+$Y$: $n \times 1$ outcome vector where $n$ is number of examples
+$X$: $n \times k$ feature vector where $k$ is number of features
+$\theta_0$: scalar coefficient of causal effect
+$g_0$ and $m_0$: $n \times 1$ outcome vectors of nuisance functions
+$U$ and $V$: $n \times 1$ error vectors
+
+## Population Moment Condition
+
+We derive the population [moment condition](https://en.wikipedia.org/wiki/Generalized_method_of_moments) to solve for $\theta_0$ as:
+
+$$
+\begin{aligned}
+E[U \cdot V] &= 0 \\
+&= E[E[U \cdot V|X,D]] \quad \text{by Law of Iterated Expectation} \\
+&= E[V \cdot E[U|X,D]] \quad \text{; }V = D - m_0(X)\\
+&= E[V \cdot 0] \quad \text{; }E[U|X,D] = 0\\
+&= 0 \\
+E[(Y - g_0(X) - \theta_0 D) \cdot (D - m_0(X))] &= 0 \\
+\end{aligned}
+$$
+
+## Score Function based on Residualized Regression
+
+This looks remarkably similar to an OLS moment condition to solve for a consistent $\theta_0$ where we regress the residuals of $Y$ on those of $D$. Given:
+
+$$
+\begin{aligned}
+\tilde{Y} &= Y - g_0(X) \\
+\tilde{D} &= D - m_0(X) \\
+\end{aligned}
+$$
+
+then 
+
+$$
+\begin{aligned}
+E[(Y - g_0(X) - \theta_0 D) \cdot (D - m_0(X))] &= E[(\tilde{Y} - \theta D) \cdot \tilde{D}] \\
+&= E[\big(\tilde{Y} - \theta (\tilde{D} + m_0(X))\big) \cdot \tilde{D]} \\
+&= E[\big(\tilde{Y} - \theta \tilde{D}\big) \cdot \tilde{D}]  - E[\theta m_0(X) \tilde{D}] \\
+\end{aligned}
+$$
+
+The latter term $E[\theta m_0(X) \tilde{D}]$ simplifies to zero:
+
+$$
+\begin{aligned}
+E[\theta m_0(X) \tilde{D}] &=\theta E[m_0(X) \tilde{D}] \\
+&= \theta E[m_0(X) \cdot (D-m_0(X))] \\
+\text{By Law of Iterated Expectations,} \\
+&= \theta E[E[m_0(X) \cdot (D-m_0(X))]|X] \\
+&= \theta E\big[m_0(X) \cdot E[m_0(X)-m_0(X)]\big] \text{ ; as } E[D|X] = m_0(X) \\
+&=0
+\end{aligned}
+$$
+
+Therefore the population moment condition can in fact be rewritten as:
+
+$$
+\begin{aligned}
+E[(Y - g_0(X) - \theta_0 D) \cdot (D - m_0(X))] 
+&= E[\big(\tilde{Y} - \theta \tilde{D}\big) \cdot \tilde{D}]   \\
+&= (Y-g(X) - \theta (D-m(X))) \cdot (D - m(X))
+\end{aligned}
+$$
+
+
+The moment condition represents the following residualized regression:
+
+$$
+\begin{aligned}
+Y &= g_0(X) + \theta_0 D + U \\
+\tilde{Y} &=  \theta_0 (\tilde{D} + m_0(X)) + U \\
+&= \theta_0 \tilde{D} + \theta_0 m_0(X) + U \\
+&= \theta_0 \tilde{D} + \varepsilon
+\end{aligned}
+$$
+
+This can be interpreted as a generalization of the [Frisch–Waugh–Lovell (FWL) theorem](https://en.wikipedia.org/wiki/Frisch%E2%80%93Waugh%E2%80%93Lovell_theorem). However, unlike in FWL, $\varepsilon$ does NOT satisfy other OLS assumptions such as zero-mean of errors $E[\varepsilon] = 0$, exogeneity $E[\varepsilon|\tilde{D}] = 0$ and homoskedasticity $Var(\varepsilon|\tilde{D}) = \sigma^2$. Nonetheless, it estimates a consistent $\theta_0$ as:
+
+$$
+\begin{aligned}
+E[\varepsilon \cdot \tilde{D}] &= 0 \\
+&= E[(\tilde{Y} - \theta_0 \tilde{D}) \cdot \tilde{D}] \\
+&= E[\tilde{Y}\tilde{D} - \theta_0 \tilde{D^2}]\\
+&= E[\tilde{Y}\tilde{D}] - \theta_0 E[\tilde{D^2}]  \text{; } \theta_0 \text{ is a constant vector }\\
+\theta_0&= \frac{E[\tilde{Y}\tilde{D}]}{E[\tilde{D^2}]}  \text{; true parameter derivation}\\
+\hat{\theta} &= \frac{\sum_{i=1}^{N} \tilde{D}_i \tilde{Y}_i}{\sum_{i=1}^{N} \tilde{D}_i^2}  \text{; estimation}\\
+\end{aligned}
+$$
+
+## Score Function That Satisfies Neyman Orthogonality
+
+This moment condition satisfies Neyman orthogonality because:
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial g} E[(Y-g(X) - \theta_0 (D-m_0(X))) \cdot (D - m(X)) \cdot h_g(X)]|_{g = g_0} &= 0 \\
+\frac{\partial}{\partial m} E[(Y-g_0(X) - \theta_0 (D-m(X))) \cdot (D - m(X)) \cdot h_m(X)]|_{m = m_0} &= 0 \\
+\end{aligned}
+$$
+
+
+where $h_g(X)$ and $h_m(X)$ are functional perturbations in nuisance function estimation. Specifically:
+
+$$
+\begin{aligned}
+E[\frac{\partial \psi(W;\theta_0,g,m_0)}{\partial g} \cdot h_g] |_{g = g_0} &= 0 \\
+&= E[\frac{\partial (Y-g(X) - \theta_0 (D-m_0(X))) \cdot (D - m(X)))}{\partial g} \cdot h_g] \\
+&= E[-1 \cdot (D - m_0(X)) \cdot h_g] \\
+\text{By Law of Iterated Expecations,} \\
+&= E[E[(m_0(X) - D) \cdot h_g]|X]  \\
+\text{Since } E[h_g(X)|X] = h_g(X), \\
+&= E[h_g(X) \cdot E[m_0(X) - D|X]] \\
+\text{Since } E[D|X] = m_0(X), \\
+&= E[h_g(X) \cdot 0] \\
+&= 0
+\end{aligned}
+$$
+
+and 
+
+$$
+\begin{aligned}
+&\;E\Big[\frac{\partial \psi(W;\theta_0,g_0,m)}{\partial m}\cdot h_m\Big]\Big|_{m=m_0}
+= E\Big[\frac{\partial\big((Y-g_0(X)-\theta_0(D-m(X)))(D-m(X))\big)}{\partial m}\cdot h_m\Big]_{m=m_0} \\
+&\text{Let } A := Y-g_0(X)-\theta_0(D-m(X)),\quad B := D-m(X) \\
+&\text{Then } \psi = A\cdot B,\quad 
+\frac{\partial A}{ \partial m}= \theta_0\,\quad 
+\frac{\partial B}{\partial m} = -1 \\
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+E[\frac{\partial \psi(W;\theta_0,g_0,m)}{\partial m} \cdot h_m] |_{m = m_0} &= E[h_m \cdot (-A + \theta_0 B)] \\
+&= E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))] \\
+\text{By Law of Iterated Expecations:} \\
+&= E[E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))|X]] \\
+\text{Since } E[h_m(X)|X] = h_m(X): \\
+&= E[h_m \cdot \Big(E[-Y + g_0(X) + 2\theta_0(D-m(X)|X]\Big)]  \\
+\text{Since } E[D|X] = m_0(X) \text{ and } E[Y|X] = g_0(X): \\
+&= E[h_m \cdot 0]  \\
+&= 0
+\end{aligned}
+$$
+
+## Neyman Orthogonality Ensures $n^{-\frac{1}{2}}$ Convergence
+
+To demonstrate that Neyman orthogonality ensures a $n^{-\frac{1}{2}}$ convergence for our DML/PLR estimator, we can derive $\hat{\theta} - \theta_0$ from the [Taylor expansion](https://en.wikipedia.org/wiki/Taylor_series) of the estimated score function around true parameters $\theta_0, g_0, m_0$, where remainder term $R$ represents higher-order effects:
+
+$$
+\begin{aligned}
+\psi(W;\hat{\theta}, \hat{g}, \hat{m}) &= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) \\
+&\quad + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial m} (\hat{m}-m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial g} (\hat{g}-g_0) + R \\
+&= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) \\
+\text{By Neyman orthogonality,}\\
+&\quad + 0 \cdot  (\hat{m}-m_0) + 0 \cdot (\hat{g}-g_0) + R \\
+&= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) + R\\
+\end{aligned}
+$$
+
+Due to sample moment condition $\frac{1}{n} \sum_{i=1}^{N} \psi(W_i;\hat{\theta}, \hat{g}, \hat{m}) =0$, 
+
+$$
+\begin{aligned}
+0&=\psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) + R\\
+\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) &= - \psi(\theta_0, g_0, m_0) - R \\
+\hat{\theta} - \theta_0 &= \big[-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} \big]^{-1} \big[  \psi(\theta_0, g_0, m_0) + R\big] \\
+\end{aligned}
+$$
+
+First, let us consider why $n^{\frac{1}{2}} \cdot (\hat{\theta} - \theta_0) \xrightarrow{distribution} \mathcal{N}(0, \Sigma)$. Let $C = \big[-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} \big]^{-1}$ be a constant matrix.
+
+$$
+\begin{aligned}
+n^{\frac{1}{2}} \cdot (\hat{\theta} - \theta_0) &= C \cdot \big[ \psi(\theta_0, g_0, m_0) + R\big] \\
+&= n^{\frac{1}{2}} \cdot C \cdot \big(\psi(\theta_0, g_0, m_0) + R \big) \\
+&= n^{\frac{1}{2}} \cdot C \cdot \psi(\theta_0, g_0, m_0) + n^{\frac{1}{2}} \cdot C \cdot R 
+\end{aligned}
+$$
+
+For the leading term $n^{\frac{1}{2}} \cdot C \cdot \psi(\theta_0, g_0, m_0)$, it converges to $\mathcal{N}(0, C \cdot E[\psi \psi^\top] \cdot C^\top)$ because:
+
+$$
+\begin{aligned}
+E[n^{\frac{1}{2}} \cdot C \cdot \psi(W;\theta_0, g_0, m_0)] &= n^{\frac{1}{2}} \cdot C \cdot E[\psi(W;\theta_0, g_0, m_0)] \\
+&= n^{\frac{1}{2}} \cdot C \cdot 0 \quad \text{By population moment condition} \\
+&= 0 \\
+Var(n^{\frac{1}{2}} \cdot C \cdot \psi(W;\theta_0, g_0, m_0)) &=  n \cdot C \cdot Var(\psi(W;\theta_0, g_0, m_0)) \cdot C^\top\\
+\text{By estimation using sample average,} \\
+&= n \cdot C \cdot Var(\frac{1}{n}\sum_{i=1}^n \psi_i(W_i;\theta_0, g_0, m_0)) \cdot C^\top \\
+&= n \cdot C \cdot \frac{1}{n^2} Var(\sum_{i=1}^n \psi_i(W_i;\theta_0, g_0, m_0)) \cdot C^\top \\
+&= n \cdot C \cdot \frac{1}{n^2} \sum_{i=1}^n Var(\psi_i(W_i;\theta_0, g_0, m_0)) \cdot C^\top \quad \text{by i.i.d.} \\
+&= n \cdot C \cdot \frac{1}{n^2} \cdot n \cdot E[\psi \psi^\top] \cdot C^\top  \\
+&=  C \cdot E[\psi \psi^\top] \cdot C^\top  \\
+\end{aligned}
+$$
+
+For the trailing term:
+
+$$
+\begin{aligned}
+R &=\frac{1}{2} (\hat \theta - \theta_0)^\top \, \partial^2_{\theta\theta} \psi \, (\hat \theta - \theta_0) \\
+&\quad + \frac{1}{2} (\hat g - g_0)^\top \, \partial^2_{gg} \psi \, (\hat g - g_0) 
++ \frac{1}{2} (\hat m - m_0)^\top \, \partial^2_{mm} \psi \, (\hat m - m_0) \\
+&\quad + (\hat \theta - \theta_0)^\top \, \partial^2_{\theta g} \psi \, (\hat g - g_0) 
++ (\hat \theta - \theta_0)^\top \, \partial^2_{\theta m} \psi \, (\hat m - m_0) 
++ (\hat g - g_0)^\top \, \partial^2_{g m} \psi \, (\hat m - m_0) + R^{3+}
+\end{aligned}
+$$
+
+Since we have shown that $\hat \theta - \theta_0$ converges at $n^{-\frac{1}{2}}$, we can ignore terms that involve it. Therefore, as long as $(\hat m - m_0)^\top(\hat g - g_0)$, $(\hat g - g_0)^\top(\hat g - g_0)$ and $(\hat m - m_0)^\top(\hat m - m_0)$ converges faster than $n^{-\frac{1}{2}}$ーthat is the sum of convergence rates among $\hat{g}$ and $\hat{m}$ーlarger than $n^{-\frac{1}{2}}$, the term will have $n^{-\frac{1}{2}}$ convergence rate. This is also the minimum condition such that terms in $R^{3+}$ converge at at least $n^{-\frac{1}{2}}$.
+
+## Now That We Have Nailed The Theory
+
+DML relies on Neyman orthogonality to make the final estimate insensitive to errors in nuisance function estimation, as long as the nuisance function estimators converge at at least $n^{-\frac{1}{4}}$. It is one of the most beautiful piece of statistical frameworks I have ever studied. However, the lingering question is how do we know our models are converging at $n^{-\frac{1}{4}}$? The original paper formulates techniques to encourage faster convergence and avoid overfitting such as [cross-fitting](https://docs.doubleml.org/stable/guide/resampling.html), but to the best of my knowledge, did not provide any concrete metric to monitor. In the next installment, I will try to lay out some practical metrics and techniques I use to solve this problem.
+
+## Appendix
+
+### $n^{-\frac{1}{2}}$ Convergence Rate
+
+An estimator $\hat{\theta}$ with true parameter $\theta_0$  has convergence rate of $n^{-\frac{1}{2}}$ when:
+
+$$
+n^{\frac{1}{2}} \, (\hat{\theta} - \theta_0) \xrightarrow{distribution} \mathcal{N}(0, \sigma^2)
+$$
+
+#### Sample Mean
+
+An example would be sample mean $\bar{X}$, which is an estimator of true mean $\mu$ of a distribution. By [Central Limit Theorem (CLT)](https://en.wikipedia.org/wiki/Central_limit_theorem), a distribution of sample means approaches a normal distribution of mean $\mu$ and variance $\frac{\sigma^2}{n}$.
+
+Note that the estimator converges to $\mathcal{N}(0, \sigma^2)$ when we substract $\mu$ and multiply it by $n^{\frac{1}{2}}$ (effectively the residuals multiplied by $n^{\frac{1}{2}}$) because 
+
+$$
+\begin{aligned}
+E[X] &= \mu \\
+E[X] - \mu &= 0 \\
+(E[X] - \mu) \cdot n^{\frac{1}{2}} &= 0 \cdot n^{\frac{1}{2}} \\
+&= 0
+\end{aligned}
+$$
+
+and 
+
+$$
+\begin{aligned}
+Var(X) &= E[(X-E[X])^2] \\
+Var(X - \mu) &= E[(X - \mu - E[X - \mu])^2] \\
+&= E[(X - \mu - E[X] + \mu)^2] \\
+&= E[(X- E[X])^2] \\
+&= Var(X) \\
+
+Var(X) \cdot n^{\frac{1}{2}} &= E[(X \cdot n^{\frac{1}{2}} - E[X \cdot n^{\frac{1}{2}}])^2] \\
+&= E[(X \cdot n^{\frac{1}{2}} - E[X] \cdot n^{\frac{1}{2}}])^2] \\
+&= E[(n \cdot (X-E[X]))^2] \\
+&= n \cdot E[(X-E[X])^2] \\
+&= n \cdot \frac{\sigma^2}{n} \\
+&= \sigma^2
+\end{aligned}
+$$
+
+#### Ordinary Least Squares (OLS)
+
+Similarly, an [OLS](https://en.wikipedia.org/wiki/Linear_regression) estimator also converges at $n^{-\frac{1}{2}}$ due to given: 
+
+$$
+Y = X\beta_0 + \varepsilon
+$$
+
+where 
+$Y$: $n \times 1$ outcome vector where $n$ is number of examples
+$X$: $n \times k$ feature vector where $k$ is number of features
+$\beta_0$: $k \times 1$ coefficient vector
+$\varepsilon$: $n \times 1$ error vector
+
+Solve for:
+
+$$
+\hat\beta = \arg\min_\beta (Y - X\beta)^\top (Y - X\beta)
+$$
+
+Taking derivative of $\beta$:
+
+$$
+\begin{aligned}
+L &= (Y - X\beta)^\top (Y - X\beta) \\
+&= Y^\top Y - Y^\top X \beta - (X\beta)^\top Y + (X\beta)^\top X \beta \\
+&= Y^\top Y - 2 X^\top \beta^\top Y + \beta^\top X^\top X \beta  \quad \text{; 2nd and 3rd terms are the same scala} \\
+
+\frac{\partial L}{\partial \beta} &= 0 \quad \text{; not related to } \beta \\
+  & - 2X^\top Y \quad ; \frac{\partial x^\top B}{\partial x} = B \\
+  & + 2 X^\top X \beta \quad ; \frac{\partial x^\top B x}{\partial x} = 2Bx \\
+\end{aligned}
+$$
+
+Then setting it to zero, we derive the exact solution as:
+
+$$
+\begin{aligned}
+-2X^\top Y + 2 X^\top X \beta &= 0 \\
+\hat\beta = (X^\top X)^{-1} X^\top Y
+\end{aligned}
+$$
+
+
+Substituting $Y = X\beta_0 + \varepsilon$ gives
+
+$$
+\begin{aligned}
+\hat\beta &= (X^\top X)^{-1} X^\top Y \\
+&= (X^\top X)^{-1} X^\top (X\beta_0 + \varepsilon) \\
+&= \beta_0 + (X^\top X)^{-1} X^\top \varepsilon \\
+\hat\beta -  \beta_0 &= (X^\top X)^{-1} X^\top \varepsilon
+\end{aligned}
+$$
+
+
+Multiplying both sides by $n^\frac{1}{2}$:
+
+$$
+n^\frac{1}{2}(\hat\beta - \beta_0) 
+= \left(\frac{1}{n} X^\top X\right)^{-1} 
+  \left( \frac{1}{n^\frac{1}{2}} X^\top \varepsilon \right)
+$$
+
+The first term, $\frac{1}{n}X^\top X$, is the *sample* uncentered second moment matrix (dimension $k \times k$) that converges to *population* uncentered second moment matrix $Q = E[X_i X_i^\top]$ for $i = 1, 2, ..., n$ and $X_i$ has dimension $k \times 1$  by [Law of Large Numbers (LLN)](https://en.wikipedia.org/wiki/Law_of_large_numbers).
+
+$$
+\frac{1}{n}X^\top X \xrightarrow{probability} Q
+$$
+
+The second term, $\frac{1}{n^\frac{1}{2}} X^\top \varepsilon$, is the scaled sum of random variables (cross products between features and errors, both of which are random variables by assumptions; dimension $k \times 1$). This converges to a normal distribution by [Central Limit Theorem (CLT)](https://en.wikipedia.org/wiki/Central_limit_theorem).
+
+The cross product terms $X_i\varepsilon_i$ are zero-mean due to [exogeneity] assumption $E[\varepsilon_i|X_i] = 0$ and [Law of Iterated Expectation](https://en.wikipedia.org/wiki/Law_of_total_expectation):
+
+$$
+\begin{aligned}
+E[\frac{1}{n^\frac{1}{2}} X^\top \varepsilon] &= \frac{1}{n^\frac{1}{2}}E[ X_i \varepsilon_i] \\
+E[ X_i \varepsilon_i] & =E[E[X_i \varepsilon_i | X_i]] \quad \text{by Law of Iterated Expectation} \\
+&= E[X_i \cdot E[\varepsilon_i | X_i]] \quad \text{due to } E[X_i|X_i] = X_i \\
+& = E[X_i \cdot 0] \quad \text{by exogeneity assumption}  \\
+&= 0
+\end{aligned}
+$$
+
+Due to [homoskedasticity]((https://en.wikipedia.org/wiki/Homoscedasticity_and_heteroscedasticity)) assumption, the covariance matrix $\Omega$ (dimension $k \times k$) is
+
+$$
+\begin{aligned}
+\Omega &= Var(X_i \varepsilon_i) \\
+&= E[(X_i \varepsilon_i - E[X_i \varepsilon_i])(X_i \varepsilon_i - E[X_i \varepsilon_i])^T] \\
+&= E[(X_i \varepsilon_i - 0)(X_i \varepsilon_i - 0)^T] \\
+&= E[\varepsilon_i^2 X_i X_i^T] \quad \text{as errors are scala} \\ 
+&= E[E[\varepsilon_i^2 X_i X_i^T|X_i]] \quad \text{by Law of Iterated Expectation} \\
+& =E[X_i X_i^T \cdot E[\varepsilon_i^2|X_i]] \text{ due to } E[X_i X_i^T|X_i] = X_i X_i^T \\
+& =E[X_i X_i^T \cdot \sigma^2] \quad \text{by homosckedasticity assumption} \\
+&= \sigma^2 Q \quad \text{as } \sigma^2 \text{ is constant}
+\end{aligned}
+$$
+
+With these derivations, we can say that
+
+$$
+\begin{aligned}
+\left(\frac{1}{n} X^\top X\right)^{-1} \xrightarrow{probability} Q^{-1} \\
+\left(\frac{1}{n^\frac{1}{2}} X^\top \varepsilon \right) \xrightarrow{distribution} \mathcal{N}(0, \sigma^2 Q) 
+\end{aligned}
+$$
+
+With [Slutsky's Theorem](https://en.wikipedia.org/wiki/Slutsky%27s_theorem) and the fact that $Q = E[X_i X_i^\top]$ is a symmetrical matrix of covariances $(Q^{-1})^\top = Q^{-1}$, we can say that the entire term converges to a normal distribution.
+
+$$
+\begin{aligned}
+\left(\frac{1}{n} X^\top X\right)^{-1} \left(\frac{1}{n^\frac{1}{2}} X^\top \varepsilon \right)  \xrightarrow{distribution} \mathcal{N}(0, Q^{-1} (\sigma^2 Q) (Q^{-1})^\top)  \\
+\xrightarrow{distribution} \mathcal{N}(0, Q^{-1} \sigma^2 Q Q^{-1})) \quad \quad \\
+\xrightarrow{distribution} \mathcal{N}(0, Q^{-1} \sigma^2) \quad \quad \quad \quad \quad \\
+\end{aligned}
+$$
