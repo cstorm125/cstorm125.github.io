@@ -1,0 +1,252 @@
+---
+title: "The Beautiful Frisch–Waugh–Lovell Theorem"
+author: "cstorm125"
+date: "2025-10-05"
+categories: [frisch-waugh-lovell, yule-frisch-waugh-lovell, ordinary-least-square]
+image: "featured_image.jpg"
+sidebar:
+  contents: auto
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+There are few results in econometrics that feel as magical as the [(Yule-)](https://arxiv.org/pdf/2307.00369)[Frisch–Waugh–Lovell (FWL) Theorem](https://arxiv.org/pdf/2307.00369). In this article, we will trace how it is derived analytically and test if it holds empirically.
+
+## What Does the FWL Theorem Says 🦊
+
+For a multivariate [OLS](https://en.wikipedia.org/wiki/Ordinary_least_squares) model
+
+$$
+\begin{aligned}
+Y &= X_1\beta_1 + X_2\beta_2 + \varepsilon \\
+&= X \beta + \varepsilon
+\end{aligned}
+$$
+
+where
+
+- $Y$: $n \times 1$ outcome vector where $n$ is number of examples
+
+- $X_1$: $n \times k_1$ treatment vector where $k_1$ is number of features
+
+- $X_2$: $n \times k_2$ control vector where $k_2$ is number of features
+
+- $\beta_i$: $k_i \times 1$ coefficient vector
+
+- $\varepsilon$: $n \times 1$ error vector
+
+- $X$: $n \times (k_1+k_2)$ total regressor vector
+
+- $\beta$: $(k_1+k_2) \times 1$ total coefficient vector
+
+The FWL theorem states that $\hat{\beta_1}$ estimated from the full regression is exactly the same coefficient obtained from the following procedure:
+
+1. Regress $Y$ on control $X_2$ and keep the residuals $\tilde{Y}=M_2Y$ (outcome residualization/nuisance regression)
+2. Regress $X_1$ on control $X_2$ and keep the residuals $\tilde{X_1}=M_1 X$ (treatment residualization/nuisance regression)
+3. Regress $\tilde{Y}$ on $\tilde{X_1}$. $\beta_1$ derived from this is exactly the same as one from the full regression (final residualized regression) 
+
+Let us pause for a second and think about how preposterous it is. Monsieurs George Udny Yule, Ragnar Frisch, Frederick V. Waugh, and Michael C. Lovell are basically saying:
+
+> Hey, look. Those coefficients you thought you could only derive by regressing the outcome on the whole set of control and treatment variables? Turns out you can somehow get the *exact same* estimation from regressing the residuals of the outcome on those of the treatment variables.
+
+When I first learned about this, it was nothing short of black magic.
+
+## The Projection Matrix and The Annihilator Matrix
+
+One last preparation before we dive into the proof is understanding the **projection matrix** and the badass-sounding **annihilator matrix**. When we regress $Y$ on $X_2$, we derive coefficient $\alpha_2$ as
+
+$$
+\begin{aligned}
+Y &= X_2 \alpha_2 + \varepsilon_2 \\
+E[X_2'(Y-X_2 \alpha_2)] &= 0 \text{ ; population moment condition} \\
+X_2'(Y-X_2 \hat{\alpha_2}) &= 0 \text{ ; sample moment condition} \\
+X_2'Y - X_2'X_2 \hat{\alpha_2}&= 0 \\
+\hat{\alpha_2}&= (X_2'X_2)^{-1} X_2'Y  \\
+\hat{Y_2} &= X_2 \hat{\alpha_2}  \\
+&= X_2 (X_2'X_2)^{-1} X_2' Y \\
+&= P_2 Y
+\end{aligned}
+$$
+
+where 
+
+- $\varepsilon_2$: $n \times 1$ error vector of the outcome nuisance regression
+
+- $\hat{Y_2}$: $n \times 1$ estimated values based on the outcome nuisance regression
+
+We can think of $P_2 = X_2 (X_2'X_2)^{-1} X_2'$ as a function that transforms actual outcome $Y$ into the estimated outcome $Y_2$. We call $P_2$ the projection matrix (symmetrical $n \times n$), refering to the fact that it *projects* $Y$ onto subspace spanned by $X_2$. Another neat thing about $P_2$ is that it is an [idempotent matrix](https://en.wikipedia.org/wiki/Idempotent_matrix):
+
+$$
+\begin{aligned}
+P_2 &= X_2 (X_2'X_2)^{-1} X_2' \\
+P_2 P_2 &= X_2 (X_2'X_2)^{-1} X_2' X_2 (X_2'X_2)^{-1} X_2' \\
+&= P_2
+\end{aligned}
+$$
+
+The annihilator matrix is simply $M_2 = I - P_2$ (also symmetrical $n \times n$ and idemptotent) and multiplying it to $Y$ gives residuals of the outcome nuisance regression due to:
+
+$$
+\begin{aligned}
+\hat{Y_2} &=  P_2 Y \\
+M_2 &= I - P_2 \\
+M_2 Y & = (I - P_2) Y \\
+&=Y - P_2 Y \\
+&= Y - \hat{Y_2} 
+\end{aligned}
+$$
+
+And by the way:
+
+$$
+\begin{aligned}
+M_2 X_2 & = (I - P_2) X_2 \\
+&=X_2 - P_2 X_2 \\
+&= X_2 - X_2 (X_2'X_2)^{-1} X_2' X_2\\
+&= X_2 - X_2\\
+&=0
+\end{aligned}
+$$
+
+That is, $M_2$ is [orthogonal](https://en.wikipedia.org/wiki/Orthogonality#Statistics,_econometrics,_and_economics) to $P_2$, and it *annihilates* all components in the subspace spanned by $X_2$.
+
+## The Proof
+
+Let us start the proof with the moment condition to estimate $\beta_1$ from the full regression.
+
+$$
+\begin{aligned}
+E[X'(Y-X \beta)] &= 0 \text{ ; population moment condition} \\
+X'(Y-X \hat{\beta}) &= 0 \text{ ; sample moment condition} \\
+&=\begin{bmatrix} X_1' \\[2mm] X_2' \end{bmatrix} (Y - X_1\hat\beta_1 - X_2\hat\beta_2) = 0 \text{ ; partitioned to }X_1, X_2 \\
+\end{aligned}
+$$
+
+The sample moment conditions are:
+
+$$
+\begin{aligned}
+X_1'(Y - X_1 \hat{\beta_1} - X_2 \hat{\beta_2})&=0 \\
+X_2'(Y - X_1 \hat{\beta_1} - X_2 \hat{\beta_2})&=0
+\end{aligned}
+$$
+
+First, derive $\beta_2$ from $X_2$-moment:
+
+$$
+\begin{aligned}
+X_2'(Y - X_2 \hat{\beta_2} - X_2 \hat{\beta_2})&=0 \\
+&=X_2'Y - X_2' X_1 \hat{\beta_1} - X_2'X_2 \hat{\beta_2} \\
+X_2'X_2 \hat{\beta_2}&=X_2'Y - X_2' X_1 \hat{\beta_1} \\
+\hat{\beta_2} &= (X_2'X_2)^{-1} X_2' (Y-X_1 \hat{\beta_1})
+\end{aligned}
+$$
+
+Then, substitute it into the derivation of $\beta_1$ from $X_1$-moment:
+
+$$
+\begin{aligned}
+X_1'(Y - X_1 \hat{\beta_1} - X_2 \hat{\beta_2})&=0 \\
+(X_2'X_2)^{-1} X_2' (Y-X_1 \hat{\beta_1})&=\hat{\beta_2}  \\
+X_1'\Big((Y - X_1 \hat{\beta_1}) - X_2 (X_2'X_2)^{-1} X_2' (Y-X_1 \hat{\beta_1}) \Big)&=0 \\
+X_1'\Big((1-P_2)(Y - X_1 \hat{\beta_1})\Big) &= 0 \\
+X_1'M_2(Y - X_1 \hat{\beta_1}) &= 0 \\
+X_1'M_2X_1\hat{\beta_1} &= X_1'M_2Y \\
+\hat{\beta_1} &=(X_1'M_2X_1)^{-1}X_1'M_2Y \\
+\end{aligned}
+$$
+
+And do you know what this $\hat{\beta_1}$ looks like?
+
+$$
+\begin{aligned}
+M_2Y &= M_2X_1 \beta_{r} + \varepsilon_{r} \\
+E[(M_2X_1)'(M_2Y-M_2X_1 \beta_{r})] &= 0 \text{ ; population moment condition} \\
+(M_2X_1)'(M_2Y-M_2X_1 \hat{\beta_{r}}) &= 0 \text{ ; sample moment condition} \\
+X_1'M_2^2 Y - X_1'M_2^2X_1 \hat{\beta_{r}} &=0  \text{ ; } M_2 = M_2'\\
+X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &=0  \text{ ; } M_2 = M_2'\\
+\hat{\beta_{r}}&= (X_1'M_2X_1)^{-1}X_1'M_2Y \\
+\end{aligned}
+$$
+
+*Exactly* the coefficient $\hat{\beta_{r}}$ when we regress residualized $Y$ on residualized $X_1$.
+
+## Don't Believe the Symbol Manipulation? Let's Run The Code
+
+For those of you who, like me, are skeptical of mathematical equation hocus pocus, let us test the theorem empirically. We will simulate a 500k-sample dataset with one Gaussian treatment variable `X_treatment`, 100 control variables (from 40 Guassian features, 30 power-law features, and a 31-class categorical feature; to make it more exciting), and a continuous outcome `y`. We estimate the coefficient of `X_treatment` using both full OLS and the FWL procedure. The FWL theorem posits that they are identical.
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: show
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from sklearn.preprocessing import OneHotEncoder
+import time
+
+np.random.seed(112)
+n = 500_000
+
+# Treatment
+X_treatment = np.random.normal(0, 1, n)
+
+# Gaussian controls
+X_gauss = np.random.normal(0, 1, (n, 40))
+
+# Power-law controls
+X_power = np.random.pareto(2, (n, 30))
+
+# Categorical controls
+cats = np.random.choice([f'C{i}' for i in range(31)], size=(n, 1))
+enc = OneHotEncoder(drop='first').fit(cats)
+X_cat = enc.transform(cats).toarray()
+
+# Combine into design matrix
+X_controls = np.hstack([X_gauss, X_power, X_cat])
+print(f'Shape of dataset: {X_controls.shape}')
+# Outcome based on true coefficients
+beta_treatment = 2.0
+beta_controls = np.random.uniform(-1, 1, X_controls.shape[1])
+y = beta_treatment * X_treatment + X_controls @ beta_controls + np.random.normal(0, 1, n)
+
+# True beta
+print("True β_treatment:", beta_treatment)
+
+# --- Full OLS ---
+start_full = time.time()
+X_full = sm.add_constant(np.column_stack([X_treatment, X_controls]))
+model_full = sm.OLS(y, X_full).fit()
+coef_full = model_full.params[1]
+end_full = time.time()
+print("Full OLS β_treatment:", coef_full)
+print(f"Full OLS computation time: {end_full - start_full:.3f} seconds")
+
+# --- FWL ---
+start_FWL = time.time()
+
+# Step 1: residualize y on controls
+X2 = sm.add_constant(X_controls)
+y_resid = sm.OLS(y, X2).fit().resid
+
+# Step 2: residualize treatment on controls
+X_treatment_resid = sm.OLS(X_treatment, X2).fit().resid
+
+# Step 3: regress residuals
+coef_FWL = sm.OLS(y_resid, X_treatment_resid).fit().params[0]
+
+end_FWL = time.time()
+
+print("FWL β_treatment:", coef_FWL)
+print(f"FWL computation time: {end_FWL - start_FWL:.3f} seconds")
+
+# Compare
+print("Are they numerically identical?", np.allclose(coef_full, coef_FWL))
+```
+
+
+A noteworthy observation is that FWL implementation takes longer to compute even though theoretically it is doing matrix operations on a much smaller $k_1$ features. This points towards modern Python library optimizing the matrix operations so much that most of the computation lies in the overhead of repeating the (smaller) regression 3 times. I would need to dive deeper for confirmation. Better studied readers please let me know if you can pinpoint the reason why.
