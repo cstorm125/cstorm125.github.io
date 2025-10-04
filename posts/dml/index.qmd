@@ -324,11 +324,15 @@ $$
 Y = X\beta_0 + \varepsilon
 $$
 
-where 
-$Y$: $n \times 1$ outcome vector where $n$ is number of examples
-$X$: $n \times k$ feature vector where $k$ is number of features
-$\beta_0$: $k \times 1$ coefficient vector
-$\varepsilon$: $n \times 1$ error vector
+where
+
+- $Y$: $n \times 1$ outcome vector where $n$ is number of examples
+
+- $X$: $n \times k$ feature vector where $k$ is number of features
+
+- $\beta_0$: $k \times 1$ coefficient vector
+
+- $\varepsilon$: $n \times 1$ error vector
 
 Solve for:
 
