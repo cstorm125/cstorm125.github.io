@@ -1,5 +1,5 @@
 ---
-title: "Understanding Double/debiased machine learning (DML)"
+title: "Understanding Double/debiased Machine Learning (DML)"
 author: "cstorm125"
 date: "2025-10-03"
 categories: [causal-inference, double-machine-learning, frisch-waugh-lovell, neyman-orthogonality]
@@ -146,8 +146,11 @@ $$
 \end{aligned}
 $$
 
+where $h_g(X)$ and $h_m(X)$ are functional perturbations in nuisance function estimation. 
 
-where $h_g(X)$ and $h_m(X)$ are functional perturbations in nuisance function estimation. Specifically, for $g$, it is shown as:
+### Outcome Regressor $g$
+
+Specifically, for $g$, it is shown as:
 
 $$
 \begin{aligned}
@@ -164,7 +167,9 @@ E\Big[\frac{\partial}{\partial g} \psi(W;\theta_0,g,m_0)\Big] |_{g = g_0} &= 0 \
 \end{aligned}
 $$
 
-and for $m$, it is shown as:
+### Treatment Regressor $m$
+
+And for $m$, it is shown as:
 
 $$
 \begin{aligned}
