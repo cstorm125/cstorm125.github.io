@@ -181,13 +181,15 @@ For those of you who, like me, are skeptical of mathematical equation hocus pocu
 #| eval: true
 #| echo: true
 #| output: true
-#| code-fold: show
+#| code-fold: true
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from sklearn.preprocessing import OneHotEncoder
 import time
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 np.random.seed(112)
 n = 500_000
@@ -210,7 +212,7 @@ X_cat = enc.transform(cats).toarray()
 X_controls = np.hstack([X_gauss, X_power, X_cat])
 print(f'Shape of dataset: {X_controls.shape}')
 # Outcome based on true coefficients
-beta_treatment = 2.0
+beta_treatment = 1.5
 beta_controls = np.random.uniform(-1, 1, X_controls.shape[1])
 y = beta_treatment * X_treatment + X_controls @ beta_controls + np.random.normal(0, 1, n)
 
@@ -248,5 +250,69 @@ print(f"FWL computation time: {end_FWL - start_FWL:.3f} seconds")
 print("Are they numerically identical?", np.allclose(coef_full, coef_FWL))
 ```
 
+A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables like:
+
+```{python}
+#| eval: true
+#| echo: true
+#| output: true
+#| code-fold: true
+
+# Use a subset of data for cleaner visualization (e.g., first 5000 points)
+n_plot = 5000
+X_treatment_plot = X_treatment[:n_plot]
+y_plot = y[:n_plot]
+X_controls_plot = X_controls[:n_plot, :]
+X_treatment_resid_plot = X_treatment_resid[:n_plot]
+y_resid_plot = y_resid[:n_plot]
+
+# Set a style for professional-looking plots
+sns.set_theme(style="whitegrid")
+fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+fig.suptitle('Visualizing the Frisch–Waugh–Lovell (FWL) Theorem', fontsize=20)
+
+# --- Plot 1: Raw Correlation (Messy) ---
+# This shows the naive, biased correlation before accounting for controls.
+axes[0].scatter(X_treatment_plot, y_plot, alpha=0.3, s=20)
+axes[0].set_title('1. Raw (Biased) Correlation', fontsize=16)
+axes[0].set_xlabel('$X_{\\text{Treatment}}$ (Raw)')
+axes[0].set_ylabel('$Y$ (Raw)')
+
+# Optional: Add a naive regression line (will be biased)
+model_naive = sm.OLS(y_plot, sm.add_constant(X_treatment_plot)).fit()
+x_line = np.linspace(X_treatment_plot.min(), X_treatment_plot.max(), 100)
+y_line = model_naive.predict(sm.add_constant(x_line))
+axes[0].plot(x_line, y_line, color='red', linestyle='--', label=f'Naive Slope: {model_naive.params[1]:.2f}')
+axes[0].legend(frameon=True)
+
+
+# --- Plot 2: Control Residuals (Partialling Out) ---
+# This is the "residualization" step. We'll show the residuals of Y vs X_treatment
+# but where the effect of the controls has been removed.
+
+axes[1].scatter(X_treatment_resid_plot, y_resid_plot, alpha=0.5, s=20, color='green')
+axes[1].axhline(0, color='gray', linestyle='-')
+axes[1].axvline(0, color='gray', linestyle='-')
+axes[1].set_title('2. Residual vs. Residual', fontsize=14)
+axes[1].set_xlabel('$\\tilde{X}_{\\text{Treatment}}$ (Residualized)')
+axes[1].set_ylabel('$\\tilde{Y}$ (Residualized)')
+
+# --- Plot 3: The Estimated Coefficient ---
+# This shows the final regression line, which has the true, unbiased coefficient.
+axes[2].scatter(X_treatment_resid_plot, y_resid_plot, alpha=0.5, s=20, color='green')
+axes[2].set_title('3. FWL Regression (Unbiased Slope)', fontsize=14)
+axes[2].set_xlabel('$\\tilde{X}_{\\text{Treatment}}$ (Residualized)')
+axes[2].set_ylabel('$\\tilde{Y}$ (Residualized)')
+
+# Add the FWL regression line
+x_fwl_line = np.linspace(X_treatment_resid_plot.min(), X_treatment_resid_plot.max(), 100)
+y_fwl_line = coef_FWL * x_fwl_line
+axes[2].plot(x_fwl_line, y_fwl_line, color='blue', linewidth=3, label=f'FWL Slope: {coef_FWL:.2f}')
+axes[2].legend(frameon=True)
+
+plt.tight_layout(rect=[0, 0.03, 1, 0.95]) # Adjust layout to fit suptitle
+plt.show()
+```
 
 A noteworthy observation is that FWL implementation takes longer to compute even though theoretically it is doing matrix operations on a much smaller $k_1$ features. This points towards modern Python library optimizing the matrix operations so much that most of the computation lies in the overhead of repeating the (smaller) regression 3 times. I would need to dive deeper for confirmation. Better studied readers please let me know if you can pinpoint the reason why.
+
