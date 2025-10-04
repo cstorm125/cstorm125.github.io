@@ -15,8 +15,7 @@ jupyter: python3
 [Double/debiased machine learning (DML)](https://arxiv.org/pdf/1608.00060) is one of the most prominent causal inference algorithms in modern practice from pricing, promotion targeting to multi-million-dollar, one-way-door infrastructure decisions. At its crux is [Neyman orthogonality](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-38/issue-6/On-Optimal-Asymptotic-Tests-of-Composite-Statistical-Hypotheses/10.1214/aoms/1177698617.full). It posits that given observed data $W$ and true causal parameter $\theta_0$, a score function $\psi$ is Neyman-orthogonal if and only if its first derivative with respect to parameter of the nuisance function $\eta$, evaluated at true parameter $\eta_0$, has an expectation of zero.
 
 $$
-\left. \frac{\partial}{\partial \eta} \, \mathbb{E}\!\left[ \psi(W; \theta_0, \eta) \right] 
-\right|_{\eta = \eta_0} = 0
+\frac{\partial}{\partial \eta} E[ \psi(W; \theta_0, \eta)]|_{\eta = \eta_0} = 0
 $$
 
 ![featured_image](featured_image.jpg)
@@ -39,11 +38,16 @@ D &= m_0(X) + V \quad; E[V|X] = 0
 $$
 
 where 
-$Y$: $n \times 1$ outcome vector where $n$ is number of examples
-$X$: $n \times k$ feature vector where $k$ is number of features
-$\theta_0$: scalar coefficient of causal effect
-$g_0$ and $m_0$: $n \times 1$ outcome vectors of nuisance functions
-$U$ and $V$: $n \times 1$ error vectors
+
+- $Y$: $n \times 1$ outcome vector where $n$ is number of examples
+
+- $X$: $n \times k$ feature vector where $k$ is number of features
+
+- $\theta_0$: scalar coefficient of causal effect
+
+- $g_0$ and $m_0$: $n \times 1$ outcome vectors of nuisance functions
+
+- $U$ and $V$: $n \times 1$ error vectors
 
 ## Population Moment Condition
 
@@ -124,8 +128,8 @@ E[\varepsilon \cdot \tilde{D}] &= 0 \\
 &= E[(\tilde{Y} - \theta_0 \tilde{D}) \cdot \tilde{D}] \\
 &= E[\tilde{Y}\tilde{D} - \theta_0 \tilde{D^2}]\\
 &= E[\tilde{Y}\tilde{D}] - \theta_0 E[\tilde{D^2}]  \text{; } \theta_0 \text{ is a constant vector }\\
-\theta_0&= \frac{E[\tilde{Y}\tilde{D}]}{E[\tilde{D^2}]}  \text{; true parameter derivation}\\
-\hat{\theta} &= \frac{\sum_{i=1}^{N} \tilde{D}_i \tilde{Y}_i}{\sum_{i=1}^{N} \tilde{D}_i^2}  \text{; estimation}\\
+\theta_0&= \frac{E[\tilde{Y}\tilde{D}]}{E[\tilde{D^2}]}  \text{; population parameter derivation}\\
+\hat{\theta} &= \frac{\sum_{i=1}^{N} \tilde{D}_i \tilde{Y}_i}{\sum_{i=1}^{N} \tilde{D}_i^2}  \text{; sample estimation}\\
 \end{aligned}
 $$
 
@@ -135,50 +139,62 @@ This moment condition satisfies Neyman orthogonality because:
 
 $$
 \begin{aligned}
-\frac{\partial}{\partial g} E[(Y-g(X) - \theta_0 (D-m_0(X))) \cdot (D - m(X)) \cdot h_g(X)]|_{g = g_0} &= 0 \\
-\frac{\partial}{\partial m} E[(Y-g_0(X) - \theta_0 (D-m(X))) \cdot (D - m(X)) \cdot h_m(X)]|_{m = m_0} &= 0 \\
+\frac{\partial}{\partial g} E\Big[\psi(W; \theta_0, g, m_0)\Big]|_{g = g_0} &=\frac{\partial}{\partial g} E\Big[\Big(Y-g(X) - \theta_0 (D-m_0(X)\Big)\Big(D - m(X)\Big) \cdot h_g(X)\Big]|_{g = g_0} \\
+&= 0 \\
+\frac{\partial}{\partial m} \Big[\psi(W; \theta_0, g_0, m)\Big]|_{m = m_0} &=\frac{\partial}{\partial m} E\Big[\Big(Y-g_0(X) - \theta_0 (D-m(X)\Big) \Big(D - m(X)\Big) \cdot h_m(X)\Big]|_{m = m_0} \\
+&= 0 \\
 \end{aligned}
 $$
 
 
-where $h_g(X)$ and $h_m(X)$ are functional perturbations in nuisance function estimation. Specifically:
+where $h_g(X)$ and $h_m(X)$ are functional perturbations in nuisance function estimation. Specifically, for $g$, it is shown as:
 
 $$
 \begin{aligned}
-E[\frac{\partial \psi(W;\theta_0,g,m_0)}{\partial g} \cdot h_g] |_{g = g_0} &= 0 \\
-&= E[\frac{\partial (Y-g(X) - \theta_0 (D-m_0(X))) \cdot (D - m(X)))}{\partial g} \cdot h_g] \\
-&= E[-1 \cdot (D - m_0(X)) \cdot h_g] \\
+E\Big[\frac{\partial}{\partial g} \psi(W;\theta_0,g,m_0)\Big] |_{g = g_0} &= 0 \\
+&= E\Big[\frac{\partial}{\partial g}((Y-g(X) - \theta_0 (D-m_0(X)) (D - m(X)) \cdot h_g\Big] \\
+&= E\Big[-1 \cdot (D - m_0(X)) \cdot h_g\Big] \\
 \text{By Law of Iterated Expecations,} \\
-&= E[E[(m_0(X) - D) \cdot h_g]|X]  \\
+&= E\Big[E[(m_0(X) - D) \cdot h_g]|X\Big]  \\
 \text{Since } E[h_g(X)|X] = h_g(X), \\
-&= E[h_g(X) \cdot E[m_0(X) - D|X]] \\
+&= E\Big[h_g(X) \cdot E[m_0(X) - D|X]\Big] \\
 \text{Since } E[D|X] = m_0(X), \\
 &= E[h_g(X) \cdot 0] \\
 &= 0
 \end{aligned}
 $$
 
-and 
+and for $m$, it is shown as:
 
 $$
 \begin{aligned}
-&\;E\Big[\frac{\partial \psi(W;\theta_0,g_0,m)}{\partial m}\cdot h_m\Big]\Big|_{m=m_0}
-= E\Big[\frac{\partial\big((Y-g_0(X)-\theta_0(D-m(X)))(D-m(X))\big)}{\partial m}\cdot h_m\Big]_{m=m_0} \\
-&\text{Let } A := Y-g_0(X)-\theta_0(D-m(X)),\quad B := D-m(X) \\
-&\text{Then } \psi = A\cdot B,\quad 
-\frac{\partial A}{ \partial m}= \theta_0\,\quad 
-\frac{\partial B}{\partial m} = -1 \\
+E\Big[\frac{\partial}{\partial m}\psi(W;\theta_0,g_0,m)\cdot h_m\Big]\Big|_{m=m_0}
+= E\Big[\frac{\partial}{\partial m}\Big(Y-g_0(X)-\theta_0(D-m(X)\Big)\Big(D-m(X)\Big)\cdot h_m\Big]|_{m=m_0} \\
 \end{aligned}
 $$
 
+To simplify the derivation, let:
+
+- $A$ be $Y-g_0(X)-\theta_0(D-m(X))$
+
+- $B$ be $D-m(X)$
+
+- $\psi(W;\theta_0,g_0,m) = A\cdot B$
+
+- $\frac{\partial A}{ \partial m} = \theta_0$
+
+- $\frac{\partial B}{\partial m} = -1$
+
+then 
+
 $$
 \begin{aligned}
-E[\frac{\partial \psi(W;\theta_0,g_0,m)}{\partial m} \cdot h_m] |_{m = m_0} &= E[h_m \cdot (-A + \theta_0 B)] \\
-&= E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))] \\
+E\Big[\frac{\partial}{\partial m}\psi(W;\theta_0,g_0,m) \cdot h_m\Big] |_{m = m_0} &= E\Big[h_m \cdot (-A + \theta_0 B)\Big] \\
+&= E\Big[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))\Big] \\
 \text{By Law of Iterated Expecations:} \\
-&= E[E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))|X]] \\
+&= E\Big[E[h_m \cdot (-Y + g_0(X) + 2\theta_0(D-m(X))|X]\Big] \\
 \text{Since } E[h_m(X)|X] = h_m(X): \\
-&= E[h_m \cdot \Big(E[-Y + g_0(X) + 2\theta_0(D-m(X)|X]\Big)]  \\
+&= E\Big[h_m \cdot \Big(E[-Y + g_0(X) + 2\theta_0(D-m(X)|X]\Big)\Big]  \\
 \text{Since } E[D|X] = m_0(X) \text{ and } E[Y|X] = g_0(X): \\
 &= E[h_m \cdot 0]  \\
 &= 0
@@ -191,12 +207,12 @@ To demonstrate that Neyman orthogonality ensures a $n^{-\frac{1}{2}}$ convergenc
 
 $$
 \begin{aligned}
-\psi(W;\hat{\theta}, \hat{g}, \hat{m}) &= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) \\
-&\quad + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial m} (\hat{m}-m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial g} (\hat{g}-g_0) + R \\
-&= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) \\
+\psi(W;\hat{\theta}, \hat{g}, \hat{m}) &= \psi(W;\theta_0, g_0, m_0) + \frac{\partial}{\partial \theta}\psi(W;\theta_0,g_0,m_0) (\hat{\theta} - \theta_0) \\
+&\quad + \frac{\partial}{\partial m}\psi(W;\theta_0,g_0,m_0) (\hat{m}-m_0) + \frac{\partial }{\partial g}\psi(W;\theta_0,g_0,m_0) (\hat{g}-g_0) + R \\
+&= \psi(W;\theta_0, g_0, m_0) + \frac{\partial }{\partial \theta}\psi(W;\theta_0,g_0,m_0) (\hat{\theta} - \theta_0) \\
 \text{By Neyman orthogonality,}\\
 &\quad + 0 \cdot  (\hat{m}-m_0) + 0 \cdot (\hat{g}-g_0) + R \\
-&= \psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) + R\\
+&= \psi(W;\theta_0, g_0, m_0) + \frac{\partial}{\partial \theta} \psi(W;\theta_0,g_0,m_0) (\hat{\theta} - \theta_0) + R\\
 \end{aligned}
 $$
 
@@ -204,13 +220,13 @@ Due to sample moment condition $\frac{1}{n} \sum_{i=1}^{N} \psi(W_i;\hat{\theta}
 
 $$
 \begin{aligned}
-0&=\psi(W;\theta_0, g_0, m_0) + \frac{\partial \psi(W;\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) + R\\
-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} (\hat{\theta} - \theta_0) &= - \psi(\theta_0, g_0, m_0) - R \\
-\hat{\theta} - \theta_0 &= \big[-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} \big]^{-1} \big[  \psi(\theta_0, g_0, m_0) + R\big] \\
+0&=\psi(W;\theta_0, g_0, m_0) + \frac{\partial}{\partial \theta}\psi(W;\theta_0,g_0,m_0) (\hat{\theta} - \theta_0) + R\\
+\frac{\partial}{\partial \theta} \psi(\theta_0,g_0,m_0) (\hat{\theta} - \theta_0) &= - \psi(\theta_0, g_0, m_0) - R \\
+\hat{\theta} - \theta_0 &= \big[-\frac{\partial}{\partial \theta}\psi(\theta_0,g_0,m_0) \big]^{-1} \big[  \psi(\theta_0, g_0, m_0) + R\big] \\
 \end{aligned}
 $$
 
-First, let us consider why $n^{\frac{1}{2}} \cdot (\hat{\theta} - \theta_0) \xrightarrow{distribution} \mathcal{N}(0, \Sigma)$. Let $C = \big[-\frac{\partial \psi(\theta_0,g_0,m_0)}{\partial \theta} \big]^{-1}$ be a constant matrix.
+First, let us consider why $n^{\frac{1}{2}} \cdot (\hat{\theta} - \theta_0) \xrightarrow{distribution} \mathcal{N}(0, \Sigma)$. Let $C = \big[-\frac{\partial}{\partial \theta}\psi(\theta_0,g_0,m_0) \big]^{-1}$ be a constant matrix.
 
 $$
 \begin{aligned}
@@ -327,7 +343,6 @@ $$
 L &= (Y - X\beta)^\top (Y - X\beta) \\
 &= Y^\top Y - Y^\top X \beta - (X\beta)^\top Y + (X\beta)^\top X \beta \\
 &= Y^\top Y - 2 X^\top \beta^\top Y + \beta^\top X^\top X \beta  \quad \text{; 2nd and 3rd terms are the same scala} \\
-
 \frac{\partial L}{\partial \beta} &= 0 \quad \text{; not related to } \beta \\
   & - 2X^\top Y \quad ; \frac{\partial x^\top B}{\partial x} = B \\
   & + 2 X^\top X \beta \quad ; \frac{\partial x^\top B x}{\partial x} = 2Bx \\
