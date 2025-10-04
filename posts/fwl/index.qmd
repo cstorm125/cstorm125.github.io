@@ -14,6 +14,8 @@ jupyter: python3
 
 There are few results in econometrics that feel as magical as the [(Yule-)](https://arxiv.org/pdf/2307.00369)[Frisch–Waugh–Lovell (FWL) Theorem](https://arxiv.org/pdf/2307.00369). In this article, we will trace how it is derived analytically and test if it holds empirically.
 
+![featured_image](featured_image.jpg){width=50%}
+
 ## What Does the FWL Theorem Says 🦊
 
 For a multivariate [OLS](https://en.wikipedia.org/wiki/Ordinary_least_squares) model
