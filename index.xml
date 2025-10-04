@@ -125,7 +125,13 @@ $$
 <h4 class="anchored" data-anchor-id="ordinary-least-squares-ols">Ordinary Least Squares (OLS)</h4>
 <p>Similarly, an <a href="https://en.wikipedia.org/wiki/Linear_regression">OLS</a> estimator also converges at <img src="https://latex.codecogs.com/png.latex?n%5E%7B-%5Cfrac%7B1%7D%7B2%7D%7D"> due to given:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AY%20=%20X%5Cbeta_0%20+%20%5Cvarepsilon%0A"></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?Y">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> outcome vector where <img src="https://latex.codecogs.com/png.latex?n"> is number of examples <img src="https://latex.codecogs.com/png.latex?X">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20k"> feature vector where <img src="https://latex.codecogs.com/png.latex?k"> is number of features <img src="https://latex.codecogs.com/png.latex?%5Cbeta_0">: <img src="https://latex.codecogs.com/png.latex?k%20%5Ctimes%201"> coefficient vector <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> error vector</p>
+<p>where</p>
+<ul>
+<li><p><img src="https://latex.codecogs.com/png.latex?Y">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> outcome vector where <img src="https://latex.codecogs.com/png.latex?n"> is number of examples</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?X">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20k"> feature vector where <img src="https://latex.codecogs.com/png.latex?k"> is number of features</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Cbeta_0">: <img src="https://latex.codecogs.com/png.latex?k%20%5Ctimes%201"> coefficient vector</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> error vector</p></li>
+</ul>
 <p>Solve for:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%5Cbeta%20=%20%5Carg%5Cmin_%5Cbeta%20(Y%20-%20X%5Cbeta)%5E%5Ctop%20(Y%20-%20X%5Cbeta)%0A"></p>
 <p>Taking derivative of <img src="https://latex.codecogs.com/png.latex?%5Cbeta">:</p>

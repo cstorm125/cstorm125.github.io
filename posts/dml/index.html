@@ -461,7 +461,13 @@ Var(X) \cdot n^{\frac{1}{2}} &amp;= E[(X \cdot n^{\frac{1}{2}} - E[X \cdot n^{\f
 <p><span class="math display">\[
 Y = X\beta_0 + \varepsilon
 \]</span></p>
-<p>where <span class="math inline">\(Y\)</span>: <span class="math inline">\(n \times 1\)</span> outcome vector where <span class="math inline">\(n\)</span> is number of examples <span class="math inline">\(X\)</span>: <span class="math inline">\(n \times k\)</span> feature vector where <span class="math inline">\(k\)</span> is number of features <span class="math inline">\(\beta_0\)</span>: <span class="math inline">\(k \times 1\)</span> coefficient vector <span class="math inline">\(\varepsilon\)</span>: <span class="math inline">\(n \times 1\)</span> error vector</p>
+<p>where</p>
+<ul>
+<li><p><span class="math inline">\(Y\)</span>: <span class="math inline">\(n \times 1\)</span> outcome vector where <span class="math inline">\(n\)</span> is number of examples</p></li>
+<li><p><span class="math inline">\(X\)</span>: <span class="math inline">\(n \times k\)</span> feature vector where <span class="math inline">\(k\)</span> is number of features</p></li>
+<li><p><span class="math inline">\(\beta_0\)</span>: <span class="math inline">\(k \times 1\)</span> coefficient vector</p></li>
+<li><p><span class="math inline">\(\varepsilon\)</span>: <span class="math inline">\(n \times 1\)</span> error vector</p></li>
+</ul>
 <p>Solve for:</p>
 <p><span class="math display">\[
 \hat\beta = \arg\min_\beta (Y - X\beta)^\top (Y - X\beta)
