@@ -12,7 +12,7 @@
 <generator>quarto-1.8.25</generator>
 <lastBuildDate>Fri, 03 Oct 2025 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>Understanding Double/debiased machine learning (DML)</title>
+  <title>Understanding Double/debiased Machine Learning (DML)</title>
   <dc:creator>cstorm125 </dc:creator>
   <link>https://cstorm125.github.io/posts/dml/</link>
   <description><![CDATA[ 
@@ -72,9 +72,15 @@
 <h2 class="anchored" data-anchor-id="score-function-that-satisfies-neyman-orthogonality">Score Function That Satisfies Neyman Orthogonality</h2>
 <p>This moment condition satisfies Neyman orthogonality because:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0A%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20g%7D%20E%5CBig%5B%5Cpsi(W;%20%5Ctheta_0,%20g,%20m_0)%5CBig%5D%7C_%7Bg%20=%20g_0%7D%20&amp;=%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20g%7D%20E%5CBig%5B%5CBig(Y-g(X)%20-%20%5Ctheta_0%20(D-m_0(X)%5CBig)%5CBig(D%20-%20m(X)%5CBig)%20%5Ccdot%20h_g(X)%5CBig%5D%7C_%7Bg%20=%20g_0%7D%20%5C%5C%0A&amp;=%200%20%5C%5C%0A%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20m%7D%20%5CBig%5B%5Cpsi(W;%20%5Ctheta_0,%20g_0,%20m)%5CBig%5D%7C_%7Bm%20=%20m_0%7D%20&amp;=%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20m%7D%20E%5CBig%5B%5CBig(Y-g_0(X)%20-%20%5Ctheta_0%20(D-m(X)%5CBig)%20%5CBig(D%20-%20m(X)%5CBig)%20%5Ccdot%20h_m(X)%5CBig%5D%7C_%7Bm%20=%20m_0%7D%20%5C%5C%0A&amp;=%200%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?h_g(X)"> and <img src="https://latex.codecogs.com/png.latex?h_m(X)"> are functional perturbations in nuisance function estimation. Specifically, for <img src="https://latex.codecogs.com/png.latex?g">, it is shown as:</p>
+<p>where <img src="https://latex.codecogs.com/png.latex?h_g(X)"> and <img src="https://latex.codecogs.com/png.latex?h_m(X)"> are functional perturbations in nuisance function estimation.</p>
+<section id="outcome-regressor-g" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-regressor-g">Outcome Regressor <img src="https://latex.codecogs.com/png.latex?g"></h3>
+<p>Specifically, for <img src="https://latex.codecogs.com/png.latex?g">, it is shown as:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AE%5CBig%5B%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20g%7D%20%5Cpsi(W;%5Ctheta_0,g,m_0)%5CBig%5D%20%7C_%7Bg%20=%20g_0%7D%20&amp;=%200%20%5C%5C%0A&amp;=%20E%5CBig%5B%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20g%7D((Y-g(X)%20-%20%5Ctheta_0%20(D-m_0(X))%20(D%20-%20m(X))%20%5Ccdot%20h_g%5CBig%5D%20%5C%5C%0A&amp;=%20E%5CBig%5B-1%20%5Ccdot%20(D%20-%20m_0(X))%20%5Ccdot%20h_g%5CBig%5D%20%5C%5C%0A%5Ctext%7BBy%20Law%20of%20Iterated%20Expecations,%7D%20%5C%5C%0A&amp;=%20E%5CBig%5BE%5B(m_0(X)%20-%20D)%20%5Ccdot%20h_g%5D%7CX%5CBig%5D%20%20%5C%5C%0A%5Ctext%7BSince%20%7D%20E%5Bh_g(X)%7CX%5D%20=%20h_g(X),%20%5C%5C%0A&amp;=%20E%5CBig%5Bh_g(X)%20%5Ccdot%20E%5Bm_0(X)%20-%20D%7CX%5D%5CBig%5D%20%5C%5C%0A%5Ctext%7BSince%20%7D%20E%5BD%7CX%5D%20=%20m_0(X),%20%5C%5C%0A&amp;=%20E%5Bh_g(X)%20%5Ccdot%200%5D%20%5C%5C%0A&amp;=%200%0A%5Cend%7Baligned%7D%0A"></p>
-<p>and for <img src="https://latex.codecogs.com/png.latex?m">, it is shown as:</p>
+</section>
+<section id="treatment-regressor-m" class="level3">
+<h3 class="anchored" data-anchor-id="treatment-regressor-m">Treatment Regressor <img src="https://latex.codecogs.com/png.latex?m"></h3>
+<p>And for <img src="https://latex.codecogs.com/png.latex?m">, it is shown as:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AE%5CBig%5B%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20m%7D%5Cpsi(W;%5Ctheta_0,g_0,m)%5Ccdot%20h_m%5CBig%5D%5CBig%7C_%7Bm=m_0%7D%0A=%20E%5CBig%5B%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20m%7D%5CBig(Y-g_0(X)-%5Ctheta_0(D-m(X)%5CBig)%5CBig(D-m(X)%5CBig)%5Ccdot%20h_m%5CBig%5D%7C_%7Bm=m_0%7D%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
 <p>To simplify the derivation, let:</p>
 <ul>
@@ -86,6 +92,7 @@
 </ul>
 <p>then</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AE%5CBig%5B%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20m%7D%5Cpsi(W;%5Ctheta_0,g_0,m)%20%5Ccdot%20h_m%5CBig%5D%20%7C_%7Bm%20=%20m_0%7D%20&amp;=%20E%5CBig%5Bh_m%20%5Ccdot%20(-A%20+%20%5Ctheta_0%20B)%5CBig%5D%20%5C%5C%0A&amp;=%20E%5CBig%5Bh_m%20%5Ccdot%20(-Y%20+%20g_0(X)%20+%202%5Ctheta_0(D-m(X))%5CBig%5D%20%5C%5C%0A%5Ctext%7BBy%20Law%20of%20Iterated%20Expecations:%7D%20%5C%5C%0A&amp;=%20E%5CBig%5BE%5Bh_m%20%5Ccdot%20(-Y%20+%20g_0(X)%20+%202%5Ctheta_0(D-m(X))%7CX%5D%5CBig%5D%20%5C%5C%0A%5Ctext%7BSince%20%7D%20E%5Bh_m(X)%7CX%5D%20=%20h_m(X):%20%5C%5C%0A&amp;=%20E%5CBig%5Bh_m%20%5Ccdot%20%5CBig(E%5B-Y%20+%20g_0(X)%20+%202%5Ctheta_0(D-m(X)%7CX%5D%5CBig)%5CBig%5D%20%20%5C%5C%0A%5Ctext%7BSince%20%7D%20E%5BD%7CX%5D%20=%20m_0(X)%20%5Ctext%7B%20and%20%7D%20E%5BY%7CX%5D%20=%20g_0(X):%20%5C%5C%0A&amp;=%20E%5Bh_m%20%5Ccdot%200%5D%20%20%5C%5C%0A&amp;=%200%0A%5Cend%7Baligned%7D%0A"></p>
+</section>
 </section>
 <section id="neyman-orthogonality-ensures-n-frac12-convergence" class="level2">
 <h2 class="anchored" data-anchor-id="neyman-orthogonality-ensures-n-frac12-convergence">Neyman Orthogonality Ensures <img src="https://latex.codecogs.com/png.latex?n%5E%7B-%5Cfrac%7B1%7D%7B2%7D%7D"> Convergence</h2>

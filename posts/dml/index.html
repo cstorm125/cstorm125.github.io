@@ -9,7 +9,7 @@
 <meta name="author" content="cstorm125">
 <meta name="dcterms.date" content="2025-10-03">
 
-<title>Understanding Double/debiased machine learning (DML) – chariblog</title>
+<title>Understanding Double/debiased Machine Learning (DML) – chariblog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -159,7 +159,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Understanding Double/debiased machine learning (DML)</h1>
+<h1 class="title">Understanding Double/debiased Machine Learning (DML)</h1>
   <div class="quarto-categories">
     <div class="quarto-category">causal-inference</div>
     <div class="quarto-category">double-machine-learning</div>
@@ -311,7 +311,10 @@ E[\varepsilon \cdot \tilde{D}] &amp;= 0 \\
 &amp;= 0 \\
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(h_g(X)\)</span> and <span class="math inline">\(h_m(X)\)</span> are functional perturbations in nuisance function estimation. Specifically, for <span class="math inline">\(g\)</span>, it is shown as:</p>
+<p>where <span class="math inline">\(h_g(X)\)</span> and <span class="math inline">\(h_m(X)\)</span> are functional perturbations in nuisance function estimation.</p>
+<section id="outcome-regressor-g" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-regressor-g">Outcome Regressor <span class="math inline">\(g\)</span></h3>
+<p>Specifically, for <span class="math inline">\(g\)</span>, it is shown as:</p>
 <p><span class="math display">\[
 \begin{aligned}
 E\Big[\frac{\partial}{\partial g} \psi(W;\theta_0,g,m_0)\Big] |_{g = g_0} &amp;= 0 \\
@@ -326,7 +329,10 @@ E\Big[\frac{\partial}{\partial g} \psi(W;\theta_0,g,m_0)\Big] |_{g = g_0} &amp;=
 &amp;= 0
 \end{aligned}
 \]</span></p>
-<p>and for <span class="math inline">\(m\)</span>, it is shown as:</p>
+</section>
+<section id="treatment-regressor-m" class="level3">
+<h3 class="anchored" data-anchor-id="treatment-regressor-m">Treatment Regressor <span class="math inline">\(m\)</span></h3>
+<p>And for <span class="math inline">\(m\)</span>, it is shown as:</p>
 <p><span class="math display">\[
 \begin{aligned}
 E\Big[\frac{\partial}{\partial m}\psi(W;\theta_0,g_0,m)\cdot h_m\Big]\Big|_{m=m_0}
@@ -355,6 +361,7 @@ E\Big[\frac{\partial}{\partial m}\psi(W;\theta_0,g_0,m) \cdot h_m\Big] |_{m = m_
 &amp;= 0
 \end{aligned}
 \]</span></p>
+</section>
 </section>
 <section id="neyman-orthogonality-ensures-n-frac12-convergence" class="level2">
 <h2 class="anchored" data-anchor-id="neyman-orthogonality-ensures-n-frac12-convergence">Neyman Orthogonality Ensures <span class="math inline">\(n^{-\frac{1}{2}}\)</span> Convergence</h2>
