@@ -252,7 +252,7 @@ print(f"FWL computation time: {end_FWL - start_FWL:.3f} seconds")
 print("Are they numerically identical?", np.allclose(coef_full, coef_FWL))
 ```
 
-A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables like:
+A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled plot like:
 
 ```{python}
 #| eval: true
