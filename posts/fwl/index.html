@@ -258,7 +258,7 @@ Y &amp;= X_1\beta_1 + X_2\beta_2 + \varepsilon \\
 <ol type="1">
 <li>Regress <span class="math inline">\(Y\)</span> on control <span class="math inline">\(X_2\)</span> and keep the residuals <span class="math inline">\(\tilde{Y}=M_2Y\)</span> (outcome residualization/nuisance regression)</li>
 <li>Regress <span class="math inline">\(X_1\)</span> on control <span class="math inline">\(X_2\)</span> and keep the residuals <span class="math inline">\(\tilde{X_1}=M_1 X\)</span> (treatment residualization/nuisance regression)</li>
-<li>Regress <span class="math inline">\(\tilde{Y}\)</span> on <span class="math inline">\(\tilde{X_1}\)</span>. <span class="math inline">\(\beta_1\)</span> derived from this is exactly the same as one from the full regression (final residualized regression)</li>
+<li>Regress <span class="math inline">\(\tilde{Y}\)</span> on <span class="math inline">\(\tilde{X_1}\)</span>, then <span class="math inline">\(\beta_1\)</span> derived from this is exactly the same as one from the full regression (final residualized regression)</li>
 </ol>
 <p>Let us pause for a second and think about how preposterous it is. Monsieurs George Udny Yule, Ragnar Frisch, Frederick V. Waugh, and Michael C. Lovell are basically saying:</p>
 <blockquote class="blockquote">
@@ -361,7 +361,7 @@ M_2Y &amp;= M_2X_1 \beta_{r} + \varepsilon_{r} \\
 E[(M_2X_1)'(M_2Y-M_2X_1 \beta_{r})] &amp;= 0 \text{ ; population moment condition} \\
 (M_2X_1)'(M_2Y-M_2X_1 \hat{\beta_{r}}) &amp;= 0 \text{ ; sample moment condition} \\
 X_1'M_2^2 Y - X_1'M_2^2X_1 \hat{\beta_{r}} &amp;=0  \text{ ; } M_2 = M_2'\\
-X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &amp;=0  \text{ ; } M_2 = M_2'\\
+X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &amp;=0  \text{ ; } M_2 = M_2^2\\
 \hat{\beta_{r}}&amp;= (X_1'M_2X_1)^{-1}X_1'M_2Y \\
 \end{aligned}
 \]</span></p>
@@ -370,7 +370,7 @@ X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &amp;=0  \text{ ; } M_2 = M_2'\\
 <section id="dont-believe-the-symbol-manipulation-lets-run-the-code" class="level2">
 <h2 class="anchored" data-anchor-id="dont-believe-the-symbol-manipulation-lets-run-the-code">Don’t Believe the Symbol Manipulation? Let’s Run The Code</h2>
 <p>For those of you who, like me, are skeptical of mathematical equation hocus pocus, let us test the theorem empirically. We will simulate a 500k-sample dataset with one Gaussian treatment variable <code>X_treatment</code>, 100 control variables (from 40 Guassian features, 30 power-law features, and a 31-class categorical feature; to make it more exciting), and a continuous outcome <code>y</code>. We estimate the coefficient of <code>X_treatment</code> using both full OLS and the FWL procedure. The FWL theorem posits that they are identical.</p>
-<div id="679ede3f" class="cell" data-execution_count="1">
+<div id="27801fac" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -443,14 +443,14 @@ X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &amp;=0  \text{ ; } M_2 = M_2'\\
 <pre><code>Shape of dataset: (500000, 100)
 True β_treatment: 1.5
 Full OLS β_treatment: 1.5026663267823759
-Full OLS computation time: 2.343 seconds
+Full OLS computation time: 2.135 seconds
 FWL β_treatment: 1.5026663267823739
-FWL computation time: 4.650 seconds
+FWL computation time: 4.469 seconds
 Are they numerically identical? True</code></pre>
 </div>
 </div>
-<p>A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled plot like:</p>
-<div id="cb96fc65" class="cell" data-execution_count="2">
+<p>A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled manner like:</p>
+<div id="91c876ed" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use a subset of data for cleaner visualization (e.g., first 5000 points)</span></span>

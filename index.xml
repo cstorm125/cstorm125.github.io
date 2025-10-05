@@ -45,7 +45,7 @@
 <ol type="1">
 <li>Regress <img src="https://latex.codecogs.com/png.latex?Y"> on control <img src="https://latex.codecogs.com/png.latex?X_2"> and keep the residuals <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BY%7D=M_2Y"> (outcome residualization/nuisance regression)</li>
 <li>Regress <img src="https://latex.codecogs.com/png.latex?X_1"> on control <img src="https://latex.codecogs.com/png.latex?X_2"> and keep the residuals <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BX_1%7D=M_1%20X"> (treatment residualization/nuisance regression)</li>
-<li>Regress <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BY%7D"> on <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BX_1%7D">. <img src="https://latex.codecogs.com/png.latex?%5Cbeta_1"> derived from this is exactly the same as one from the full regression (final residualized regression)</li>
+<li>Regress <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BY%7D"> on <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BX_1%7D">, then <img src="https://latex.codecogs.com/png.latex?%5Cbeta_1"> derived from this is exactly the same as one from the full regression (final residualized regression)</li>
 </ol>
 <p>Let us pause for a second and think about how preposterous it is. Monsieurs George Udny Yule, Ragnar Frisch, Frederick V. Waugh, and Michael C. Lovell are basically saying:</p>
 <blockquote class="blockquote">
@@ -81,13 +81,13 @@
 <p>Then, substitute it into the derivation of <img src="https://latex.codecogs.com/png.latex?%5Cbeta_1"> from <img src="https://latex.codecogs.com/png.latex?X_1">-moment:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AX_1'(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D%20-%20X_2%20%5Chat%7B%5Cbeta_2%7D)&amp;=0%20%5C%5C%0A(X_2'X_2)%5E%7B-1%7D%20X_2'%20(Y-X_1%20%5Chat%7B%5Cbeta_1%7D)&amp;=%5Chat%7B%5Cbeta_2%7D%20%20%5C%5C%0AX_1'%5CBig((Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D)%20-%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20(Y-X_1%20%5Chat%7B%5Cbeta_1%7D)%20%5CBig)&amp;=0%20%5C%5C%0AX_1'%5CBig((1-P_2)(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D)%5CBig)%20&amp;=%200%20%5C%5C%0AX_1'M_2(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D)%20&amp;=%200%20%5C%5C%0AX_1'M_2X_1%5Chat%7B%5Cbeta_1%7D%20&amp;=%20X_1'M_2Y%20%5C%5C%0A%5Chat%7B%5Cbeta_1%7D%20&amp;=(X_1'M_2X_1)%5E%7B-1%7DX_1'M_2Y%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
 <p>And do you know what this <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta_1%7D"> looks like?</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AM_2Y%20&amp;=%20M_2X_1%20%5Cbeta_%7Br%7D%20+%20%5Cvarepsilon_%7Br%7D%20%5C%5C%0AE%5B(M_2X_1)'(M_2Y-M_2X_1%20%5Cbeta_%7Br%7D)%5D%20&amp;=%200%20%5Ctext%7B%20;%20population%20moment%20condition%7D%20%5C%5C%0A(M_2X_1)'(M_2Y-M_2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D)%20&amp;=%200%20%5Ctext%7B%20;%20sample%20moment%20condition%7D%20%5C%5C%0AX_1'M_2%5E2%20Y%20-%20X_1'M_2%5E2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D%20&amp;=0%20%20%5Ctext%7B%20;%20%7D%20M_2%20=%20M_2'%5C%5C%0AX_1'M_2%20Y%20-%20X_1'M_2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D%20&amp;=0%20%20%5Ctext%7B%20;%20%7D%20M_2%20=%20M_2'%5C%5C%0A%5Chat%7B%5Cbeta_%7Br%7D%7D&amp;=%20(X_1'M_2X_1)%5E%7B-1%7DX_1'M_2Y%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AM_2Y%20&amp;=%20M_2X_1%20%5Cbeta_%7Br%7D%20+%20%5Cvarepsilon_%7Br%7D%20%5C%5C%0AE%5B(M_2X_1)'(M_2Y-M_2X_1%20%5Cbeta_%7Br%7D)%5D%20&amp;=%200%20%5Ctext%7B%20;%20population%20moment%20condition%7D%20%5C%5C%0A(M_2X_1)'(M_2Y-M_2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D)%20&amp;=%200%20%5Ctext%7B%20;%20sample%20moment%20condition%7D%20%5C%5C%0AX_1'M_2%5E2%20Y%20-%20X_1'M_2%5E2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D%20&amp;=0%20%20%5Ctext%7B%20;%20%7D%20M_2%20=%20M_2'%5C%5C%0AX_1'M_2%20Y%20-%20X_1'M_2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D%20&amp;=0%20%20%5Ctext%7B%20;%20%7D%20M_2%20=%20M_2%5E2%5C%5C%0A%5Chat%7B%5Cbeta_%7Br%7D%7D&amp;=%20(X_1'M_2X_1)%5E%7B-1%7DX_1'M_2Y%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
 <p><em>Exactly</em> the coefficient <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta_%7Br%7D%7D"> when we regress residualized <img src="https://latex.codecogs.com/png.latex?Y"> on residualized <img src="https://latex.codecogs.com/png.latex?X_1">.</p>
 </section>
 <section id="dont-believe-the-symbol-manipulation-lets-run-the-code" class="level2">
 <h2 class="anchored" data-anchor-id="dont-believe-the-symbol-manipulation-lets-run-the-code">Don’t Believe the Symbol Manipulation? Let’s Run The Code</h2>
 <p>For those of you who, like me, are skeptical of mathematical equation hocus pocus, let us test the theorem empirically. We will simulate a 500k-sample dataset with one Gaussian treatment variable <code>X_treatment</code>, 100 control variables (from 40 Guassian features, 30 power-law features, and a 31-class categorical feature; to make it more exciting), and a continuous outcome <code>y</code>. We estimate the coefficient of <code>X_treatment</code> using both full OLS and the FWL procedure. The FWL theorem posits that they are identical.</p>
-<div id="679ede3f" class="cell" data-execution_count="1">
+<div id="27801fac" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -378,14 +378,14 @@ font-style: inherit;">"Are they numerically identical?"</span>, np.allclose(coef
 <pre><code>Shape of dataset: (500000, 100)
 True β_treatment: 1.5
 Full OLS β_treatment: 1.5026663267823759
-Full OLS computation time: 2.343 seconds
+Full OLS computation time: 2.135 seconds
 FWL β_treatment: 1.5026663267823739
-FWL computation time: 4.650 seconds
+FWL computation time: 4.469 seconds
 Are they numerically identical? True</code></pre>
 </div>
 </div>
-<p>A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled plot like:</p>
-<div id="cb96fc65" class="cell" data-execution_count="2">
+<p>A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled manner like:</p>
+<div id="91c876ed" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
