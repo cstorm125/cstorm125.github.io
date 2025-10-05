@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/fwl/index.html",
       "/posts/dml/index.html",
       "/posts/aib2025_survey/index.html",
       "/posts/sql_almost/index.html",

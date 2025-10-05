@@ -10,7 +10,776 @@
 <atom:link href="https://cstorm125.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>A collection of technical writings on applied science</description>
 <generator>quarto-1.8.25</generator>
-<lastBuildDate>Fri, 03 Oct 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 05 Oct 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>The Beautiful Frisch–Waugh–Lovell Theorem</title>
+  <dc:creator>cstorm125 </dc:creator>
+  <link>https://cstorm125.github.io/posts/fwl/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>There are few results in econometrics that feel as magical as the <a href="https://arxiv.org/pdf/2307.00369">(Yule-)</a><a href="https://arxiv.org/pdf/2307.00369">Frisch–Waugh–Lovell (FWL) Theorem</a>. In this article, we will trace how it is derived analytically and test if it holds empirically.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://cstorm125.github.io/posts/fwl/featured_image.jpg" class="img-fluid figure-img" style="width:50.0%"></p>
+<figcaption>featured_image</figcaption>
+</figure>
+</div>
+<section id="what-does-the-fwl-theorem-says" class="level2">
+<h2 class="anchored" data-anchor-id="what-does-the-fwl-theorem-says">What Does the FWL Theorem Says 🦊</h2>
+<p>For a multivariate <a href="https://en.wikipedia.org/wiki/Ordinary_least_squares">OLS</a> model</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AY%20&amp;=%20X_1%5Cbeta_1%20+%20X_2%5Cbeta_2%20+%20%5Cvarepsilon%20%5C%5C%0A&amp;=%20X%20%5Cbeta%20+%20%5Cvarepsilon%0A%5Cend%7Baligned%7D%0A"></p>
+<p>where</p>
+<ul>
+<li><p><img src="https://latex.codecogs.com/png.latex?Y">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> outcome vector where <img src="https://latex.codecogs.com/png.latex?n"> is number of examples</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?X_1">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20k_1"> treatment vector where <img src="https://latex.codecogs.com/png.latex?k_1"> is number of features</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?X_2">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20k_2"> control vector where <img src="https://latex.codecogs.com/png.latex?k_2"> is number of features</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Cbeta_i">: <img src="https://latex.codecogs.com/png.latex?k_i%20%5Ctimes%201"> coefficient vector</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> error vector</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?X">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20(k_1+k_2)"> total regressor vector</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Cbeta">: <img src="https://latex.codecogs.com/png.latex?(k_1+k_2)%20%5Ctimes%201"> total coefficient vector</p></li>
+</ul>
+<p>The FWL theorem states that <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta_1%7D"> estimated from the full regression is exactly the same coefficient obtained from the following procedure:</p>
+<ol type="1">
+<li>Regress <img src="https://latex.codecogs.com/png.latex?Y"> on control <img src="https://latex.codecogs.com/png.latex?X_2"> and keep the residuals <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BY%7D=M_2Y"> (outcome residualization/nuisance regression)</li>
+<li>Regress <img src="https://latex.codecogs.com/png.latex?X_1"> on control <img src="https://latex.codecogs.com/png.latex?X_2"> and keep the residuals <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BX_1%7D=M_1%20X"> (treatment residualization/nuisance regression)</li>
+<li>Regress <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BY%7D"> on <img src="https://latex.codecogs.com/png.latex?%5Ctilde%7BX_1%7D">. <img src="https://latex.codecogs.com/png.latex?%5Cbeta_1"> derived from this is exactly the same as one from the full regression (final residualized regression)</li>
+</ol>
+<p>Let us pause for a second and think about how preposterous it is. Monsieurs George Udny Yule, Ragnar Frisch, Frederick V. Waugh, and Michael C. Lovell are basically saying:</p>
+<blockquote class="blockquote">
+<p>Hey, look. Those coefficients you thought you could only derive by regressing the outcome on the whole set of control and treatment variables? Turns out you can somehow get the <em>exact same</em> estimation from regressing the residuals of the outcome on those of the treatment variables.</p>
+</blockquote>
+<p>When I first learned about this, it was nothing short of black magic.</p>
+</section>
+<section id="the-projection-matrix-and-the-annihilator-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="the-projection-matrix-and-the-annihilator-matrix">The Projection Matrix and The Annihilator Matrix</h2>
+<p>One last preparation before we dive into the proof is understanding the <strong>projection matrix</strong> and the badass-sounding <strong>annihilator matrix</strong>. When we regress <img src="https://latex.codecogs.com/png.latex?Y"> on <img src="https://latex.codecogs.com/png.latex?X_2">, we derive coefficient <img src="https://latex.codecogs.com/png.latex?%5Calpha_2"> as</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AY%20&amp;=%20X_2%20%5Calpha_2%20+%20%5Cvarepsilon_2%20%5C%5C%0AE%5BX_2'(Y-X_2%20%5Calpha_2)%5D%20&amp;=%200%20%5Ctext%7B%20;%20population%20moment%20condition%7D%20%5C%5C%0AX_2'(Y-X_2%20%5Chat%7B%5Calpha_2%7D)%20&amp;=%200%20%5Ctext%7B%20;%20sample%20moment%20condition%7D%20%5C%5C%0AX_2'Y%20-%20X_2'X_2%20%5Chat%7B%5Calpha_2%7D&amp;=%200%20%5C%5C%0A%5Chat%7B%5Calpha_2%7D&amp;=%20(X_2'X_2)%5E%7B-1%7D%20X_2'Y%20%20%5C%5C%0A%5Chat%7BY_2%7D%20&amp;=%20X_2%20%5Chat%7B%5Calpha_2%7D%20%20%5C%5C%0A&amp;=%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20Y%20%5C%5C%0A&amp;=%20P_2%20Y%0A%5Cend%7Baligned%7D%0A"></p>
+<p>where</p>
+<ul>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon_2">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> error vector of the outcome nuisance regression</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Chat%7BY_2%7D">: <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%201"> estimated values based on the outcome nuisance regression</p></li>
+</ul>
+<p>We can think of <img src="https://latex.codecogs.com/png.latex?P_2%20=%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'"> as a function that transforms actual outcome <img src="https://latex.codecogs.com/png.latex?Y"> into the estimated outcome <img src="https://latex.codecogs.com/png.latex?Y_2">. We call <img src="https://latex.codecogs.com/png.latex?P_2"> the projection matrix (symmetrical <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20n">), refering to the fact that it <em>projects</em> <img src="https://latex.codecogs.com/png.latex?Y"> onto subspace spanned by <img src="https://latex.codecogs.com/png.latex?X_2">. Another neat thing about <img src="https://latex.codecogs.com/png.latex?P_2"> is that it is an <a href="https://en.wikipedia.org/wiki/Idempotent_matrix">idempotent matrix</a>:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AP_2%20&amp;=%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20%5C%5C%0AP_2%20P_2%20&amp;=%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20%5C%5C%0A&amp;=%20P_2%0A%5Cend%7Baligned%7D%0A"></p>
+<p>The annihilator matrix is simply <img src="https://latex.codecogs.com/png.latex?M_2%20=%20I%20-%20P_2"> (also symmetrical <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20n"> and idemptotent) and multiplying it to <img src="https://latex.codecogs.com/png.latex?Y"> gives residuals of the outcome nuisance regression due to:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0A%5Chat%7BY_2%7D%20&amp;=%20%20P_2%20Y%20%5C%5C%0AM_2%20&amp;=%20I%20-%20P_2%20%5C%5C%0AM_2%20Y%20&amp;%20=%20(I%20-%20P_2)%20Y%20%5C%5C%0A&amp;=Y%20-%20P_2%20Y%20%5C%5C%0A&amp;=%20Y%20-%20%5Chat%7BY_2%7D%0A%5Cend%7Baligned%7D%0A"></p>
+<p>And by the way:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AM_2%20X_2%20&amp;%20=%20(I%20-%20P_2)%20X_2%20%5C%5C%0A&amp;=X_2%20-%20P_2%20X_2%20%5C%5C%0A&amp;=%20X_2%20-%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20X_2%5C%5C%0A&amp;=%20X_2%20-%20X_2%5C%5C%0A&amp;=0%0A%5Cend%7Baligned%7D%0A"></p>
+<p>That is, <img src="https://latex.codecogs.com/png.latex?M_2"> is <a href="https://en.wikipedia.org/wiki/Orthogonality#Statistics,_econometrics,_and_economics">orthogonal</a> to <img src="https://latex.codecogs.com/png.latex?P_2">, and it <em>annihilates</em> all components in the subspace spanned by <img src="https://latex.codecogs.com/png.latex?X_2">.</p>
+</section>
+<section id="the-proof" class="level2">
+<h2 class="anchored" data-anchor-id="the-proof">The Proof</h2>
+<p>Let us start the proof with the moment condition to estimate <img src="https://latex.codecogs.com/png.latex?%5Cbeta_1"> from the full regression.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AE%5BX'(Y-X%20%5Cbeta)%5D%20&amp;=%200%20%5Ctext%7B%20;%20population%20moment%20condition%7D%20%5C%5C%0AX'(Y-X%20%5Chat%7B%5Cbeta%7D)%20&amp;=%200%20%5Ctext%7B%20;%20sample%20moment%20condition%7D%20%5C%5C%0A&amp;=%5Cbegin%7Bbmatrix%7D%20X_1'%20%5C%5C%5B2mm%5D%20X_2'%20%5Cend%7Bbmatrix%7D%20(Y%20-%20X_1%5Chat%5Cbeta_1%20-%20X_2%5Chat%5Cbeta_2)%20=%200%20%5Ctext%7B%20;%20partitioned%20to%20%7DX_1,%20X_2%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
+<p>The sample moment conditions are:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AX_1'(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D%20-%20X_2%20%5Chat%7B%5Cbeta_2%7D)&amp;=0%20%5C%5C%0AX_2'(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D%20-%20X_2%20%5Chat%7B%5Cbeta_2%7D)&amp;=0%0A%5Cend%7Baligned%7D%0A"></p>
+<p>First, derive <img src="https://latex.codecogs.com/png.latex?%5Cbeta_2"> from <img src="https://latex.codecogs.com/png.latex?X_2">-moment:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AX_2'(Y%20-%20X_2%20%5Chat%7B%5Cbeta_2%7D%20-%20X_2%20%5Chat%7B%5Cbeta_2%7D)&amp;=0%20%5C%5C%0A&amp;=X_2'Y%20-%20X_2'%20X_1%20%5Chat%7B%5Cbeta_1%7D%20-%20X_2'X_2%20%5Chat%7B%5Cbeta_2%7D%20%5C%5C%0AX_2'X_2%20%5Chat%7B%5Cbeta_2%7D&amp;=X_2'Y%20-%20X_2'%20X_1%20%5Chat%7B%5Cbeta_1%7D%20%5C%5C%0A%5Chat%7B%5Cbeta_2%7D%20&amp;=%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20(Y-X_1%20%5Chat%7B%5Cbeta_1%7D)%0A%5Cend%7Baligned%7D%0A"></p>
+<p>Then, substitute it into the derivation of <img src="https://latex.codecogs.com/png.latex?%5Cbeta_1"> from <img src="https://latex.codecogs.com/png.latex?X_1">-moment:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AX_1'(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D%20-%20X_2%20%5Chat%7B%5Cbeta_2%7D)&amp;=0%20%5C%5C%0A(X_2'X_2)%5E%7B-1%7D%20X_2'%20(Y-X_1%20%5Chat%7B%5Cbeta_1%7D)&amp;=%5Chat%7B%5Cbeta_2%7D%20%20%5C%5C%0AX_1'%5CBig((Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D)%20-%20X_2%20(X_2'X_2)%5E%7B-1%7D%20X_2'%20(Y-X_1%20%5Chat%7B%5Cbeta_1%7D)%20%5CBig)&amp;=0%20%5C%5C%0AX_1'%5CBig((1-P_2)(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D)%5CBig)%20&amp;=%200%20%5C%5C%0AX_1'M_2(Y%20-%20X_1%20%5Chat%7B%5Cbeta_1%7D)%20&amp;=%200%20%5C%5C%0AX_1'M_2X_1%5Chat%7B%5Cbeta_1%7D%20&amp;=%20X_1'M_2Y%20%5C%5C%0A%5Chat%7B%5Cbeta_1%7D%20&amp;=(X_1'M_2X_1)%5E%7B-1%7DX_1'M_2Y%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
+<p>And do you know what this <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta_1%7D"> looks like?</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0AM_2Y%20&amp;=%20M_2X_1%20%5Cbeta_%7Br%7D%20+%20%5Cvarepsilon_%7Br%7D%20%5C%5C%0AE%5B(M_2X_1)'(M_2Y-M_2X_1%20%5Cbeta_%7Br%7D)%5D%20&amp;=%200%20%5Ctext%7B%20;%20population%20moment%20condition%7D%20%5C%5C%0A(M_2X_1)'(M_2Y-M_2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D)%20&amp;=%200%20%5Ctext%7B%20;%20sample%20moment%20condition%7D%20%5C%5C%0AX_1'M_2%5E2%20Y%20-%20X_1'M_2%5E2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D%20&amp;=0%20%20%5Ctext%7B%20;%20%7D%20M_2%20=%20M_2'%5C%5C%0AX_1'M_2%20Y%20-%20X_1'M_2X_1%20%5Chat%7B%5Cbeta_%7Br%7D%7D%20&amp;=0%20%20%5Ctext%7B%20;%20%7D%20M_2%20=%20M_2'%5C%5C%0A%5Chat%7B%5Cbeta_%7Br%7D%7D&amp;=%20(X_1'M_2X_1)%5E%7B-1%7DX_1'M_2Y%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
+<p><em>Exactly</em> the coefficient <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta_%7Br%7D%7D"> when we regress residualized <img src="https://latex.codecogs.com/png.latex?Y"> on residualized <img src="https://latex.codecogs.com/png.latex?X_1">.</p>
+</section>
+<section id="dont-believe-the-symbol-manipulation-lets-run-the-code" class="level2">
+<h2 class="anchored" data-anchor-id="dont-believe-the-symbol-manipulation-lets-run-the-code">Don’t Believe the Symbol Manipulation? Let’s Run The Code</h2>
+<p>For those of you who, like me, are skeptical of mathematical equation hocus pocus, let us test the theorem empirically. We will simulate a 500k-sample dataset with one Gaussian treatment variable <code>X_treatment</code>, 100 control variables (from 40 Guassian features, 30 power-law features, and a 31-class categorical feature; to make it more exciting), and a continuous outcome <code>y</code>. We estimate the coefficient of <code>X_treatment</code> using both full OLS and the FWL procedure. The FWL theorem posits that they are identical.</p>
+<div id="679ede3f" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> statsmodels.api <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> sm</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sklearn.preprocessing <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> OneHotEncoder</span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> time</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb1-7"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> seaborn <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> sns</span>
+<span id="cb1-8"></span>
+<span id="cb1-9">np.random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">112</span>)</span>
+<span id="cb1-10">n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500_000</span></span>
+<span id="cb1-11"></span>
+<span id="cb1-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Treatment</span></span>
+<span id="cb1-13">X_treatment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, n)</span>
+<span id="cb1-14"></span>
+<span id="cb1-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Gaussian controls</span></span>
+<span id="cb1-16">X_gauss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, (n, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>))</span>
+<span id="cb1-17"></span>
+<span id="cb1-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Power-law controls</span></span>
+<span id="cb1-19">X_power <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.pareto(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, (n, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>))</span>
+<span id="cb1-20"></span>
+<span id="cb1-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Categorical controls</span></span>
+<span id="cb1-22">cats <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.choice([<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'C</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">31</span>)], size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(n, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb1-23">enc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> OneHotEncoder(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'first'</span>).fit(cats)</span>
+<span id="cb1-24">X_cat <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> enc.transform(cats).toarray()</span>
+<span id="cb1-25"></span>
+<span id="cb1-26"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combine into design matrix</span></span>
+<span id="cb1-27">X_controls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.hstack([X_gauss, X_power, X_cat])</span>
+<span id="cb1-28"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Shape of dataset: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>X_controls<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>shape<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb1-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Outcome based on true coefficients</span></span>
+<span id="cb1-30">beta_treatment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span></span>
+<span id="cb1-31">beta_controls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, X_controls.shape[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb1-32">y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> beta_treatment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> X_treatment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> X_controls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> beta_controls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> np.random.normal(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, n)</span>
+<span id="cb1-33"></span>
+<span id="cb1-34"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># True beta</span></span>
+<span id="cb1-35"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"True β_treatment:"</span>, beta_treatment)</span>
+<span id="cb1-36"></span>
+<span id="cb1-37"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Full OLS ---</span></span>
+<span id="cb1-38">start_full <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb1-39">X_full <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.add_constant(np.column_stack([X_treatment, X_controls]))</span>
+<span id="cb1-40">model_full <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.OLS(y, X_full).fit()</span>
+<span id="cb1-41">coef_full <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model_full.params[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb1-42">end_full <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb1-43"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Full OLS β_treatment:"</span>, coef_full)</span>
+<span id="cb1-44"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Full OLS computation time: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>end_full <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> start_full<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> seconds"</span>)</span>
+<span id="cb1-45"></span>
+<span id="cb1-46"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- FWL ---</span></span>
+<span id="cb1-47">start_FWL <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb1-48"></span>
+<span id="cb1-49"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 1: residualize y on controls</span></span>
+<span id="cb1-50">X2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.add_constant(X_controls)</span>
+<span id="cb1-51">y_resid <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.OLS(y, X2).fit().resid</span>
+<span id="cb1-52"></span>
+<span id="cb1-53"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 2: residualize treatment on controls</span></span>
+<span id="cb1-54">X_treatment_resid <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.OLS(X_treatment, X2).fit().resid</span>
+<span id="cb1-55"></span>
+<span id="cb1-56"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 3: regress residuals</span></span>
+<span id="cb1-57">coef_FWL <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.OLS(y_resid, X_treatment_resid).fit().params[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb1-58"></span>
+<span id="cb1-59">end_FWL <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb1-60"></span>
+<span id="cb1-61"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"FWL β_treatment:"</span>, coef_FWL)</span>
+<span id="cb1-62"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"FWL computation time: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>end_FWL <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> start_FWL<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> seconds"</span>)</span>
+<span id="cb1-63"></span>
+<span id="cb1-64"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compare</span></span>
+<span id="cb1-65"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Are they numerically identical?"</span>, np.allclose(coef_full, coef_FWL))</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Shape of dataset: (500000, 100)
+True β_treatment: 1.5
+Full OLS β_treatment: 1.5026663267823759
+Full OLS computation time: 2.343 seconds
+FWL β_treatment: 1.5026663267823739
+FWL computation time: 4.650 seconds
+Are they numerically identical? True</code></pre>
+</div>
+</div>
+<p>A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled plot like:</p>
+<div id="cb96fc65" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use a subset of data for cleaner visualization (e.g., first 5000 points)</span></span>
+<span id="cb3-2">n_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5000</span></span>
+<span id="cb3-3">X_treatment_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X_treatment[:n_plot]</span>
+<span id="cb3-4">y_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y[:n_plot]</span>
+<span id="cb3-5">X_controls_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X_controls[:n_plot, :]</span>
+<span id="cb3-6">X_treatment_resid_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> X_treatment_resid[:n_plot]</span>
+<span id="cb3-7">y_resid_plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y_resid[:n_plot]</span>
+<span id="cb3-8"></span>
+<span id="cb3-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set a style for professional-looking plots</span></span>
+<span id="cb3-10">sns.set_theme(style<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"whitegrid"</span>)</span>
+<span id="cb3-11">fig, axes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">18</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>))</span>
+<span id="cb3-12">fig.suptitle(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Visualizing the Frisch–Waugh–Lovell (FWL) Theorem'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>)</span>
+<span id="cb3-13"></span>
+<span id="cb3-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Plot 1: Raw Correlation (Messy) ---</span></span>
+<span id="cb3-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This shows the naive, biased correlation before accounting for controls.</span></span>
+<span id="cb3-16">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].scatter(X_treatment_plot, y_plot, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>)</span>
+<span id="cb3-17">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'1. Raw (Biased) Correlation'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>)</span>
+<span id="cb3-18">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'$X_{</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">text</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{Treatment}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">}$ (Raw)'</span>)</span>
+<span id="cb3-19">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].set_ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'$Y$ (Raw)'</span>)</span>
+<span id="cb3-20"></span>
+<span id="cb3-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Optional: Add a naive regression line (will be biased)</span></span>
+<span id="cb3-22">model_naive <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm.OLS(y_plot, sm.add_constant(X_treatment_plot)).fit()</span>
+<span id="cb3-23">x_line <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.linspace(X_treatment_plot.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(), X_treatment_plot.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb3-24">y_line <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model_naive.predict(sm.add_constant(x_line))</span>
+<span id="cb3-25">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].plot(x_line, y_line, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'red'</span>, linestyle<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'--'</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Naive Slope: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>model_naive<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>params[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb3-26">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>].legend(frameon<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb3-27"></span>
+<span id="cb3-28"></span>
+<span id="cb3-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Plot 2: Control Residuals (Partialling Out) ---</span></span>
+<span id="cb3-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This is the "residualization" step. We'll show the residuals of Y vs X_treatment</span></span>
+<span id="cb3-31"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># but where the effect of the controls has been removed.</span></span>
+<span id="cb3-32"></span>
+<span id="cb3-33">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].scatter(X_treatment_resid_plot, y_resid_plot, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'green'</span>)</span>
+<span id="cb3-34">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].axhline(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'gray'</span>, linestyle<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'-'</span>)</span>
+<span id="cb3-35">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].axvline(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'gray'</span>, linestyle<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'-'</span>)</span>
+<span id="cb3-36">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'2. Residual vs. Residual'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>)</span>
+<span id="cb3-37">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'$</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">tilde</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{X}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">_{</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">text</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{Treatment}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">}$ (Residualized)'</span>)</span>
+<span id="cb3-38">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>].set_ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'$</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">tilde</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{Y}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">$ (Residualized)'</span>)</span>
+<span id="cb3-39"></span>
+<span id="cb3-40"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Plot 3: The Estimated Coefficient ---</span></span>
+<span id="cb3-41"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This shows the final regression line, which has the true, unbiased coefficient.</span></span>
+<span id="cb3-42">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>].scatter(X_treatment_resid_plot, y_resid_plot, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'green'</span>)</span>
+<span id="cb3-43">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>].set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'3. FWL Regression (Unbiased Slope)'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>)</span>
+<span id="cb3-44">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>].set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'$</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">tilde</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{X}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">_{</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">text</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{Treatment}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">}$ (Residualized)'</span>)</span>
+<span id="cb3-45">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>].set_ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'$</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">tilde</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{Y}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">$ (Residualized)'</span>)</span>
+<span id="cb3-46"></span>
+<span id="cb3-47"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add the FWL regression line</span></span>
+<span id="cb3-48">x_fwl_line <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.linspace(X_treatment_resid_plot.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(), X_treatment_resid_plot.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb3-49">y_fwl_line <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> coef_FWL <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> x_fwl_line</span>
+<span id="cb3-50">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>].plot(x_fwl_line, y_fwl_line, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'blue'</span>, linewidth<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'FWL Slope: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>coef_FWL<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb3-51">axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>].legend(frameon<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb3-52"></span>
+<span id="cb3-53">plt.tight_layout(rect<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.03</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.95</span>]) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Adjust layout to fit suptitle</span></span>
+<span id="cb3-54">plt.show()</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://cstorm125.github.io/posts/fwl/index_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A noteworthy observation is that FWL implementation takes longer to compute even though theoretically it is doing matrix operations on a much smaller <img src="https://latex.codecogs.com/png.latex?k_1"> features. This points towards modern Python library optimizing the matrix operations so much that most of the computation lies in the overhead of repeating the (smaller) regression 3 times. I would need to dive deeper for confirmation. Better studied readers please let me know if you can pinpoint the reason why.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>frisch-waugh-lovell</category>
+  <category>yule-frisch-waugh-lovell</category>
+  <category>ordinary-least-square</category>
+  <guid>https://cstorm125.github.io/posts/fwl/</guid>
+  <pubDate>Sun, 05 Oct 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://cstorm125.github.io/posts/fwl/featured_image.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Understanding Double/debiased Machine Learning (DML)</title>
   <dc:creator>cstorm125 </dc:creator>

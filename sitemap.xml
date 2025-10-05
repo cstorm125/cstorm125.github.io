@@ -2,38 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cstorm125.github.io/about.html</loc>
-    <lastmod>2025-10-04T03:05:34.365Z</lastmod>
+    <lastmod>2025-10-05T00:23:26.683Z</lastmod>
   </url>
   <url>
     <loc>https://cstorm125.github.io/notebook/sql_almost_exercise.html</loc>
-    <lastmod>2025-10-04T03:05:39.954Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/posts/interesting_career/index.html</loc>
-    <lastmod>2025-10-04T03:05:39.957Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/posts/aib2025_survey/index.html</loc>
-    <lastmod>2025-10-04T03:05:39.954Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/index.html</loc>
-    <lastmod>2025-10-04T03:05:39.952Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/posts/sales_prediction/index.html</loc>
-    <lastmod>2025-10-04T03:05:39.957Z</lastmod>
-  </url>
-  <url>
-    <loc>https://cstorm125.github.io/posts/sql_almost/index.html</loc>
-    <lastmod>2025-10-04T03:05:39.958Z</lastmod>
+    <lastmod>2025-10-05T00:23:32.235Z</lastmod>
   </url>
   <url>
     <loc>https://cstorm125.github.io/posts/dml/index.html</loc>
-    <lastmod>2025-10-04T03:05:39.956Z</lastmod>
+    <lastmod>2025-10-05T00:23:32.237Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/sql_almost/index.html</loc>
+    <lastmod>2025-10-05T00:23:32.240Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/sales_prediction/index.html</loc>
+    <lastmod>2025-10-05T00:23:32.239Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/index.html</loc>
+    <lastmod>2025-10-05T00:23:32.233Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/aib2025_survey/index.html</loc>
+    <lastmod>2025-10-05T00:23:32.235Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/interesting_career/index.html</loc>
+    <lastmod>2025-10-05T00:23:32.239Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cstorm125.github.io/posts/fwl/index.html</loc>
+    <lastmod>2025-10-05T00:23:32.238Z</lastmod>
   </url>
   <url>
     <loc>https://cstorm125.github.io/notebook/sales_prediction.html</loc>
-    <lastmod>2025-10-04T03:05:39.954Z</lastmod>
+    <lastmod>2025-10-05T00:23:32.235Z</lastmod>
   </url>
 </urlset>
