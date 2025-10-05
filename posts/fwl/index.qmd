@@ -47,7 +47,7 @@ The FWL theorem states that $\hat{\beta_1}$ estimated from the full regression i
 
 1. Regress $Y$ on control $X_2$ and keep the residuals $\tilde{Y}=M_2Y$ (outcome residualization/nuisance regression)
 2. Regress $X_1$ on control $X_2$ and keep the residuals $\tilde{X_1}=M_1 X$ (treatment residualization/nuisance regression)
-3. Regress $\tilde{Y}$ on $\tilde{X_1}$. $\beta_1$ derived from this is exactly the same as one from the full regression (final residualized regression) 
+3. Regress $\tilde{Y}$ on $\tilde{X_1}$, then $\beta_1$ derived from this is exactly the same as one from the full regression (final residualized regression) 
 
 Let us pause for a second and think about how preposterous it is. Monsieurs George Udny Yule, Ragnar Frisch, Frederick V. Waugh, and Michael C. Lovell are basically saying:
 
@@ -168,7 +168,7 @@ M_2Y &= M_2X_1 \beta_{r} + \varepsilon_{r} \\
 E[(M_2X_1)'(M_2Y-M_2X_1 \beta_{r})] &= 0 \text{ ; population moment condition} \\
 (M_2X_1)'(M_2Y-M_2X_1 \hat{\beta_{r}}) &= 0 \text{ ; sample moment condition} \\
 X_1'M_2^2 Y - X_1'M_2^2X_1 \hat{\beta_{r}} &=0  \text{ ; } M_2 = M_2'\\
-X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &=0  \text{ ; } M_2 = M_2'\\
+X_1'M_2 Y - X_1'M_2X_1 \hat{\beta_{r}} &=0  \text{ ; } M_2 = M_2^2\\
 \hat{\beta_{r}}&= (X_1'M_2X_1)^{-1}X_1'M_2Y \\
 \end{aligned}
 $$
@@ -252,7 +252,7 @@ print(f"FWL computation time: {end_FWL - start_FWL:.3f} seconds")
 print("Are they numerically identical?", np.allclose(coef_full, coef_FWL))
 ```
 
-A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled plot like:
+A very useful implication from FWL is that we can scatter-plot the residuals of outcome and treatment to show their correlation, controlled for other variables, in a nicely scaled manner like:
 
 ```{python}
 #| eval: true
