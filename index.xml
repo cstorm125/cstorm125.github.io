@@ -9,7 +9,7 @@
 <link>https://cstorm125.github.io/</link>
 <atom:link href="https://cstorm125.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>A collection of technical writings on applied science</description>
-<generator>quarto-1.8.25</generator>
+<generator>quarto-1.8.26</generator>
 <lastBuildDate>Sun, 05 Oct 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>The Beautiful Frisch–Waugh–Lovell Theorem</title>
