@@ -1,7 +1,7 @@
 ---
 title: "Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu"
 author: "cstorm125"
-date: "2026-05-04"
+date: "2026-05-05"
 categories: [evaluation]
 image: "featured_image.jpg"
 sidebar:
@@ -647,7 +647,7 @@ pd.DataFrame(sanity_rows)
 
 The z-form is preferred in the main text because we also need a directional SE on the accuracy difference to build the CIs plotted in the figures. Chi-squared gives only a non-negative test statistic with no natural SE attached, so we would end up recomputing $\sqrt{n_{01} + n_{10}}/n$ by hand anyway.
 
-5. You may notice that the per-run standard deviations printed for A, B, and C in the display-seed setup cell come out visibly different (for example 0.45 / 0.36 / 0.53 pp), despite A and B being structurally identical. This is a sampling artifact of estimating a standard deviation from only 8 observations, not a property of the models. The *true* per-run standard deviation is the same for all three models because it only depends on the distribution of $p_q$, and C's derivation only swaps a 1% fraction of `p_q = 0` questions to `p_q = 1` — both of which contribute zero variance.
+5. You may notice that the per-run standard deviations printed for A, B, and C in the display-seed setup cell come out visibly different, despite A and B being structurally identical. This is a sampling artifact of estimating a standard deviation from only 8 observations, not a property of the models. The true per-run standard deviation is the same for all three models because it only depends on the distribution of $p_q$, and C's derivation only swaps a 1% fraction of `p_q = 0` questions to `p_q = 1`, both of which contribute zero variance.
 
 ```{python}
 #| code-fold: true
@@ -672,5 +672,5 @@ print(f"  median={np.median(sample_stdevs):.3f}pp, "
       f"5–95% range=[{np.percentile(sample_stdevs, 5):.3f}, {np.percentile(sample_stdevs, 95):.3f}]pp")
 ```
 
-At $n=8$ the sample standard deviation has a coefficient of variation of roughly $1 / \sqrt{2(n-1)} \approx 0.27$, so any single 8-run evaluation will produce a sample stdev anywhere in a fairly wide band around the true value. Reading meaningful differences into the stdevs of A, B, and C under this kind of sample size is itself a small benchmaxxing trap worth avoiding.
+At $n=8$ the sample standard deviation has a coefficient of variation of roughly $1 / \sqrt{2(n-1)} \approx 0.27$, so any single 8-run evaluation will produce a sample standard deviation anywhere in a fairly wide band around the true value. Reading meaningful differences into the standard deviations of A, B, and C under this kind of sample size is itself a small benchmaxxing trap worth avoiding.
 
