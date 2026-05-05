@@ -1,5 +1,5 @@
 ---
-title: "Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu"
+title: "Benchmaxxing Series: Abuse-Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu"
 author: "cstorm125"
 date: "2026-05-05"
 categories: [evaluation]
@@ -46,7 +46,7 @@ Let us see this in action using a synthetic example of a classification-style be
 
 To simulate decoding stochasticity between runs, we draw each question's latent probability of being answered correctly, $p_q$, from a three-component mixture: a fraction of "easy" questions the model always gets right ($p_q = 1$), a fraction of "hard" questions it always gets wrong ($p_q = 0$), and a "middle" fraction where $p_q \sim \text{Uniform}(0.2, 0.8)$. 
 
-Each indepedent run for each question is then an independent draw from $\text{Bernoulli}(p_q)$. Crucially, B and C inherit A's latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A's "hard" questions into "easy" ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.
+Each independent run for each question is then an independent draw from $\text{Bernoulli}(p_q)$. Crucially, B and C inherit A's latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A's "hard" questions into "easy" ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.
 
 Below are mean observed accuracies, per-run standard deviations and pairwise consistency (how many percentage of 4,000 answers are the same on average) across 8 simulated runs.
 
@@ -366,7 +366,7 @@ plot = (
     + labs(
         x="Benchmark accuracy (%)",
         y="Model",
-        title="Same data, four confidence intervals",
+        title="Same data, three confidence intervals",
     )
     + theme_bw()
     + theme(
@@ -438,11 +438,14 @@ Two things conspire to make this powerful. First, ~70% of questions sit in the s
 def paired_t_over_runs(s_x: np.ndarray, s_y: np.ndarray) -> dict:
     """Paired t-test on per-question mean scores across N_RUNS runs."""
     d_per_q = s_y.mean(axis=0) - s_x.mean(axis=0)
+    n = len(d_per_q)
+    df = n - 1
     diff = d_per_q.mean() * 100
-    se = d_per_q.std(ddof=1) / np.sqrt(len(d_per_q)) * 100
-    z = diff / se
-    p = 2 * (1 - stats.norm.cdf(abs(z)))
-    return {"diff": diff, "se": se, "ci95": Z * se, "z": z, "p": p}
+    se = d_per_q.std(ddof=1) / np.sqrt(n) * 100
+    t_stat = diff / se if se > 0 else 0.0
+    p = 2 * (1 - stats.t.cdf(abs(t_stat), df=df))
+    t_crit = stats.t.ppf(1 - 0.05 / 2, df=df)
+    return {"diff": diff, "se": se, "ci95": t_crit * se, "t": t_stat, "df": df, "p": p}
 
 
 rows = []
@@ -452,7 +455,7 @@ for label, x, y in [("A vs B (true diff = 0)", scores["A"], scores["B"]), ("A vs
         "comparison": label,
         "obs diff": f"{r['diff']:+.2f}pp",
         "95% CI on diff": f"±{r['ci95']:.2f}pp",
-        "z": f"{r['z']:.2f}",
+        "t": f"{r['t']:.2f}",
         "p-value": f"{r['p']:.4f}",
     })
 pd.DataFrame(rows)
@@ -467,11 +470,13 @@ E_var_per_q = p_middle * 2 * E_u_1_minus_u / N_RUNS
 Var_between_q = UPLIFT * (1 - UPLIFT)
 total_var = E_var_per_q + Var_between_q
 se_paired_t = np.sqrt(total_var / N_QUESTIONS)
-z_H1_t = UPLIFT / se_paired_t
-paired_t_power = stats.norm.cdf(z_H1_t - Z) + stats.norm.cdf(-z_H1_t - Z)
+df_paired_t = N_QUESTIONS - 1
+t_crit = stats.t.ppf(1 - 0.05 / 2, df=df_paired_t)
+t_H1 = UPLIFT / se_paired_t
+paired_t_power = stats.t.cdf(t_H1 - t_crit, df=df_paired_t) + stats.t.cdf(-t_H1 - t_crit, df=df_paired_t)
 
-print(f"SE of 8-run paired-t: {se_paired_t*100:.3f}pp, 95% CI: ±{Z*se_paired_t*100:.3f}pp")
-print(f"Expected z under H1: {z_H1_t:.2f}")
+print(f"SE of 8-run paired-t: {se_paired_t*100:.3f}pp, 95% CI: ±{t_crit*se_paired_t*100:.3f}pp")
+print(f"Expected t under H1: {t_H1:.2f}")
 print(f"Analytical power to detect +1pp uplift: {paired_t_power*100:.1f}%")
 
 # Empirical power: paired-t on 8-run means, A vs C
@@ -490,9 +495,9 @@ print(f"Empirical power over {N_POWER_SIMS} simulated benchmarks: {rejections / 
 
 Any bootstrap method that claims tighter CIs than these on an 8-run dataset is not finding extra information; it is either answering a different question (as with the decoding-only methods (2) and (3) above), or miscalibrated in exactly the way method (3) is.
 
-## Calibration: Power and False Positive across 500 Runs
+## Calibration: Power and False Positive across 2000 Runs
 
-To judge whether each method is actually honest, we measure its false-positive rate and its power across 500 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).
+To judge whether each method is actually honest, we measure its false-positive rate and its power across 2000 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).
 
 ```{python}
 #| code-fold: true
@@ -501,7 +506,7 @@ To judge whether each method is actually honest, we measure its false-positive r
 #| cache: true
 import time
 
-N_SIMS = 500
+N_SIMS = 2000
 N_B = 30             # same bootstrap replicate count across all methods
 
 
@@ -552,9 +557,9 @@ def diff_ci_paired_t_over_runs(s_x, s_y, rng):
 
 
 methods = [
-    ("McNemar (1 run, honest baseline)",    lambda sx, sy, px, py, rng: diff_ci_mcnemar_single_run(sx, sy, rng)),
-    ("Paired-t on 8-run means (honest)",    lambda sx, sy, px, py, rng: diff_ci_paired_t_over_runs(sx, sy, rng)),
-    ("30 independent runs (honest)",        lambda sx, sy, px, py, rng: diff_ci_n_independent(px, py, rng)),
+    ("McNemar's",    lambda sx, sy, px, py, rng: diff_ci_mcnemar_single_run(sx, sy, rng)),
+    ("Paired t-test",    lambda sx, sy, px, py, rng: diff_ci_paired_t_over_runs(sx, sy, rng)),
+    ("30 independent runs",        lambda sx, sy, px, py, rng: diff_ci_n_independent(px, py, rng)),
     ("(1) Question-bootstrap",              lambda sx, sy, px, py, rng: diff_ci_question_bootstrap(sx, sy, rng)),
     ("(2) Run-bootstrap, SE honest",        lambda sx, sy, px, py, rng: diff_ci_run_bootstrap_fixed(sx, sy, rng)),
     ("(3) Run-bootstrap, SE / sqrt(B)",     lambda sx, sy, px, py, rng: diff_ci_run_bootstrap_sqrt_b(sx, sy, rng)),
@@ -603,6 +608,16 @@ The calibration table turns the earlier "these bars look too narrow" intuition i
 Method (1) question-bootstrap lands at the opposite extreme: it resamples A's per-question scores $\bar{x}_q$ and B/C's per-question scores $\bar{y}_q$ with independent question indices, so the difference $\bar{y}_q - \bar{x}_q$ is no longer computed on paired questions. The bimodal between-question variance (easy-vs-hard buckets) is carried into the difference on both sides instead of cancelling through pairing, producing a CI wider than the 1pp signal. That is why it has near-zero power despite being conceptually the "right kind of" bootstrap.
 
 The pragmatic takeaway is that the only methods which are honest AND useful are the paired t-test which exploits pairing to shrink CI and more independent runs which achieve the same thing by increasing the number of samples. Both deliver ~6% false positive rate and power at almost 100% for a 1pp uplift. If you must bootstrap, apply it to the per-question differences $d_q$ directlyーthat is, a paired question-bootstrapーwhich reduces to the same calculation as the paired t-test.
+
+## Two Sneakier Jutsu: Multiple Comparisons and Aggregation
+
+Even if the hypothesis test is honestly specified, two further traps can manufacture a headline uplift out of thin air. Both are worth naming because they travel under the same cover of "we followed best practice".
+
+**Multiple Comparisons no Jutsu** A typical localization benchmark reports accuracy across many slices: languages, subtasks, domains, prompt formats, and so on. If each slice is tested at $\alpha = 0.05$ independently, the family-wise probability of at least one false positive is $1 - (1 - 0.05)^k$; as few as k=5 will return at least one false positive 22.6% of the time. The fix is standard: apply [Bonferroni](https://en.wikipedia.org/wiki/Bonferroni_correction) ($\alpha / k$) or [Holm-Bonferroni](https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method) if you want more power, or [Benjamini-Hochberg](https://en.wikipedia.org/wiki/False_discovery_rate#Controlling_procedures) if you are willing to control false discovery rate instead of family-wise error.
+
+**Selective Aggregation no Jutsu** Suppose a finetuned model is evaluated on 5 languages: English, Mandarin, Japanese, Korean, and Burmese. The base model already handles the four major languages well and the finetuned one makes no real difference on them. But the finetuned model sees a +5pp uplift on Burmese, a small low-resource language with a 200-example test set. The macro-averaged score across the 5 languages is then +1pp, which sounds like a broad win. Under a micro-average (pooling all questions), the ~200 Burmese examples out of a weighted total are even more diluted and the headline reverses to ~0pp. Neither number tells the real story, which is "the finetuning helps on Burmese, does nothing elsewhere, and the Burmese evaluation set is too small to resolve 5pp anyway".
+
+The deception works in both directions. Macro-average lets a single narrow slice carry the narrative; micro-average does the opposite when the improvement is concentrated in one large slice. An honest report states 1) the per-slice effect with its own CI and multiple-comparison correction, 2) the aggregated effect with the weighting scheme specified, and 3) which slices drive the aggregate. If a paper claims "+1pp macro-average" without the per-slice breakdown, assume the aggregate is hiding something until shown otherwise.
 
 ## [The Bike-Shed Effect](https://en.wikipedia.org/wiki/Law_of_triviality)
 
