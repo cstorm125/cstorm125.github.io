@@ -9,8 +9,3634 @@
 <link>https://cstorm125.github.io/</link>
 <atom:link href="https://cstorm125.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>A collection of technical writings on applied science</description>
-<generator>quarto-1.8.26</generator>
-<lastBuildDate>Sun, 05 Oct 2025 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.37</generator>
+<lastBuildDate>Tue, 05 May 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu</title>
+  <dc:creator>cstorm125 </dc:creator>
+  <link>https://cstorm125.github.io/posts/benchmaxxing/</link>
+  <description><![CDATA[ 
+
+
+
+
+<blockquote class="blockquote">
+<p>This series document statistical tomfooleries in AI evaluation that I may or may not have witnessed from “academic researches” and “technical works” in the wild. For educational purposes only. All characters appearing in this work are fictions. Any resemblance to real persons, living or dead, is purely coincidental. Do not try this at home.</p>
+</blockquote>
+<section id="background-on-benchmaxxing-in-the-finetuning-game" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="background-on-benchmaxxing-in-the-finetuning-game">Background on Benchmaxxing in the Finetuning Game</h2>
+<p>Statistical robustness has taken somewhat of a back seat in modern LLM evaluation, and perhaps reasonably so. Frontier benchmarks such as <a href="https://www.swebench.com/original.html#:~:text=SWE%2Dbench%20was%20released%20in,12.47%25%20on%20SWE%2Dbench.">SWE-Bench</a> and <a href="https://epoch.ai/benchmarks/gdpval?view=graph&amp;tab=release-date&amp;metric=win_rate">GDPEval</a> often start near 0% then subsequently jump with new model iterations; for example, 9.9%→30.8% from GPT-4o to o3 medium on GDPEval. We do not need a hypothesis test to tell us that these uplifts are statistically significant at <code>p-value = 0.0000...</code>. Nonetheless, in the shadow of corporate juggernauts vying for foundational model supremacy, the 2nd/3rd-tier players are engaged in more incremental improvements (0.5-1%), one of which is <strong>localizing frontier models</strong>.</p>
+<div class="page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p class="page-columns page-full"><img src="https://cstorm125.github.io/posts/benchmaxxing/point_estimate_benchmark.png" class="img-fluid figure-img column-screen"></p>
+<figcaption>Figure 1: GDPEval needs no hypothesis testing (Left); Yours truly is also not totally innocent about reporting only point estimates (Right)<sup>1</sup></figcaption>
+</figure>
+</div>
+</div>
+<p>The playbook usually goes like this:</p>
+<ol type="1">
+<li><p>Take an open-source, frontier model from a Chinese lab of your choice (Qwen, Deepseek, Kimi, GLM, MiniMax, etc.).</p></li>
+<li><p>Finetune it on your language and/or domain.</p></li>
+<li><p>Test on a self-made/curated local benchmark to show 0.5-1% improvement on the base model.</p></li>
+<li><p>Profit💲💲; literally, as most of these 2nd/3rd-tier players either live off of government funding under the guise of “protecting AI sovereignty”<sup>2</sup> or are trying to convince stakeholders in their domains (usually finance and medical) that their finetuning activities have some value-added, however marginally.</p></li>
+</ol>
+<p>I am all good about people trying to make a living, but this playbook has spawned some undesirable behaviors in AI system evaluation. By nature of these localization projects, the benchmarks are limited in quantity (the most sloppy one I have seen has as few as 100 test examples per task), quality (most benchmarks are curated by the same teams finetuning the models without any rigorous independent oversight, maybe even using a subset of the finetuning set!), and most importantly <strong>the ability to distinguish between a successful finetuning and statistical noise</strong>. Unlike in the case of frontier models where the leap of progress is enormous, claiming success on 0.5-1% difference in point estimates is at best naive and at most unscrupulous. This is especially relevant since these claims could lead to approval of multi-million-USD funding in taxpayer’s money.</p>
+</section>
+<section id="the-synthetic-setup" class="level2">
+<h2 class="anchored" data-anchor-id="the-synthetic-setup">The Synthetic Setup</h2>
+<p>Comparing point estimates might warrant the benefit of the doubt, but artificially narrowing down the confidence intervals by abusing bootstrapping, both conceptually AND mathematically, certainly does not.</p>
+<p>Let us see this in action using a synthetic example of a classification-style benchmark<sup>3</sup> with 4,000 questions. We compare a base model A, a finetuned model that failed B (0pp true uplift in performance), and one that succeeded C (+1pp true uplift in performance). Each model predicts a binary or multiple-choice answer to each question and is scored on accuracy. First, we need a generative process that mirrors what LLM evaluations actually look like. A few empirical anchors shape the setup:</p>
+<ol type="1">
+<li><p><strong>Overall accuracy lands around 57%</strong> across the 4,000 questions for model A. This is roughly where mid-sized models score on a reasonably difficult multi-language benchmark.</p></li>
+<li><p><strong>Answer consistency across runs is high.</strong> <a href="https://arxiv.org/abs/2509.09705">Cavalin et al.&nbsp;(2025)</a> report that medium-sized models like Llama-3.3-70B give the same answer to the same question in 96–98% of repetitions on MMLU at low temperature, with per-run accuracy standard deviations as low as 0.1pp. A ~32B model at low temperature should live in a similar regime on pure MMLU-style tasks, but aggregated multi-task benchmarks typically mix in higher-variance metrics such as ROUGE and win-rate, which pull effective consistency down. We target ~87% pairwise answer consistency so that methods below match reported “confidence intervals” in the wild.</p></li>
+</ol>
+<p>To simulate decoding stochasticity between runs, we draw each question’s latent probability of being answered correctly, <img src="https://latex.codecogs.com/png.latex?p_q">, from a three-component mixture: a fraction of “easy” questions the model always gets right (<img src="https://latex.codecogs.com/png.latex?p_q%20=%201">), a fraction of “hard” questions it always gets wrong (<img src="https://latex.codecogs.com/png.latex?p_q%20=%200">), and a “middle” fraction where <img src="https://latex.codecogs.com/png.latex?p_q%20%5Csim%20%5Ctext%7BUniform%7D(0.2,%200.8)">.</p>
+<p>Each indepedent run for each question is then an independent draw from <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BBernoulli%7D(p_q)">. Crucially, B and C inherit A’s latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A’s “hard” questions into “easy” ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.</p>
+<p>Below are mean observed accuracies, per-run standard deviations and pairwise consistency (how many percentage of 4,000 answers are the same on average) across 8 simulated runs.</p>
+<div id="4587a032" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> scipy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> stats</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> plotnine <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> (</span>
+<span id="cb1-5">    ggplot, aes, geom_point, geom_errorbarh,</span>
+<span id="cb1-6">    facet_wrap, labs, theme_bw, theme, element_text,</span>
+<span id="cb1-7">    scale_color_brewer,</span>
+<span id="cb1-8">)</span>
+<span id="cb1-9"></span>
+<span id="cb1-10">SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20260504</span></span>
+<span id="cb1-11">N_QUESTIONS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4000</span></span>
+<span id="cb1-12">N_RUNS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span></span>
+<span id="cb1-13">Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.96</span></span>
+<span id="cb1-14"></span>
+<span id="cb1-15">A_EASY, A_HARD <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.420</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.280</span></span>
+<span id="cb1-16">UPLIFT <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>                         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># +1pp true uplift for model C</span></span>
+<span id="cb1-17"></span>
+<span id="cb1-18"></span>
+<span id="cb1-19"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> sample_p_q(n: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>, pi_easy: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, pi_hard: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> np.ndarray:</span>
+<span id="cb1-20">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Draw per-question true success probabilities from the 3-mixture."""</span></span>
+<span id="cb1-21">    u <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.random(n)</span>
+<span id="cb1-22">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> np.where(</span>
+<span id="cb1-23">        u <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> pi_easy, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>,</span>
+<span id="cb1-24">        np.where(u <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> pi_easy <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> pi_hard, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span>, rng.uniform(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>n)),</span>
+<span id="cb1-25">    )</span>
+<span id="cb1-26"></span>
+<span id="cb1-27"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> derive_finetune(p_base: np.ndarray, uplift: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> np.ndarray:</span>
+<span id="cb1-28">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Promote a random `uplift` fraction of base's hard questions (p=0) to easy (p=1).</span></span>
+<span id="cb1-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Every other question is unchanged, so the finetune shares latent difficulty with</span></span>
+<span id="cb1-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    the base on (1 - uplift) of the benchmark — the realistic regime for a finetune."""</span></span>
+<span id="cb1-31">    p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_base.copy()</span>
+<span id="cb1-32">    hard_idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.where(p_base <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span>)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb1-33">    n_promote <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(uplift <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(p_base)))</span>
+<span id="cb1-34">    p[rng.choice(hard_idx, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>n_promote, replace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span></span>
+<span id="cb1-35">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> p</span>
+<span id="cb1-36"></span>
+<span id="cb1-37"></span>
+<span id="cb1-38"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> simulate_runs(p_q: np.ndarray, n_runs: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> np.ndarray:</span>
+<span id="cb1-39">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Draw n_runs x n_q independent Bernoulli(p_q) scores."""</span></span>
+<span id="cb1-40">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (rng.random((n_runs, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(p_q))) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_q).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)</span>
+<span id="cb1-41"></span>
+<span id="cb1-42"></span>
+<span id="cb1-43"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> pairwise_consistency(s: np.ndarray) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>:</span>
+<span id="cb1-44">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Fraction of (run_i, run_j) pairs per question that agree, averaged over questions."""</span></span>
+<span id="cb1-45">    n_runs, n_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s.shape</span>
+<span id="cb1-46">    agree <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> total <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb1-47">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(n_runs):</span>
+<span id="cb1-48">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> j <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, n_runs):</span>
+<span id="cb1-49">            agree <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> (s[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> s[j]).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()</span>
+<span id="cb1-50">            total <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> n_q</span>
+<span id="cb1-51">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> agree <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> total</span>
+<span id="cb1-52"></span>
+<span id="cb1-53"></span>
+<span id="cb1-54">rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(SEED)</span>
+<span id="cb1-55">p_A <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, rng)</span>
+<span id="cb1-56">p_B <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_A.copy()                              <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># failed finetune: identical to A</span></span>
+<span id="cb1-57">p_C <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> derive_finetune(p_A, UPLIFT, rng)       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># successful finetune: +1pp true uplift</span></span>
+<span id="cb1-58">p_truth <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>: p_A, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>: p_B, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>: p_C}</span>
+<span id="cb1-59">scores <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {name: simulate_runs(p, N_RUNS, rng) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name, p <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> p_truth.items()}</span>
+<span id="cb1-60"></span>
+<span id="cb1-61"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name, s <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> scores.items():</span>
+<span id="cb1-62">    acc_per_run <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb1-63">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(</span>
+<span id="cb1-64">        <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Model </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>name<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">: true acc </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>p_truth[name]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%, "</span></span>
+<span id="cb1-65">        <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"obs acc </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>acc_per_run<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%, "</span></span>
+<span id="cb1-66">        <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"per-run stdev </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>acc_per_run<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp, "</span></span>
+<span id="cb1-67">        <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"pairwise consistency </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>pairwise_consistency(s)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span></span>
+<span id="cb1-68">    )</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model A: true acc 57.06%, obs acc 56.88%, per-run stdev 0.432pp, pairwise consistency 86.8%
+Model B: true acc 57.06%, obs acc 56.87%, per-run stdev 0.663pp, pairwise consistency 86.7%
+Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consistency 86.6%</code></pre>
+</div>
+</div>
+</section>
+<section id="the-honest-way-mcnemars-test-on-one-run" class="level2">
+<h2 class="anchored" data-anchor-id="the-honest-way-mcnemars-test-on-one-run">The Honest Way: McNemar’s Test on One Run</h2>
+<p>Before reaching for any bootstrap machinery, let us ask the simpler question: if we ran each model <em>once</em> on the same 4,000 questions and applied a proper test, could we detect a 1pp uplift?</p>
+<p>The test for binary-scored paired data is <a href="https://en.wikipedia.org/wiki/McNemar%27s_test">McNemar’s test</a><sup>4</sup>. It looks at the questions where the two models disagreed, called discordant pairs, and asks whether the disagreements lean systematically one way. Questions where both models got the same answer cancel out of the difference, so they contribute nothing to the test statistic, which is exactly why pairing gives tighter confidence intervals than treating the two runs as independent samples. For the single-run case with <img src="https://latex.codecogs.com/png.latex?n_%7B01%7D"> questions where B beat A and <img src="https://latex.codecogs.com/png.latex?n_%7B10%7D"> questions where A beat B, the observed difference in accuracies is <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cdelta%7D%20=%20(n_%7B01%7D%20-%20n_%7B10%7D)/n"> with standard error <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BSE%7D(%5Chat%7B%5Cdelta%7D)%20=%20%5Csqrt%7B(n_%7B01%7D%20+%20n_%7B10%7D)/n%5E2%7D">.</p>
+<div id="9a0e82d5" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> mcnemar_test(x: np.ndarray, y: np.ndarray) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>:</span>
+<span id="cb3-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Paired test on single-run binary scores; returns diff, SE, 95% CI, z, p.</span></span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Implementation note. The textbook McNemar's statistic is chi-squared:</span></span>
+<span id="cb3-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        chi2 = (n01 - n10)**2 / (n01 + n10),  df=1</span></span>
+<span id="cb3-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    We use the algebraically equivalent z-form z = (n01 - n10) / sqrt(n01 + n10),</span></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    which satisfies z**2 = chi2 and produces identical two-sided p-values under</span></span>
+<span id="cb3-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    the normal approximation (sanity-checked against statsmodels in the appendix).</span></span>
+<span id="cb3-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    The z-form is preferred here because we also need a directional SE on the</span></span>
+<span id="cb3-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    accuracy difference in order to build the CI used in the plots.</span></span>
+<span id="cb3-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb3-12">    n10 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>())   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># x right, y wrong</span></span>
+<span id="cb3-13">    n01 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>())   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># x wrong, y right</span></span>
+<span id="cb3-14">    n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(x)</span>
+<span id="cb3-15">    diff <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (y.mean() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x.mean()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb3-16">    se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt(n10 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> n01) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb3-17">    z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> diff <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> se <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span></span>
+<span id="cb3-18">    p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> stats.norm.cdf(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>(z)))</span>
+<span id="cb3-19">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"diff"</span>: diff, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"se"</span>: se, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ci95"</span>: Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: z, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>: p, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n10"</span>: n10, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n01"</span>: n01}</span>
+<span id="cb3-20"></span>
+<span id="cb3-21"></span>
+<span id="cb3-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># One run per model: the honest cheap comparison.</span></span>
+<span id="cb3-23">a0, b0, c0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb3-24">rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb3-25"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> label, x, y <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs B (true diff = 0)"</span>, a0, b0), (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs C (true diff = +1pp)"</span>, a0, c0)]:</span>
+<span id="cb3-26">    r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mcnemar_test(x, y)</span>
+<span id="cb3-27">    rows.append({</span>
+<span id="cb3-28">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"comparison"</span>: label,</span>
+<span id="cb3-29">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"obs diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'diff'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:+.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb3-30">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"95% CI on diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"±</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ci95'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb3-31">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'z'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb3-32">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p-value"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb3-33">    })</span>
+<span id="cb3-34">pd.DataFrame(rows)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comparison</th>
+<th data-quarto-table-cell-role="th">obs diff</th>
+<th data-quarto-table-cell-role="th">95% CI on diff</th>
+<th data-quarto-table-cell-role="th">z</th>
+<th data-quarto-table-cell-role="th">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A vs B (true diff = 0)</td>
+<td>+0.92pp</td>
+<td>±1.11pp</td>
+<td>1.64</td>
+<td>0.101</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>A vs C (true diff = +1pp)</td>
+<td>+2.05pp</td>
+<td>±1.16pp</td>
+<td>3.47</td>
+<td>0.001</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>In this particular simulation the 1pp uplift (A-vs-C) lands at z = 3.47 with p = 0.001, which looks convincing. But that is a single draw of the benchmark. With a different seed, the observed gap will land somewhere else, and that somewhere-else determines whether the test rejects the null or not. To build intuition, let us repeat the single-run comparison five times with different seeds and see what happens.</p>
+<div id="f702fb78" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">trial_rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb4-2"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> trial <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>):</span>
+<span id="cb4-3">    trial_rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> trial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">997</span>)</span>
+<span id="cb4-4">    p_A_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, trial_rng)</span>
+<span id="cb4-5">    p_B_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_A_t.copy()</span>
+<span id="cb4-6">    p_C_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> derive_finetune(p_A_t, UPLIFT, trial_rng)</span>
+<span id="cb4-7">    a1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (trial_rng.random((<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, N_QUESTIONS)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_A_t).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb4-8">    b1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (trial_rng.random((<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, N_QUESTIONS)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_B_t).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb4-9">    c1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (trial_rng.random((<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, N_QUESTIONS)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_C_t).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb4-10"></span>
+<span id="cb4-11">    r_AB <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mcnemar_test(a1, b1)</span>
+<span id="cb4-12">    r_AC <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mcnemar_test(a1, c1)</span>
+<span id="cb4-13">    trial_rows.append({</span>
+<span id="cb4-14">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"trial"</span>: trial <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb4-15">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs B obs diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r_AB[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'diff'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:+.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb4-16">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs B p-value"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r_AB[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb4-17">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs B verdict"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"false positive"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> r_AB[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"correctly ns"</span>,</span>
+<span id="cb4-18">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs C obs diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r_AC[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'diff'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:+.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb4-19">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs C p-value"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r_AC[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb4-20">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs C verdict"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"detected"</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> r_AC[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"missed"</span>,</span>
+<span id="cb4-21">    })</span>
+<span id="cb4-22">pd.DataFrame(trial_rows)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trial</th>
+<th data-quarto-table-cell-role="th">A vs B obs diff</th>
+<th data-quarto-table-cell-role="th">A vs B p-value</th>
+<th data-quarto-table-cell-role="th">A vs B verdict</th>
+<th data-quarto-table-cell-role="th">A vs C obs diff</th>
+<th data-quarto-table-cell-role="th">A vs C p-value</th>
+<th data-quarto-table-cell-role="th">A vs C verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>+0.18pp</td>
+<td>0.764</td>
+<td>correctly ns</td>
+<td>+2.08pp</td>
+<td>0.001</td>
+<td>detected</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2</td>
+<td>+0.35pp</td>
+<td>0.546</td>
+<td>correctly ns</td>
+<td>+1.95pp</td>
+<td>0.001</td>
+<td>detected</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>3</td>
+<td>+0.13pp</td>
+<td>0.826</td>
+<td>correctly ns</td>
+<td>+0.48pp</td>
+<td>0.425</td>
+<td>missed</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>4</td>
+<td>+0.28pp</td>
+<td>0.649</td>
+<td>correctly ns</td>
+<td>+1.12pp</td>
+<td>0.070</td>
+<td>missed</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>5</td>
+<td>-0.02pp</td>
+<td>0.966</td>
+<td>correctly ns</td>
+<td>+0.92pp</td>
+<td>0.118</td>
+<td>missed</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Look at what happened. On the A-vs-B comparison (the two models are identical, true difference = 0), all five trials gave non-significant p-values; no false positives, which is what a calibrated 5% test should deliver most of the time. The observed differences bounced around ±0.3pp from pure decoding noise, but they stayed within the ±1.1pp McNemar’s band so nothing looked like a win.</p>
+<p>The A-vs-C comparison is more interesting. Only 2 of the 5 trials rejected the null at p &lt; 0.05. Trials 1 and 2 happened to catch the +1pp effect, but they overshot; the observed differences were +2.08pp and +1.95pp, roughly twice the true effect, inflated by favorable decoding noise. Trial 3 undershot to +0.48pp and missed entirely (p = 0.43). Trials 4 and 5 landed close to the true +1pp effect but just short of the p&lt;0.05 threshold.</p>
+<p>This is how statistical power works in practice. In this particular case, the signal you are trying to detect is buried in enough noise that you see it clearly only about 40% of the time, even with the correct test. This is not a failing of the McNemar’s test; 4,000 questions is simply too few detect 1pp uplift reliably. No amount of statistical cleverness will change that fundamental limit. This is the uncomfortable truth that drives people toward bootstrap shenanigans.</p>
+<div id="fbeb6c70" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">E_u_1_minus_u <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.28</span>                         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># E[U(1-U)] for U ~ Uniform(0.2, 0.8)</span></span>
+<span id="cb5-2">p_middle <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> A_EASY <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> A_HARD                     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># middle-bucket share</span></span>
+<span id="cb5-3">p_noise_discord <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_middle <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> E_u_1_minus_u         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># per-q one-direction discord from decoding noise</span></span>
+<span id="cb5-4"></span>
+<span id="cb5-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Promotion moves questions from hard (p=0) to easy (p=1), so middle contributes to</span></span>
+<span id="cb5-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># decoding-noise discord on ALL questions (not just (1 - UPLIFT) of them). Promoted</span></span>
+<span id="cb5-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># questions add a deterministic contribution of UPLIFT to p_01.</span></span>
+<span id="cb5-8">p_01 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_noise_discord <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> UPLIFT <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span></span>
+<span id="cb5-9">p_10 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_noise_discord <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> UPLIFT <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span></span>
+<span id="cb5-10">pi_D <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_01 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> p_10                                 <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># expected total discordance rate</span></span>
+<span id="cb5-11">delta <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_01 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> p_10                                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># expected signed difference per question</span></span>
+<span id="cb5-12"></span>
+<span id="cb5-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Under the alternative, z ≈ δ·sqrt(n / π_D); power follows from the normal approximation.</span></span>
+<span id="cb5-14">z_H1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> delta <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> np.sqrt(N_QUESTIONS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> pi_D)</span>
+<span id="cb5-15">mcnemar_power <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> stats.norm.cdf(z_H1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> stats.norm.cdf(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>z_H1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z)</span>
+<span id="cb5-16"></span>
+<span id="cb5-17"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Expected discordance rate π_D: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>pi_D<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%  (of 4,000 questions)"</span>)</span>
+<span id="cb5-18"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Expected signed difference δ: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>delta<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:+.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>)</span>
+<span id="cb5-19"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Expected z under H1: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>z_H1<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb5-20"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Analytical power of McNemar's test to detect +1pp uplift: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>mcnemar_power<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>)</span>
+<span id="cb5-21"></span>
+<span id="cb5-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empirical power: simulate many single-run A-vs-C comparisons and count rejections.</span></span>
+<span id="cb5-23">N_POWER_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span></span>
+<span id="cb5-24">rejections <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb5-25">power_rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">42</span>)</span>
+<span id="cb5-26"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(N_POWER_SIMS):</span>
+<span id="cb5-27">    p_A_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, power_rng)</span>
+<span id="cb5-28">    p_C_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> derive_finetune(p_A_sim, UPLIFT, power_rng)</span>
+<span id="cb5-29">    a_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (power_rng.random(N_QUESTIONS) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_A_sim).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)</span>
+<span id="cb5-30">    c_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (power_rng.random(N_QUESTIONS) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_C_sim).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)</span>
+<span id="cb5-31">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> mcnemar_test(a_sim, c_sim)[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>:</span>
+<span id="cb5-32">        rejections <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb5-33"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Empirical power over </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>N_POWER_SIMS<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> simulated benchmarks: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>rejections <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_POWER_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Expected discordance rate π_D: 14.2%  (of 4,000 questions)
+Expected signed difference δ: +1.00pp
+Expected z under H1: 1.68
+Analytical power of McNemar's test to detect +1pp uplift: 38.9%
+Empirical power over 2000 simulated benchmarks: 37.8%</code></pre>
+</div>
+</div>
+</section>
+<section id="bootstrapping-for-narrower-confidence-intervals-no-jutsu" class="level2">
+<h2 class="anchored" data-anchor-id="bootstrapping-for-narrower-confidence-intervals-no-jutsu">Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu</h2>
+<p>With a 1pp effect sitting at ~40% single-run detection power, the temptation is obvious: pad the story with more statistical smoke and mirrors until the CI looks small. This is where bootstrap procedures start creeping into localization papers. Instead of running a McNemar’s test once and gambling your multi-million government contract with worse odds than a coin flip, why not run it 8 times (just small enough to cherry-pick) and bootstrap (sample with replacement) each question’s answer for 30 hypothetical runs? If you have any exposure to <em>Introduction to Statistics</em>ーor I do not know, common senseーyou would intuitively question how one can infer variations from just 8 independent runs, no matter how many times they re-sample with replacement.</p>
+<p>We walk through three, increasingly more degenerate bootstrap flavors below, each introducing one more shortcut that shrinks the CI without actually adding information. To make the visual differences obvious, we pick a seed<sup>5</sup> where the narrowest method happens to land in its failure mode, one of the parallel-universe benchmarks where it flags the failed finetune model B as significantly different from A even though the two models are structurally identical. This is not to cherry-pick to be unfair; the 500-simulation calibration in the later section confirms that ~40% is the method’s typical false-positive rate (poetically trading off 40% power for 40% false positive rate), not an edge case.</p>
+<div id="78839861" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">DISPLAY_SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20260508</span></span>
+<span id="cb7-2">display_rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(DISPLAY_SEED)</span>
+<span id="cb7-3">p_A_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, display_rng)</span>
+<span id="cb7-4">p_B_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_A_d.copy()</span>
+<span id="cb7-5">p_C_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> derive_finetune(p_A_d, UPLIFT, display_rng)</span>
+<span id="cb7-6">p_truth_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>: p_B_d, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>: p_A_d, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>: p_C_d}</span>
+<span id="cb7-7">scores_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {name: simulate_runs(p, N_RUNS, display_rng) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name, p <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> p_truth_d.items()}</span>
+<span id="cb7-8"></span>
+<span id="cb7-9"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>]:</span>
+<span id="cb7-10">    s <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> scores_d[name]</span>
+<span id="cb7-11">    acc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-12">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Display seed model </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>name<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">: true </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>p_truth_d[name]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%, "</span></span>
+<span id="cb7-13">          <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"obs </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>acc<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%, per-run stdev </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>acc<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Display seed model A: true 55.60%, obs 55.30%, per-run stdev 0.451pp
+Display seed model B: true 55.60%, obs 55.85%, per-run stdev 0.355pp
+Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre>
+</div>
+</div>
+<div id="9e7c20b3" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">N_BOOTSTRAPS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># same B across all bootstrap flavors below</span></span>
+<span id="cb9-2"></span>
+<span id="cb9-3"></span>
+<span id="cb9-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> ci_question_bootstrap(s: np.ndarray, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>]:</span>
+<span id="cb9-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""(1) Question-bootstrap: resample questions with replacement; per-question score = mean of 8 runs.</span></span>
+<span id="cb9-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    The widest of the three and the only one that captures question-sampling variability."""</span></span>
+<span id="cb9-7">    per_q_score <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb9-8">    n_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(per_q_score)</span>
+<span id="cb9-9">    idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_q, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_BOOTSTRAPS, n_q))</span>
+<span id="cb9-10">    replicate_acc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> per_q_score[idx].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-11">    mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> per_q_score.mean()</span>
+<span id="cb9-12">    se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> replicate_acc.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-13">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> mean, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se</span>
+<span id="cb9-14"></span>
+<span id="cb9-15"></span>
+<span id="cb9-16"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> ci_run_bootstrap_fixed(s: np.ndarray, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>]:</span>
+<span id="cb9-17">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""(2) Run-bootstrap with honest SE = stdev(replicates). Resamples runs instead of questions,</span></span>
+<span id="cb9-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    so it measures only decoding noise, not question-sampling variability."""</span></span>
+<span id="cb9-19">    n_runs, n_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s.shape</span>
+<span id="cb9-20">    idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_runs, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_BOOTSTRAPS, n_q))</span>
+<span id="cb9-21">    replicate_acc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s[idx, np.arange(n_q)].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-22">    mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> replicate_acc.mean()</span>
+<span id="cb9-23">    se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> replicate_acc.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-24">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> mean, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se</span>
+<span id="cb9-25"></span>
+<span id="cb9-26"></span>
+<span id="cb9-27"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> ci_run_bootstrap_sqrt_b(s: np.ndarray, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>]:</span>
+<span id="cb9-28">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""(3) Run-bootstrap with SE = stdev(replicates) / sqrt(B). The method in the wild.</span></span>
+<span id="cb9-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Numerator is an 8-run average; denominator pretends to be the SE of a 30-run average."""</span></span>
+<span id="cb9-30">    n_runs, n_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s.shape</span>
+<span id="cb9-31">    idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_runs, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_BOOTSTRAPS, n_q))</span>
+<span id="cb9-32">    replicate_acc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s[idx, np.arange(n_q)].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb9-33">    mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> replicate_acc.mean()</span>
+<span id="cb9-34">    se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> replicate_acc.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> np.sqrt(N_BOOTSTRAPS)</span>
+<span id="cb9-35">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> mean, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se</span>
+<span id="cb9-36"></span>
+<span id="cb9-37"></span>
+<span id="cb9-38">rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb9-39">method_order <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb9-40">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"(1) Question-bootstrap"</span>,</span>
+<span id="cb9-41">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"(2) Run-bootstrap, SE honest"</span>,</span>
+<span id="cb9-42">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"(3) Run-bootstrap, SE / sqrt(B)"</span>,</span>
+<span id="cb9-43">]</span>
+<span id="cb9-44">method_fns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb9-45">    method_order[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]: ci_question_bootstrap,</span>
+<span id="cb9-46">    method_order[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]: ci_run_bootstrap_fixed,</span>
+<span id="cb9-47">    method_order[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]: ci_run_bootstrap_sqrt_b,</span>
+<span id="cb9-48">}</span>
+<span id="cb9-49"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m_idx, name <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>]):</span>
+<span id="cb9-50">    s <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> scores_d[name]</span>
+<span id="cb9-51">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k_idx, method <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(method_order):</span>
+<span id="cb9-52">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Deterministic per-(model, method) seed so the plot is stable across runs.</span></span>
+<span id="cb9-53">        rng_m <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(DISPLAY_SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> m_idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> k_idx)</span>
+<span id="cb9-54">        m, lo, hi <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> method_fns[method](s, rng_m)</span>
+<span id="cb9-55">        rows.append({</span>
+<span id="cb9-56">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>: name,</span>
+<span id="cb9-57">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>: method,</span>
+<span id="cb9-58">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>: m <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb9-59">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lo"</span>: lo <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb9-60">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hi"</span>: hi <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb9-61">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"half_width"</span>: (hi <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> m) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb9-62">        })</span>
+<span id="cb9-63"></span>
+<span id="cb9-64">ci_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(rows)</span>
+<span id="cb9-65">ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"± (95% CI)"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"half_width"</span>].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"±</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb9-66">ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"accuracy"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>)</span>
+<span id="cb9-67">display_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ci_df.pivot(index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>, columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>, values<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"accuracy"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"± (95% CI)"</span>])</span>
+<span id="cb9-68">display_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> display_df.reindex(method_order)</span>
+<span id="cb9-69">display_df</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">accuracy</th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">± (95% CI)</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">model</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+</tr>
+<tr class="header">
+<th data-quarto-table-cell-role="th">method</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">(1) Question-bootstrap</th>
+<td>55.30%</td>
+<td>55.85%</td>
+<td>56.79%</td>
+<td>±1.58</td>
+<td>±1.60</td>
+<td>±1.47</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">(2) Run-bootstrap, SE honest</th>
+<td>55.36%</td>
+<td>55.79%</td>
+<td>56.71%</td>
+<td>±0.81</td>
+<td>±0.77</td>
+<td>±0.85</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">(3) Run-bootstrap, SE / sqrt(B)</th>
+<td>55.20%</td>
+<td>55.80%</td>
+<td>56.75%</td>
+<td>±0.12</td>
+<td>±0.12</td>
+<td>±0.13</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="9ded630e" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.Categorical(ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>], categories<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>method_order, ordered<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb10-2">ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.Categorical(ci_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>], categories<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>], ordered<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb10-3"></span>
+<span id="cb10-4">plot <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb10-5">    ggplot(ci_df, aes(x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean"</span>, y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>))</span>
+<span id="cb10-6">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> geom_errorbarh(aes(xmin<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lo"</span>, xmax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hi"</span>), height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.25</span>, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>)</span>
+<span id="cb10-7">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> geom_point(size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.5</span>)</span>
+<span id="cb10-8">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> facet_wrap(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"~method"</span>, ncol<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, scales<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free_x"</span>)</span>
+<span id="cb10-9">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> scale_color_brewer(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">type</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"qual"</span>, palette<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Set1"</span>, guide<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>)</span>
+<span id="cb10-10">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> labs(</span>
+<span id="cb10-11">        x<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Benchmark accuracy (%)"</span>,</span>
+<span id="cb10-12">        y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Model"</span>,</span>
+<span id="cb10-13">        title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Same data, four confidence intervals"</span>,</span>
+<span id="cb10-14">    )</span>
+<span id="cb10-15">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> theme_bw()</span>
+<span id="cb10-16">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> theme(</span>
+<span id="cb10-17">        strip_text<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>element_text(size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>),</span>
+<span id="cb10-18">        axis_title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>element_text(size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>),</span>
+<span id="cb10-19">        plot_title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>element_text(size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>, weight<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bold"</span>),</span>
+<span id="cb10-20">    )</span>
+<span id="cb10-21">)</span>
+<span id="cb10-22">plot</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://cstorm125.github.io/posts/benchmaxxing/index_files/figure-html/cell-8-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Method (1): question-bootstrap.</strong> We resample questions with replacement, using the mean of 30 runs as each question’s score. The resampling directly simulates drawing a different 4,000-question benchmark from the same distribution, which is exactly the uncertainty we care about when we claim “the finetune is better on XX language/domain”. The CI lands around ±1pp on single-model accuracy. A, B, and C overlap heavily, which correctly reflects that on a 4,000-question benchmark with 87% consistency, resolving a 1pp difference is nearly impossible.</p>
+<p><strong>Method (2): run-bootstrap with honest SE.</strong> Instead of resampling questions, we resample the 8 runs <em>per question</em>: for every bootstrap replicate, each question independently picks one of its 8 observed answers, and the replicate’s accuracy is the mean of those 4,000 picks. This produces a distribution of <strong>“what accuracy would we have gotten on these same 4,000 questions if we had drawn a different decoding seed?”</strong> Note the weirdness baked into the procedure alreadyーFrankenstein run whose question 17 comes from seed 3 and question 42 comes from seed 7ーbut this is exactly the recipe that shows up in the wild, so we faithfully reproduce it.</p>
+<blockquote class="blockquote">
+<p>Now, I would like readers to pause here for a second and think about if we really care about decoding noise so much we would need to engage in this statistical wizardry; the answer is most likely no. But people who are trying to advertise this as a legitimate method either wants you to think so or hopes you would confuse this with what method (1) is trying to do.</p>
+</blockquote>
+<p>Because 87%-consistent models give near-identical answers across runs, the decoding-only CI narrows significantly compared to method (1). A and B still overlap here (correctly), but C at least should outperform A in a statistically significant manner more often. The method has not cheated mathematically, BUT it is misrepresenting decoding noise as variation in the models’ ability to answer questions in the language/domain.</p>
+<p><strong>Method (3): run-bootstrap with SE / √B.</strong> Now what do you do if you want to be EXTRA sure your failed finetuning would still look decent? Same resampling as method (2), but instead of calculating the bootstrapped standard error as standard deviation of the 30 observed accuracies, we further divide it by √B (B=30), as though the 30 bootstrap replicates were 30 independent runs, inflating the test statistics by <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7B30%7D">. The CI drops to ±0.10-0.13pp, about 10x tighter than method (1). The procedure declares the failed finetuned model B significantly better than A. If you glance at it, you may conclude the method can resolve differences at a fraction-of-a-percentage-point scale, but the apparent precision is a product of a fabrication, not of the data.</p>
+</section>
+<section id="the-honest-fix-more-independent-runs-or-paired-t-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-honest-fix-more-independent-runs-or-paired-t-test">The Honest Fix: More Independent Runs or Paired t-Test</h2>
+<p>The three bootstrap methods above span the range from “honest but blunt” (question-bootstrap, wide CI) to “badly miscalibrated” (run-bootstrap /√B, fake precision). None of them delivers a sharp, well-calibrated answer to the question anyone cares about. Two honest alternatives do.</p>
+<p><strong>More Independent Runs.</strong> The most obvious fix is the one the run-bootstrap-with-/√B is dishonestly pretending to simulate: just run the evaluation more times. With 30 real decoding seeds per model on the same 4,000 questions, the SE-of-the-mean across runs gives a properly calibrated CI. Ironically, this is the same CI as the miscalibrated method (3) in the bootstrap section, but now the 30 replicates are actually independent rather than synthesized from 8. Therefore, if your finetuned model really does outperform the baseline, this is the most obvious path to take.</p>
+<div id="ffa72fdd" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> ci_n_independent(p_q: np.ndarray, rng: np.random.Generator) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>]:</span>
+<span id="cb11-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""What n_indep fresh independent runs + SE of the mean actually looks like."""</span></span>
+<span id="cb11-3">    n_indep <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span></span>
+<span id="cb11-4">    extra <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (rng.random((n_indep, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(p_q))) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_q).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)</span>
+<span id="cb11-5">    acc_per_run <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> extra.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb11-6">    mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> acc_per_run.mean()</span>
+<span id="cb11-7">    se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> acc_per_run.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> np.sqrt(n_indep)</span>
+<span id="cb11-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> mean, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se, mean <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se</span>
+<span id="cb11-9"></span>
+<span id="cb11-10"></span>
+<span id="cb11-11">rng_indep <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(DISPLAY_SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">99</span>)</span>
+<span id="cb11-12">rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb11-13"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>]:</span>
+<span id="cb11-14">    m, lo, hi <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ci_n_independent(p_truth_d[name], rng_indep)</span>
+<span id="cb11-15">    rows.append({</span>
+<span id="cb11-16">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"model"</span>: name,</span>
+<span id="cb11-17">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"accuracy"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>m<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>,</span>
+<span id="cb11-18">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"95% CI"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"±</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>(hi<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>m)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb11-19">    })</span>
+<span id="cb11-20">pd.DataFrame(rows)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">model</th>
+<th data-quarto-table-cell-role="th">accuracy</th>
+<th data-quarto-table-cell-role="th">95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A</td>
+<td>55.57%</td>
+<td>±0.12pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>B</td>
+<td>55.65%</td>
+<td>±0.13pp</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>C</td>
+<td>56.61%</td>
+<td>±0.13pp</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><strong>Paired t-Test on 8-run Means.</strong> If 30 runs is not within budget and 8 is all we have, there is still a simple honest test on exactly the same data. For each question <img src="https://latex.codecogs.com/png.latex?q">, compute the mean score across the 8 runs for each model and take the per-question difference:</p>
+<p><img src="https://latex.codecogs.com/png.latex?d_q%20=%20%5Cbar%7By%7D_q%20-%20%5Cbar%7Bx%7D_q"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Cbar%7Bx%7D_q"> and <img src="https://latex.codecogs.com/png.latex?%5Cbar%7By%7D_q"> are A’s and B/C’s 8-run-mean accuracies on question <img src="https://latex.codecogs.com/png.latex?q">. The paired t-test then estimates the overall uplift and its standard error as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cdelta%7D%20=%20%5Cfrac%7B1%7D%7BN_%7B%5Ctext%7Bquestions%7D%7D%7D%5Csum_q%20d_q,%20%5Cqquad%20%5Ctext%7BSE%7D(%5Chat%7B%5Cdelta%7D)%20=%20%5Cfrac%7B%5Ctext%7Bsd%7D(d_q)%7D%7B%5Csqrt%7BN_%7B%5Ctext%7Bquestions%7D%7D%7D%7D"></p>
+<p>Two things conspire to make this powerful. First, ~70% of questions sit in the shared easy/hard buckets where both models answer identically on every run, so <img src="https://latex.codecogs.com/png.latex?d_q%20=%200"> exactly and contributes zero variance; pairing annihilates the common difficulty signal instead of carrying it around. Second, on the ~30% of middle questions where decoding noise actually lives, each <img src="https://latex.codecogs.com/png.latex?d_q"> already averages 8 runs, so its variance shrinks by a factor of <img src="https://latex.codecogs.com/png.latex?N_%7B%5Ctext%7Bruns%7D%7D"> before it even enters the per-question average. Combined with the <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7BN_%7B%5Ctext%7Bquestions%7D%7D%7D"> shrinkage from treating each question as independent, this tightens the CI to around ±0.4–0.52pp. Power jumps from ~40% (single-run McNemar’s test) to ~97% on the same 4,000-question, 8-run dataset.</p>
+<div id="46582364" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> paired_t_over_runs(s_x: np.ndarray, s_y: np.ndarray) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>:</span>
+<span id="cb12-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Paired t-test on per-question mean scores across N_RUNS runs."""</span></span>
+<span id="cb12-3">    d_per_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_y.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> s_x.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb12-4">    diff <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_per_q.mean() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb12-5">    se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_per_q.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> np.sqrt(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(d_per_q)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb12-6">    z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> diff <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> se</span>
+<span id="cb12-7">    p <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> stats.norm.cdf(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>(z)))</span>
+<span id="cb12-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"diff"</span>: diff, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"se"</span>: se, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ci95"</span>: Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: z, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>: p}</span>
+<span id="cb12-9"></span>
+<span id="cb12-10"></span>
+<span id="cb12-11">rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb12-12"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> label, x, y <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs B (true diff = 0)"</span>, scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>], scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>]), (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs C (true diff = +1pp)"</span>, scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>], scores[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>])]:</span>
+<span id="cb12-13">    r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> paired_t_over_runs(x, y)</span>
+<span id="cb12-14">    rows.append({</span>
+<span id="cb12-15">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"comparison"</span>: label,</span>
+<span id="cb12-16">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"obs diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'diff'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:+.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb12-17">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"95% CI on diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"±</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ci95'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb12-18">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"z"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'z'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb12-19">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p-value"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb12-20">    })</span>
+<span id="cb12-21">pd.DataFrame(rows)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comparison</th>
+<th data-quarto-table-cell-role="th">obs diff</th>
+<th data-quarto-table-cell-role="th">95% CI on diff</th>
+<th data-quarto-table-cell-role="th">z</th>
+<th data-quarto-table-cell-role="th">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A vs B (true diff = 0)</td>
+<td>-0.01pp</td>
+<td>±0.40pp</td>
+<td>-0.05</td>
+<td>0.9635</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>A vs C (true diff = +1pp)</td>
+<td>+1.17pp</td>
+<td>±0.52pp</td>
+<td>4.43</td>
+<td>0.0000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="6b42aeb8" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">E_var_per_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_middle <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> E_u_1_minus_u <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_RUNS</span>
+<span id="cb13-2">Var_between_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> UPLIFT <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> UPLIFT)</span>
+<span id="cb13-3">total_var <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> E_var_per_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Var_between_q</span>
+<span id="cb13-4">se_paired_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt(total_var <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_QUESTIONS)</span>
+<span id="cb13-5">z_H1_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> UPLIFT <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> se_paired_t</span>
+<span id="cb13-6">paired_t_power <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> stats.norm.cdf(z_H1_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> stats.norm.cdf(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>z_H1_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Z)</span>
+<span id="cb13-7"></span>
+<span id="cb13-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"SE of 8-run paired-t: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>se_paired_t<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp, 95% CI: ±</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>Z<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>se_paired_t<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>)</span>
+<span id="cb13-9"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Expected z under H1: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>z_H1_t<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb13-10"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Analytical power to detect +1pp uplift: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>paired_t_power<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>)</span>
+<span id="cb13-11"></span>
+<span id="cb13-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empirical power: paired-t on 8-run means, A vs C</span></span>
+<span id="cb13-13">N_POWER_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span></span>
+<span id="cb13-14">rejections <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb13-15">power_rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">43</span>)</span>
+<span id="cb13-16"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(N_POWER_SIMS):</span>
+<span id="cb13-17">    p_A_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, power_rng)</span>
+<span id="cb13-18">    p_C_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> derive_finetune(p_A_sim, UPLIFT, power_rng)</span>
+<span id="cb13-19">    s_A_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> simulate_runs(p_A_sim, N_RUNS, power_rng)</span>
+<span id="cb13-20">    s_C_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> simulate_runs(p_C_sim, N_RUNS, power_rng)</span>
+<span id="cb13-21">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> paired_t_over_runs(s_A_sim, s_C_sim)[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"p"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>:</span>
+<span id="cb13-22">        rejections <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb13-23"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Empirical power over </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>N_POWER_SIMS<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> simulated benchmarks: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>rejections <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_POWER_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SE of 8-run paired-t: 0.257pp, 95% CI: ±0.504pp
+Expected z under H1: 3.89
+Analytical power to detect +1pp uplift: 97.3%
+Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
+</div>
+</div>
+<p>Any bootstrap method that claims tighter CIs than these on an 8-run dataset is not finding extra information; it is either answering a different question (as with the decoding-only methods (2) and (3) above), or miscalibrated in exactly the way method (3) is.</p>
+</section>
+<section id="calibration-power-and-false-positive-across-500-runs" class="level2">
+<h2 class="anchored" data-anchor-id="calibration-power-and-false-positive-across-500-runs">Calibration: Power and False Positive across 500 Runs</h2>
+<p>To judge whether each method is actually honest, we measure its false-positive rate and its power across 500 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).</p>
+<div id="729bc677" class="cell" data-cache="true" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> time</span>
+<span id="cb15-2"></span>
+<span id="cb15-3">N_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span></span>
+<span id="cb15-4">N_B <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>             <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># same bootstrap replicate count across all methods</span></span>
+<span id="cb15-5"></span>
+<span id="cb15-6"></span>
+<span id="cb15-7"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> diff_ci_run_bootstrap_sqrt_b(s_x, s_y, rng):</span>
+<span id="cb15-8">    n_runs, n_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_x.shape</span>
+<span id="cb15-9">    idx_x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_runs, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_B, n_q))</span>
+<span id="cb15-10">    idx_y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_runs, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_B, n_q))</span>
+<span id="cb15-11">    d_b <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_y[idx_y, np.arange(n_q)].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> s_x[idx_x, np.arange(n_q)].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-12">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> d_b.mean(), d_b.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> np.sqrt(N_B)</span>
+<span id="cb15-13"></span>
+<span id="cb15-14"></span>
+<span id="cb15-15"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> diff_ci_n_independent(p_x, p_y, rng):</span>
+<span id="cb15-16">    n_indep <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span></span>
+<span id="cb15-17">    ex <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (rng.random((n_indep, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(p_x))) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_x).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>).mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-18">    ey <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (rng.random((n_indep, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(p_y))) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_y).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>).mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-19">    d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ey <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> ex</span>
+<span id="cb15-20">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> d.mean(), d.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> np.sqrt(n_indep)</span>
+<span id="cb15-21"></span>
+<span id="cb15-22"></span>
+<span id="cb15-23"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> diff_ci_run_bootstrap_fixed(s_x, s_y, rng):</span>
+<span id="cb15-24">    n_runs, n_q <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_x.shape</span>
+<span id="cb15-25">    idx_x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_runs, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_B, n_q))</span>
+<span id="cb15-26">    idx_y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n_runs, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_B, n_q))</span>
+<span id="cb15-27">    d_b <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_y[idx_y, np.arange(n_q)].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> s_x[idx_x, np.arange(n_q)].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-28">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> d_b.mean(), d_b.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-29"></span>
+<span id="cb15-30"></span>
+<span id="cb15-31"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> diff_ci_question_bootstrap(s_x, s_y, rng):</span>
+<span id="cb15-32">    per_q_x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_x.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb15-33">    per_q_y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_y.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb15-34">    n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(per_q_x)</span>
+<span id="cb15-35">    idx_x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_B, n))</span>
+<span id="cb15-36">    idx_y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> rng.integers(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(N_B, n))</span>
+<span id="cb15-37">    d_b <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> per_q_y[idx_y].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> per_q_x[idx_x].mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-38">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (per_q_y.mean() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> per_q_x.mean()), d_b.std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb15-39"></span>
+<span id="cb15-40"></span>
+<span id="cb15-41"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> diff_ci_mcnemar_single_run(s_x, s_y, rng):</span>
+<span id="cb15-42">    x, y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> s_x[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], s_y[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb15-43">    n10 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>())</span>
+<span id="cb15-44">    n01 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>())</span>
+<span id="cb15-45">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (y.mean() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x.mean()), np.sqrt(n10 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> n01) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(x)</span>
+<span id="cb15-46"></span>
+<span id="cb15-47"></span>
+<span id="cb15-48"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> diff_ci_paired_t_over_runs(s_x, s_y, rng):</span>
+<span id="cb15-49">    r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> paired_t_over_runs(s_x, s_y)</span>
+<span id="cb15-50">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"diff"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"se"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb15-51"></span>
+<span id="cb15-52"></span>
+<span id="cb15-53">methods <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb15-54">    (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"McNemar (1 run, honest baseline)"</span>,    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> sx, sy, px, py, rng: diff_ci_mcnemar_single_run(sx, sy, rng)),</span>
+<span id="cb15-55">    (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Paired-t on 8-run means (honest)"</span>,    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> sx, sy, px, py, rng: diff_ci_paired_t_over_runs(sx, sy, rng)),</span>
+<span id="cb15-56">    (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"30 independent runs (honest)"</span>,        <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> sx, sy, px, py, rng: diff_ci_n_independent(px, py, rng)),</span>
+<span id="cb15-57">    (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"(1) Question-bootstrap"</span>,              <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> sx, sy, px, py, rng: diff_ci_question_bootstrap(sx, sy, rng)),</span>
+<span id="cb15-58">    (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"(2) Run-bootstrap, SE honest"</span>,        <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> sx, sy, px, py, rng: diff_ci_run_bootstrap_fixed(sx, sy, rng)),</span>
+<span id="cb15-59">    (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"(3) Run-bootstrap, SE / sqrt(B)"</span>,     <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> sx, sy, px, py, rng: diff_ci_run_bootstrap_sqrt_b(sx, sy, rng)),</span>
+<span id="cb15-60">]</span>
+<span id="cb15-61"></span>
+<span id="cb15-62">power_hits <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {m[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> methods}</span>
+<span id="cb15-63">type1_hits <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {m[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> methods}</span>
+<span id="cb15-64">ci_half_widths <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {m[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]: [] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> m <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> methods}</span>
+<span id="cb15-65"></span>
+<span id="cb15-66">t0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb15-67"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> sim <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(N_SIMS):</span>
+<span id="cb15-68">    sim_rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> sim)</span>
+<span id="cb15-69">    p_A_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, sim_rng)</span>
+<span id="cb15-70">    p_B_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_A_sim.copy()</span>
+<span id="cb15-71">    p_C_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> derive_finetune(p_A_sim, UPLIFT, sim_rng)</span>
+<span id="cb15-72">    s_A_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> simulate_runs(p_A_sim, N_RUNS, sim_rng)</span>
+<span id="cb15-73">    s_B_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> simulate_runs(p_B_sim, N_RUNS, sim_rng)</span>
+<span id="cb15-74">    s_C_sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> simulate_runs(p_C_sim, N_RUNS, sim_rng)</span>
+<span id="cb15-75"></span>
+<span id="cb15-76">    method_rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> sim <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10_000_000</span>)</span>
+<span id="cb15-77">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name, fn <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> methods:</span>
+<span id="cb15-78">        m, se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> fn(s_A_sim, s_C_sim, p_A_sim, p_C_sim, method_rng)</span>
+<span id="cb15-79">        ci_half_widths[name].append(Z <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb15-80">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>(m) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> Z:</span>
+<span id="cb15-81">            power_hits[name] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb15-82">        m, se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> fn(s_A_sim, s_B_sim, p_A_sim, p_B_sim, method_rng)</span>
+<span id="cb15-83">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">abs</span>(m) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> se <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> Z:</span>
+<span id="cb15-84">            type1_hits[name] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb15-85"></span>
+<span id="cb15-86"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Completed </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>N_SIMS<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> simulations in </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>time<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>time() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> t0<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">s</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb15-87"></span>
+<span id="cb15-88">power_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame([</span>
+<span id="cb15-89">    {</span>
+<span id="cb15-90">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"method"</span>: name,</span>
+<span id="cb15-91">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"power (1pp uplift)"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>power_hits[name] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>,</span>
+<span id="cb15-92">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"false positive (0pp)"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>type1_hits[name] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_SIMS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%"</span>,</span>
+<span id="cb15-93">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"median 95% CI on diff"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"±</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>np<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>median(ci_half_widths[name])<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>,</span>
+<span id="cb15-94">    }</span>
+<span id="cb15-95">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> name, _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> methods</span>
+<span id="cb15-96">])</span>
+<span id="cb15-97">power_df</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Completed 500 simulations in 5.1s
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">method</th>
+<th data-quarto-table-cell-role="th">power (1pp uplift)</th>
+<th data-quarto-table-cell-role="th">false positive (0pp)</th>
+<th data-quarto-table-cell-role="th">median 95% CI on diff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>McNemar (1 run, honest baseline)</td>
+<td>35.8%</td>
+<td>5.8%</td>
+<td>±1.17pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Paired-t on 8-run means (honest)</td>
+<td>99.4%</td>
+<td>5.8%</td>
+<td>±0.50pp</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>30 independent runs (honest)</td>
+<td>100.0%</td>
+<td>6.8%</td>
+<td>±0.20pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>(1) Question-bootstrap</td>
+<td>0.4%</td>
+<td>0.0%</td>
+<td>±1.89pp</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>(2) Run-bootstrap, SE honest</td>
+<td>42.8%</td>
+<td>0.0%</td>
+<td>±1.04pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>(3) Run-bootstrap, SE / sqrt(B)</td>
+<td>100.0%</td>
+<td>42.0%</td>
+<td>±0.19pp</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The calibration table turns the earlier “these bars look too narrow” intuition into a concrete indictment. <strong>Method (3), run-bootstrap with /√B rejects the null at over 40% when the two models are truly identical.</strong> If we run it on a finetuned model with zero real improvement and repeat the experiment 100 times with fresh decoding seeds, you will declare “significant uplift over base model” in more than 40 of them. This is not a subtle bias; the test is actively making up differences that are not there. Once fixed in Method (2), the CI becomes too conservative and power significantly drops to the level of a single-run McNemar’s test (~44%).</p>
+<p>Method (1) question-bootstrap lands at the opposite extreme: it resamples A’s per-question scores <img src="https://latex.codecogs.com/png.latex?%5Cbar%7Bx%7D_q"> and B/C’s per-question scores <img src="https://latex.codecogs.com/png.latex?%5Cbar%7By%7D_q"> with independent question indices, so the difference <img src="https://latex.codecogs.com/png.latex?%5Cbar%7By%7D_q%20-%20%5Cbar%7Bx%7D_q"> is no longer computed on paired questions. The bimodal between-question variance (easy-vs-hard buckets) is carried into the difference on both sides instead of cancelling through pairing, producing a CI wider than the 1pp signal. That is why it has near-zero power despite being conceptually the “right kind of” bootstrap.</p>
+<p>The pragmatic takeaway is that the only methods which are honest AND useful are the paired t-test which exploits pairing to shrink CI and more independent runs which achieve the same thing by increasing the number of samples. Both deliver ~6% false positive rate and power at almost 100% for a 1pp uplift. If you must bootstrap, apply it to the per-question differences <img src="https://latex.codecogs.com/png.latex?d_q"> directlyーthat is, a paired question-bootstrapーwhich reduces to the same calculation as the paired t-test.</p>
+</section>
+<section id="the-bike-shed-effect" class="level2">
+<h2 class="anchored" data-anchor-id="the-bike-shed-effect"><a href="https://en.wikipedia.org/wiki/Law_of_triviality">The Bike-Shed Effect</a></h2>
+<p>Large corporations can afford a few million USD of extremely-high-upside, low-probability investments that a small nation cannot. For instance, Walmart’s annual revenue of <a href="https://www.gurufocus.com/stock/WMT/financials">713 billion USD in 2025</a> is 1.2x times Thailand’s GDP. Unfortunately, small nations like Thailand are often the place where government investments are greenlit by the statistical hocus pocus mentioned in this article. I believe the Bike-shed Effect plays an important role. The concept was satirically proposed by Cyril Northcote Parkinson in 1957. He gave an example of a fictional committee whose job was to approve the plans for a nuclear power plant. He posited that they would spend most of their time debating minor but easy-to-understand issues such as what color the bike shed should be, and little on the more important but complex topics such as the systems of the power plant itself. For most government grant committees, or dare I say academic reviewers these days, the nuances of how confidence intervals are derived are akin to the nuclear reactor’s cooling system; technically critical, but opaque and easy to nod along to. What gets the attention instead is the bike shed: a clean bar chart with non-overlapping error bars, a round number like “2.3% uplift over base model”, a story about national AI sovereignty. Reviewers read the headline, check that the CI does not cross zero, and move on. Nobody asks whether the CI came from resampling decoding seeds or questions, let alone whether an extra <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7B30%7D"> was slipped into the denominator along the way.</p>
+<p>The asymmetry is brutal. A team that spends six months building a finetune and papering over its 0.5pp uplift with bootstrap shenanigans walks out with a multi-million-dollar grant; a reviewer who flags the <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7BB%7D"> misuse spends two hours explaining it, gets labeled “difficult”, and gets dropped from the next panel. The incentives point in exactly one direction, and so do the grants.</p>
+<p>This is not really a statistics problem; the statistics have been sorted for decades. McNemar’s test (1947), <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">bootstrap</a> (1979), <a href="https://www.york.ac.uk/depts/maths/histstat/student.pdf">Paired t-tests</a> (1908) are all part of undergraduate-level statistics classes. What is missing is a review culture that treats these tools as load-bearing rather than decorative, and a willingness to say “your 1pp uplift is within the CI of a well-specified test” without the conversation ending there. Until then, the bike shed gets painted on schedule, the reactor keeps leaking, and the taxpayers pay for both.</p>
+</section>
+<section id="appendix" class="level2">
+<h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
+<ol type="1">
+<li><p>To give more contexts on <a href="https://arxiv.org/pdf/2101.09635">WangchanBERTa</a>, we DID claim that “our model wangchanberta-baseatt-spm-uncased trained on the 78.5GB dataset outperforms strong baselines (NBSVM, CRF and ULMFit) and multi-lingual models (XLMR and mBERT) on both sequence classification and token classification tasks in human-annotated, mono-lingual context”, and specifically “outperfroms both strong baselines and other transformer-based architecture on all downstream tasks except Generated Reviews (EN-TH)” and “achieves the highest micro-averaged F1 score in all tasks except POS tagging in ThaiNER dataset”. In hindsight, I would have worded it much more carefully; you live and you learn. Nonetheless, these were task-level descriptions of the empirical results. Unlike some of these recent localizers, we DID NOT use random aggregation magic across 1,000-example or even 100-example test sets to claim to be “the top performing model overall on XX domain”. Our test sets were also reasonably sized, smallest at 621 and largest at 17,453, whereas median is about 5,000 examples, so a McNemar’s or paired t/z-test might also give confidence intervals that arrive at the same conclusion as the point estimates anyways. And last but most importantly, we DID NOT ask for millions of USD in funding off of 1% uplifts in point estimates.</p></li>
+<li><p>Exceptions are sovereign AI labs who DO train foundational models such as <a href="https://arxiv.org/pdf/2308.16149">G42</a> and <a href="https://arxiv.org/abs/2311.16867">TII</a>.</p></li>
+<li><p>This may seem outdated for LLM evaluation but since these localization projects are only interested in adapting to a new language/domain, they treat more advanced capabilities like guardrails rather than objectives and focus on more traditional benchmarks such as <a href="https://huggingface.co/datasets/cais/mmlu">MMLU</a>.</p></li>
+<li><p>The hand-rolled McNemar’s z-test used in the main text is algebraically equivalent to the canonical chi-squared version without continuity correction: <img src="https://latex.codecogs.com/png.latex?z%5E2%20=%20%5Cchi%5E2"> and the two-sided p-values match exactly. Quick sanity check against <code>statsmodels.stats.contingency_tables.mcnemar</code>:</p></li>
+</ol>
+<div id="46413e84" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> statsmodels.stats.contingency_tables <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> mcnemar <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> sm_mcnemar</span>
+<span id="cb17-2"></span>
+<span id="cb17-3">sanity_rows <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb17-4"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> label, x, y <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs B"</span>, a0, b0), (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A vs C"</span>, a0, c0)]:</span>
+<span id="cb17-5">    r <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mcnemar_test(x, y)</span>
+<span id="cb17-6">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># statsmodels expects the 2x2 contingency table:</span></span>
+<span id="cb17-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                       y=0     y=1</span></span>
+<span id="cb17-8">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#               x=0  [ n00  ,  n01 ]</span></span>
+<span id="cb17-9">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#               x=1  [ n10  ,  n11 ]</span></span>
+<span id="cb17-10">    n00 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>())</span>
+<span id="cb17-11">    n11 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> (y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>())</span>
+<span id="cb17-12">    sm <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sm_mcnemar([[n00, r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n01"</span>]], [r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n10"</span>], n11]], exact<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>, correction<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb17-13">    sanity_rows.append({</span>
+<span id="cb17-14">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"comparison"</span>: label,</span>
+<span id="cb17-15">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hand z²"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'z'</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb17-16">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"statsmodels χ²"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>sm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>statistic<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb17-17">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hand p"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>r[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.6f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb17-18">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"statsmodels p"</span>: <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>sm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>pvalue<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.6f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb17-19">    })</span>
+<span id="cb17-20">pd.DataFrame(sanity_rows)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comparison</th>
+<th data-quarto-table-cell-role="th">hand z²</th>
+<th data-quarto-table-cell-role="th">statsmodels χ²</th>
+<th data-quarto-table-cell-role="th">hand p</th>
+<th data-quarto-table-cell-role="th">statsmodels p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A vs B</td>
+<td>2.6896</td>
+<td>2.6896</td>
+<td>0.101006</td>
+<td>0.101006</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>A vs C</td>
+<td>12.0071</td>
+<td>12.0071</td>
+<td>0.000530</td>
+<td>0.000530</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The z-form is preferred in the main text because we also need a directional SE on the accuracy difference to build the CIs plotted in the figures. Chi-squared gives only a non-negative test statistic with no natural SE attached, so we would end up recomputing <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7Bn_%7B01%7D%20+%20n_%7B10%7D%7D/n"> by hand anyway.</p>
+<ol start="5" type="1">
+<li>You may notice that the per-run standard deviations printed for A, B, and C in the display-seed setup cell come out visibly different, despite A and B being structurally identical. This is a sampling artifact of estimating a standard deviation from only 8 observations, not a property of the models. The true per-run standard deviation is the same for all three models because it only depends on the distribution of <img src="https://latex.codecogs.com/png.latex?p_q">, and C’s derivation only swaps a 1% fraction of <code>p_q = 0</code> questions to <code>p_q = 1</code>, both of which contribute zero variance.</li>
+</ol>
+<div id="b24195cb" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># True per-run standard deviation: sqrt(sum_q p_q(1-p_q)) / n</span></span>
+<span id="cb18-2">true_stdev_A <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt((p_A_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> p_A_d)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_QUESTIONS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb18-3">true_stdev_B <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt((p_B_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> p_B_d)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_QUESTIONS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb18-4">true_stdev_C <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt((p_C_d <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> p_C_d)).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> N_QUESTIONS <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb18-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"True per-run stdev A: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>true_stdev_A<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>)</span>
+<span id="cb18-6"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"True per-run stdev B: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>true_stdev_B<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>)</span>
+<span id="cb18-7"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"True per-run stdev C: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>true_stdev_C<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp"</span>)</span>
+<span id="cb18-8"></span>
+<span id="cb18-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empirical 5-95% range of sample stdev at n=8, from 200 fresh 8-run replications of A</span></span>
+<span id="cb18-10">sample_stdevs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb18-11"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> trial <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>):</span>
+<span id="cb18-12">    s <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (np.random.default_rng(DISPLAY_SEED <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> trial).random((N_RUNS, N_QUESTIONS)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> p_A_d).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)</span>
+<span id="cb18-13">    sample_stdevs.append(s.mean(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).std(ddof<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb18-14">sample_stdevs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array(sample_stdevs)</span>
+<span id="cb18-15"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Sample stdev at n=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>N_RUNS<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> (200 replications of A):"</span>)</span>
+<span id="cb18-16"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"  median=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>np<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>median(sample_stdevs)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">pp, "</span></span>
+<span id="cb18-17">      <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"5–95% range=[</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>np<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>percentile(sample_stdevs, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>np<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>percentile(sample_stdevs, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">95</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.3f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">]pp"</span>)</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True per-run stdev A: 0.4123pp
+True per-run stdev B: 0.4123pp
+True per-run stdev C: 0.4123pp
+
+Sample stdev at n=8 (200 replications of A):
+  median=0.395pp, 5–95% range=[0.217, 0.580]pp</code></pre>
+</div>
+</div>
+<p>At <img src="https://latex.codecogs.com/png.latex?n=8"> the sample standard deviation has a coefficient of variation of roughly <img src="https://latex.codecogs.com/png.latex?1%20/%20%5Csqrt%7B2(n-1)%7D%20%5Capprox%200.27">, so any single 8-run evaluation will produce a sample standard deviation anywhere in a fairly wide band around the true value. Reading meaningful differences into the standard deviations of A, B, and C under this kind of sample size is itself a small benchmaxxing trap worth avoiding.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>evaluation</category>
+  <guid>https://cstorm125.github.io/posts/benchmaxxing/</guid>
+  <pubDate>Tue, 05 May 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://cstorm125.github.io/posts/benchmaxxing/featured_image.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>The Beautiful Frisch–Waugh–Lovell Theorem</title>
   <dc:creator>cstorm125 </dc:creator>

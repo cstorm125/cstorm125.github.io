@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="cstorm125">
+<meta name="dcterms.date" content="2026-05-05">
+
+<title>Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu – chariblog</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-fc4c94213751bac0d98b2f984af959e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">chariblog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/cstorm125"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/cstorm125/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://scholar.google.com/citations?user=UX36NGkAAAAJ"> <i class="bi bi-google" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">evaluation</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>cstorm125 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 5, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>This series document statistical tomfooleries in AI evaluation that I may or may not have witnessed from “academic researches” and “technical works” in the wild. For educational purposes only. All characters appearing in this work are fictions. Any resemblance to real persons, living or dead, is purely coincidental. Do not try this at home.</p>
+</blockquote>
+<section id="background-on-benchmaxxing-in-the-finetuning-game" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="background-on-benchmaxxing-in-the-finetuning-game">Background on Benchmaxxing in the Finetuning Game</h2>
+<p>Statistical robustness has taken somewhat of a back seat in modern LLM evaluation, and perhaps reasonably so. Frontier benchmarks such as <a href="https://www.swebench.com/original.html#:~:text=SWE%2Dbench%20was%20released%20in,12.47%25%20on%20SWE%2Dbench.">SWE-Bench</a> and <a href="https://epoch.ai/benchmarks/gdpval?view=graph&amp;tab=release-date&amp;metric=win_rate">GDPEval</a> often start near 0% then subsequently jump with new model iterations; for example, 9.9%→30.8% from GPT-4o to o3 medium on GDPEval. We do not need a hypothesis test to tell us that these uplifts are statistically significant at <code>p-value = 0.0000...</code>. Nonetheless, in the shadow of corporate juggernauts vying for foundational model supremacy, the 2nd/3rd-tier players are engaged in more incremental improvements (0.5-1%), one of which is <strong>localizing frontier models</strong>.</p>
+<div class="page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p class="page-columns page-full"><img src="point_estimate_benchmark.png" class="img-fluid figure-img column-screen"></p>
+<figcaption>Figure 1: GDPEval needs no hypothesis testing (Left); Yours truly is also not totally innocent about reporting only point estimates (Right)<sup>1</sup></figcaption>
+</figure>
+</div>
+</div>
+<p>The playbook usually goes like this:</p>
+<ol type="1">
+<li><p>Take an open-source, frontier model from a Chinese lab of your choice (Qwen, Deepseek, Kimi, GLM, MiniMax, etc.).</p></li>
+<li><p>Finetune it on your language and/or domain.</p></li>
+<li><p>Test on a self-made/curated local benchmark to show 0.5-1% improvement on the base model.</p></li>
+<li><p>Profit💲💲; literally, as most of these 2nd/3rd-tier players either live off of government funding under the guise of “protecting AI sovereignty”<sup>2</sup> or are trying to convince stakeholders in their domains (usually finance and medical) that their finetuning activities have some value-added, however marginally.</p></li>
+</ol>
+<p>I am all good about people trying to make a living, but this playbook has spawned some undesirable behaviors in AI system evaluation. By nature of these localization projects, the benchmarks are limited in quantity (the most sloppy one I have seen has as few as 100 test examples per task), quality (most benchmarks are curated by the same teams finetuning the models without any rigorous independent oversight, maybe even using a subset of the finetuning set!), and most importantly <strong>the ability to distinguish between a successful finetuning and statistical noise</strong>. Unlike in the case of frontier models where the leap of progress is enormous, claiming success on 0.5-1% difference in point estimates is at best naive and at most unscrupulous. This is especially relevant since these claims could lead to approval of multi-million-USD funding in taxpayer’s money.</p>
+</section>
+<section id="the-synthetic-setup" class="level2">
+<h2 class="anchored" data-anchor-id="the-synthetic-setup">The Synthetic Setup</h2>
+<p>Comparing point estimates might warrant the benefit of the doubt, but artificially narrowing down the confidence intervals by abusing bootstrapping, both conceptually AND mathematically, certainly does not.</p>
+<p>Let us see this in action using a synthetic example of a classification-style benchmark<sup>3</sup> with 4,000 questions. We compare a base model A, a finetuned model that failed B (0pp true uplift in performance), and one that succeeded C (+1pp true uplift in performance). Each model predicts a binary or multiple-choice answer to each question and is scored on accuracy. First, we need a generative process that mirrors what LLM evaluations actually look like. A few empirical anchors shape the setup:</p>
+<ol type="1">
+<li><p><strong>Overall accuracy lands around 57%</strong> across the 4,000 questions for model A. This is roughly where mid-sized models score on a reasonably difficult multi-language benchmark.</p></li>
+<li><p><strong>Answer consistency across runs is high.</strong> <a href="https://arxiv.org/abs/2509.09705">Cavalin et al.&nbsp;(2025)</a> report that medium-sized models like Llama-3.3-70B give the same answer to the same question in 96–98% of repetitions on MMLU at low temperature, with per-run accuracy standard deviations as low as 0.1pp. A ~32B model at low temperature should live in a similar regime on pure MMLU-style tasks, but aggregated multi-task benchmarks typically mix in higher-variance metrics such as ROUGE and win-rate, which pull effective consistency down. We target ~87% pairwise answer consistency so that methods below match reported “confidence intervals” in the wild.</p></li>
+</ol>
+<p>To simulate decoding stochasticity between runs, we draw each question’s latent probability of being answered correctly, <span class="math inline">\(p_q\)</span>, from a three-component mixture: a fraction of “easy” questions the model always gets right (<span class="math inline">\(p_q = 1\)</span>), a fraction of “hard” questions it always gets wrong (<span class="math inline">\(p_q = 0\)</span>), and a “middle” fraction where <span class="math inline">\(p_q \sim \text{Uniform}(0.2, 0.8)\)</span>.</p>
+<p>Each indepedent run for each question is then an independent draw from <span class="math inline">\(\text{Bernoulli}(p_q)\)</span>. Crucially, B and C inherit A’s latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A’s “hard” questions into “easy” ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.</p>
+<p>Below are mean observed accuracies, per-run standard deviations and pairwise consistency (how many percentage of 4,000 answers are the same on average) across 8 simulated runs.</p>
+<div id="4587a032" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine <span class="im">import</span> (</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    ggplot, aes, geom_point, geom_errorbarh,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    facet_wrap, labs, theme_bw, theme, element_text,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    scale_color_brewer,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">20260504</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>N_QUESTIONS <span class="op">=</span> <span class="dv">4000</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>N_RUNS <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> <span class="fl">1.96</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>A_EASY, A_HARD <span class="op">=</span> <span class="fl">0.420</span>, <span class="fl">0.280</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>UPLIFT <span class="op">=</span> <span class="fl">0.01</span>                         <span class="co"># +1pp true uplift for model C</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sample_p_q(n: <span class="bu">int</span>, pi_easy: <span class="bu">float</span>, pi_hard: <span class="bu">float</span>, rng: np.random.Generator) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Draw per-question true success probabilities from the 3-mixture."""</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> rng.random(n)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.where(</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        u <span class="op">&lt;</span> pi_easy, <span class="fl">1.0</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        np.where(u <span class="op">&lt;</span> pi_easy <span class="op">+</span> pi_hard, <span class="fl">0.0</span>, rng.uniform(<span class="fl">0.2</span>, <span class="fl">0.8</span>, size<span class="op">=</span>n)),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> derive_finetune(p_base: np.ndarray, uplift: <span class="bu">float</span>, rng: np.random.Generator) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Promote a random `uplift` fraction of base's hard questions (p=0) to easy (p=1).</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">    Every other question is unchanged, so the finetune shares latent difficulty with</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">    the base on (1 - uplift) of the benchmark — the realistic regime for a finetune."""</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> p_base.copy()</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    hard_idx <span class="op">=</span> np.where(p_base <span class="op">==</span> <span class="fl">0.0</span>)[<span class="dv">0</span>]</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    n_promote <span class="op">=</span> <span class="bu">int</span>(<span class="bu">round</span>(uplift <span class="op">*</span> <span class="bu">len</span>(p_base)))</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    p[rng.choice(hard_idx, size<span class="op">=</span>n_promote, replace<span class="op">=</span><span class="va">False</span>)] <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_runs(p_q: np.ndarray, n_runs: <span class="bu">int</span>, rng: np.random.Generator) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Draw n_runs x n_q independent Bernoulli(p_q) scores."""</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (rng.random((n_runs, <span class="bu">len</span>(p_q))) <span class="op">&lt;</span> p_q).astype(<span class="bu">int</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pairwise_consistency(s: np.ndarray) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Fraction of (run_i, run_j) pairs per question that agree, averaged over questions."""</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    n_runs, n_q <span class="op">=</span> s.shape</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    agree <span class="op">=</span> total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_runs):</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, n_runs):</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>            agree <span class="op">+=</span> (s[i] <span class="op">==</span> s[j]).<span class="bu">sum</span>()</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>            total <span class="op">+=</span> n_q</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> agree <span class="op">/</span> total</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(SEED)</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>p_A <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, rng)</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>p_B <span class="op">=</span> p_A.copy()                              <span class="co"># failed finetune: identical to A</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>p_C <span class="op">=</span> derive_finetune(p_A, UPLIFT, rng)       <span class="co"># successful finetune: +1pp true uplift</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>p_truth <span class="op">=</span> {<span class="st">"A"</span>: p_A, <span class="st">"B"</span>: p_B, <span class="st">"C"</span>: p_C}</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> {name: simulate_runs(p, N_RUNS, rng) <span class="cf">for</span> name, p <span class="kw">in</span> p_truth.items()}</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, s <span class="kw">in</span> scores.items():</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    acc_per_run <span class="op">=</span> s.mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"Model </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: true acc </span><span class="sc">{</span>p_truth[name]<span class="sc">.</span>mean()<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%, "</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"obs acc </span><span class="sc">{</span>acc_per_run<span class="sc">.</span>mean()<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%, "</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"per-run stdev </span><span class="sc">{</span>acc_per_run<span class="sc">.</span>std(ddof<span class="op">=</span><span class="dv">1</span>)<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp, "</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"pairwise consistency </span><span class="sc">{</span>pairwise_consistency(s)<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model A: true acc 57.06%, obs acc 56.88%, per-run stdev 0.432pp, pairwise consistency 86.8%
+Model B: true acc 57.06%, obs acc 56.87%, per-run stdev 0.663pp, pairwise consistency 86.7%
+Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consistency 86.6%</code></pre>
+</div>
+</div>
+</section>
+<section id="the-honest-way-mcnemars-test-on-one-run" class="level2">
+<h2 class="anchored" data-anchor-id="the-honest-way-mcnemars-test-on-one-run">The Honest Way: McNemar’s Test on One Run</h2>
+<p>Before reaching for any bootstrap machinery, let us ask the simpler question: if we ran each model <em>once</em> on the same 4,000 questions and applied a proper test, could we detect a 1pp uplift?</p>
+<p>The test for binary-scored paired data is <a href="https://en.wikipedia.org/wiki/McNemar%27s_test">McNemar’s test</a><sup>4</sup>. It looks at the questions where the two models disagreed, called discordant pairs, and asks whether the disagreements lean systematically one way. Questions where both models got the same answer cancel out of the difference, so they contribute nothing to the test statistic, which is exactly why pairing gives tighter confidence intervals than treating the two runs as independent samples. For the single-run case with <span class="math inline">\(n_{01}\)</span> questions where B beat A and <span class="math inline">\(n_{10}\)</span> questions where A beat B, the observed difference in accuracies is <span class="math inline">\(\hat{\delta} = (n_{01} - n_{10})/n\)</span> with standard error <span class="math inline">\(\text{SE}(\hat{\delta}) = \sqrt{(n_{01} + n_{10})/n^2}\)</span>.</p>
+<div id="9a0e82d5" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mcnemar_test(x: np.ndarray, y: np.ndarray) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Paired test on single-run binary scores; returns diff, SE, 95% CI, z, p.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Implementation note. The textbook McNemar's statistic is chi-squared:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">        chi2 = (n01 - n10)**2 / (n01 + n10),  df=1</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    We use the algebraically equivalent z-form z = (n01 - n10) / sqrt(n01 + n10),</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    which satisfies z**2 = chi2 and produces identical two-sided p-values under</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">    the normal approximation (sanity-checked against statsmodels in the appendix).</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">    The z-form is preferred here because we also need a directional SE on the</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">    accuracy difference in order to build the CI used in the plots.</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    n10 <span class="op">=</span> <span class="bu">int</span>(((x <span class="op">==</span> <span class="dv">1</span>) <span class="op">&amp;</span> (y <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">sum</span>())   <span class="co"># x right, y wrong</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    n01 <span class="op">=</span> <span class="bu">int</span>(((x <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (y <span class="op">==</span> <span class="dv">1</span>)).<span class="bu">sum</span>())   <span class="co"># x wrong, y right</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(x)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> (y.mean() <span class="op">-</span> x.mean()) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> np.sqrt(n10 <span class="op">+</span> n01) <span class="op">/</span> n <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> diff <span class="op">/</span> se <span class="cf">if</span> se <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> stats.norm.cdf(<span class="bu">abs</span>(z)))</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"diff"</span>: diff, <span class="st">"se"</span>: se, <span class="st">"ci95"</span>: Z <span class="op">*</span> se, <span class="st">"z"</span>: z, <span class="st">"p"</span>: p, <span class="st">"n10"</span>: n10, <span class="st">"n01"</span>: n01}</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># One run per model: the honest cheap comparison.</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>a0, b0, c0 <span class="op">=</span> scores[<span class="st">"A"</span>][<span class="dv">0</span>], scores[<span class="st">"B"</span>][<span class="dv">0</span>], scores[<span class="st">"C"</span>][<span class="dv">0</span>]</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, x, y <span class="kw">in</span> [(<span class="st">"A vs B (true diff = 0)"</span>, a0, b0), (<span class="st">"A vs C (true diff = +1pp)"</span>, a0, c0)]:</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> mcnemar_test(x, y)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">"comparison"</span>: label,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">"obs diff"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'diff'</span>]<span class="sc">:+.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">"95% CI on diff"</span>: <span class="ss">f"±</span><span class="sc">{</span>r[<span class="st">'ci95'</span>]<span class="sc">:.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">"z"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'z'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">"p-value"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'p'</span>]<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comparison</th>
+<th data-quarto-table-cell-role="th">obs diff</th>
+<th data-quarto-table-cell-role="th">95% CI on diff</th>
+<th data-quarto-table-cell-role="th">z</th>
+<th data-quarto-table-cell-role="th">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A vs B (true diff = 0)</td>
+<td>+0.92pp</td>
+<td>±1.11pp</td>
+<td>1.64</td>
+<td>0.101</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>A vs C (true diff = +1pp)</td>
+<td>+2.05pp</td>
+<td>±1.16pp</td>
+<td>3.47</td>
+<td>0.001</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>In this particular simulation the 1pp uplift (A-vs-C) lands at z = 3.47 with p = 0.001, which looks convincing. But that is a single draw of the benchmark. With a different seed, the observed gap will land somewhere else, and that somewhere-else determines whether the test rejects the null or not. To build intuition, let us repeat the single-run comparison five times with different seeds and see what happens.</p>
+<div id="f702fb78" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>trial_rows <span class="op">=</span> []</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> trial <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    trial_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> trial <span class="op">*</span> <span class="dv">997</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    p_A_t <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, trial_rng)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    p_B_t <span class="op">=</span> p_A_t.copy()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    p_C_t <span class="op">=</span> derive_finetune(p_A_t, UPLIFT, trial_rng)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> (trial_rng.random((<span class="dv">1</span>, N_QUESTIONS)) <span class="op">&lt;</span> p_A_t).astype(<span class="bu">int</span>)[<span class="dv">0</span>]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> (trial_rng.random((<span class="dv">1</span>, N_QUESTIONS)) <span class="op">&lt;</span> p_B_t).astype(<span class="bu">int</span>)[<span class="dv">0</span>]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    c1 <span class="op">=</span> (trial_rng.random((<span class="dv">1</span>, N_QUESTIONS)) <span class="op">&lt;</span> p_C_t).astype(<span class="bu">int</span>)[<span class="dv">0</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    r_AB <span class="op">=</span> mcnemar_test(a1, b1)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    r_AC <span class="op">=</span> mcnemar_test(a1, c1)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    trial_rows.append({</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"trial"</span>: trial <span class="op">+</span> <span class="dv">1</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A vs B obs diff"</span>: <span class="ss">f"</span><span class="sc">{</span>r_AB[<span class="st">'diff'</span>]<span class="sc">:+.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A vs B p-value"</span>: <span class="ss">f"</span><span class="sc">{</span>r_AB[<span class="st">'p'</span>]<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A vs B verdict"</span>: <span class="st">"false positive"</span> <span class="cf">if</span> r_AB[<span class="st">"p"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="cf">else</span> <span class="st">"correctly ns"</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A vs C obs diff"</span>: <span class="ss">f"</span><span class="sc">{</span>r_AC[<span class="st">'diff'</span>]<span class="sc">:+.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A vs C p-value"</span>: <span class="ss">f"</span><span class="sc">{</span>r_AC[<span class="st">'p'</span>]<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"A vs C verdict"</span>: <span class="st">"detected"</span> <span class="cf">if</span> r_AC[<span class="st">"p"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="cf">else</span> <span class="st">"missed"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(trial_rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trial</th>
+<th data-quarto-table-cell-role="th">A vs B obs diff</th>
+<th data-quarto-table-cell-role="th">A vs B p-value</th>
+<th data-quarto-table-cell-role="th">A vs B verdict</th>
+<th data-quarto-table-cell-role="th">A vs C obs diff</th>
+<th data-quarto-table-cell-role="th">A vs C p-value</th>
+<th data-quarto-table-cell-role="th">A vs C verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>+0.18pp</td>
+<td>0.764</td>
+<td>correctly ns</td>
+<td>+2.08pp</td>
+<td>0.001</td>
+<td>detected</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2</td>
+<td>+0.35pp</td>
+<td>0.546</td>
+<td>correctly ns</td>
+<td>+1.95pp</td>
+<td>0.001</td>
+<td>detected</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>3</td>
+<td>+0.13pp</td>
+<td>0.826</td>
+<td>correctly ns</td>
+<td>+0.48pp</td>
+<td>0.425</td>
+<td>missed</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>4</td>
+<td>+0.28pp</td>
+<td>0.649</td>
+<td>correctly ns</td>
+<td>+1.12pp</td>
+<td>0.070</td>
+<td>missed</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>5</td>
+<td>-0.02pp</td>
+<td>0.966</td>
+<td>correctly ns</td>
+<td>+0.92pp</td>
+<td>0.118</td>
+<td>missed</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Look at what happened. On the A-vs-B comparison (the two models are identical, true difference = 0), all five trials gave non-significant p-values; no false positives, which is what a calibrated 5% test should deliver most of the time. The observed differences bounced around ±0.3pp from pure decoding noise, but they stayed within the ±1.1pp McNemar’s band so nothing looked like a win.</p>
+<p>The A-vs-C comparison is more interesting. Only 2 of the 5 trials rejected the null at p &lt; 0.05. Trials 1 and 2 happened to catch the +1pp effect, but they overshot; the observed differences were +2.08pp and +1.95pp, roughly twice the true effect, inflated by favorable decoding noise. Trial 3 undershot to +0.48pp and missed entirely (p = 0.43). Trials 4 and 5 landed close to the true +1pp effect but just short of the p&lt;0.05 threshold.</p>
+<p>This is how statistical power works in practice. In this particular case, the signal you are trying to detect is buried in enough noise that you see it clearly only about 40% of the time, even with the correct test. This is not a failing of the McNemar’s test; 4,000 questions is simply too few detect 1pp uplift reliably. No amount of statistical cleverness will change that fundamental limit. This is the uncomfortable truth that drives people toward bootstrap shenanigans.</p>
+<div id="fbeb6c70" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>E_u_1_minus_u <span class="op">=</span> <span class="fl">0.5</span> <span class="op">-</span> <span class="fl">0.28</span>                         <span class="co"># E[U(1-U)] for U ~ Uniform(0.2, 0.8)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>p_middle <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> A_EASY <span class="op">-</span> A_HARD                     <span class="co"># middle-bucket share</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>p_noise_discord <span class="op">=</span> p_middle <span class="op">*</span> E_u_1_minus_u         <span class="co"># per-q one-direction discord from decoding noise</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Promotion moves questions from hard (p=0) to easy (p=1), so middle contributes to</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># decoding-noise discord on ALL questions (not just (1 - UPLIFT) of them). Promoted</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># questions add a deterministic contribution of UPLIFT to p_01.</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>p_01 <span class="op">=</span> p_noise_discord <span class="op">+</span> UPLIFT <span class="op">*</span> <span class="fl">1.0</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>p_10 <span class="op">=</span> p_noise_discord <span class="op">+</span> UPLIFT <span class="op">*</span> <span class="fl">0.0</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>pi_D <span class="op">=</span> p_01 <span class="op">+</span> p_10                                 <span class="co"># expected total discordance rate</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>delta <span class="op">=</span> p_01 <span class="op">-</span> p_10                                <span class="co"># expected signed difference per question</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Under the alternative, z ≈ δ·sqrt(n / π_D); power follows from the normal approximation.</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>z_H1 <span class="op">=</span> delta <span class="op">*</span> np.sqrt(N_QUESTIONS <span class="op">/</span> pi_D)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>mcnemar_power <span class="op">=</span> stats.norm.cdf(z_H1 <span class="op">-</span> Z) <span class="op">+</span> stats.norm.cdf(<span class="op">-</span>z_H1 <span class="op">-</span> Z)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected discordance rate π_D: </span><span class="sc">{</span>pi_D<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%  (of 4,000 questions)"</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected signed difference δ: </span><span class="sc">{</span>delta<span class="op">*</span><span class="dv">100</span><span class="sc">:+.2f}</span><span class="ss">pp"</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected z under H1: </span><span class="sc">{</span>z_H1<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Analytical power of McNemar's test to detect +1pp uplift: </span><span class="sc">{</span>mcnemar_power<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical power: simulate many single-run A-vs-C comparisons and count rejections.</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>N_POWER_SIMS <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>rejections <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>power_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> <span class="dv">42</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(N_POWER_SIMS):</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    p_A_sim <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, power_rng)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    p_C_sim <span class="op">=</span> derive_finetune(p_A_sim, UPLIFT, power_rng)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    a_sim <span class="op">=</span> (power_rng.random(N_QUESTIONS) <span class="op">&lt;</span> p_A_sim).astype(<span class="bu">int</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    c_sim <span class="op">=</span> (power_rng.random(N_QUESTIONS) <span class="op">&lt;</span> p_C_sim).astype(<span class="bu">int</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mcnemar_test(a_sim, c_sim)[<span class="st">"p"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span>:</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        rejections <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Empirical power over </span><span class="sc">{</span>N_POWER_SIMS<span class="sc">}</span><span class="ss"> simulated benchmarks: </span><span class="sc">{</span>rejections <span class="op">/</span> N_POWER_SIMS <span class="op">*</span> <span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Expected discordance rate π_D: 14.2%  (of 4,000 questions)
+Expected signed difference δ: +1.00pp
+Expected z under H1: 1.68
+Analytical power of McNemar's test to detect +1pp uplift: 38.9%
+Empirical power over 2000 simulated benchmarks: 37.8%</code></pre>
+</div>
+</div>
+</section>
+<section id="bootstrapping-for-narrower-confidence-intervals-no-jutsu" class="level2">
+<h2 class="anchored" data-anchor-id="bootstrapping-for-narrower-confidence-intervals-no-jutsu">Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu</h2>
+<p>With a 1pp effect sitting at ~40% single-run detection power, the temptation is obvious: pad the story with more statistical smoke and mirrors until the CI looks small. This is where bootstrap procedures start creeping into localization papers. Instead of running a McNemar’s test once and gambling your multi-million government contract with worse odds than a coin flip, why not run it 8 times (just small enough to cherry-pick) and bootstrap (sample with replacement) each question’s answer for 30 hypothetical runs? If you have any exposure to <em>Introduction to Statistics</em>ーor I do not know, common senseーyou would intuitively question how one can infer variations from just 8 independent runs, no matter how many times they re-sample with replacement.</p>
+<p>We walk through three, increasingly more degenerate bootstrap flavors below, each introducing one more shortcut that shrinks the CI without actually adding information. To make the visual differences obvious, we pick a seed<sup>5</sup> where the narrowest method happens to land in its failure mode, one of the parallel-universe benchmarks where it flags the failed finetune model B as significantly different from A even though the two models are structurally identical. This is not to cherry-pick to be unfair; the 500-simulation calibration in the later section confirms that ~40% is the method’s typical false-positive rate (poetically trading off 40% power for 40% false positive rate), not an edge case.</p>
+<div id="78839861" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>DISPLAY_SEED <span class="op">=</span> <span class="dv">20260508</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>display_rng <span class="op">=</span> np.random.default_rng(DISPLAY_SEED)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>p_A_d <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, display_rng)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>p_B_d <span class="op">=</span> p_A_d.copy()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>p_C_d <span class="op">=</span> derive_finetune(p_A_d, UPLIFT, display_rng)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>p_truth_d <span class="op">=</span> {<span class="st">"B"</span>: p_B_d, <span class="st">"A"</span>: p_A_d, <span class="st">"C"</span>: p_C_d}</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>scores_d <span class="op">=</span> {name: simulate_runs(p, N_RUNS, display_rng) <span class="cf">for</span> name, p <span class="kw">in</span> p_truth_d.items()}</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name <span class="kw">in</span> [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>]:</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> scores_d[name]</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    acc <span class="op">=</span> s.mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Display seed model </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: true </span><span class="sc">{</span>p_truth_d[name]<span class="sc">.</span>mean()<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%, "</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"obs </span><span class="sc">{</span>acc<span class="sc">.</span>mean()<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%, per-run stdev </span><span class="sc">{</span>acc<span class="sc">.</span>std(ddof<span class="op">=</span><span class="dv">1</span>)<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Display seed model A: true 55.60%, obs 55.30%, per-run stdev 0.451pp
+Display seed model B: true 55.60%, obs 55.85%, per-run stdev 0.355pp
+Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre>
+</div>
+</div>
+<div id="9e7c20b3" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>N_BOOTSTRAPS <span class="op">=</span> <span class="dv">30</span>            <span class="co"># same B across all bootstrap flavors below</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ci_question_bootstrap(s: np.ndarray, rng: np.random.Generator) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>, <span class="bu">float</span>]:</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""(1) Question-bootstrap: resample questions with replacement; per-question score = mean of 8 runs.</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">    The widest of the three and the only one that captures question-sampling variability."""</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    per_q_score <span class="op">=</span> s.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    n_q <span class="op">=</span> <span class="bu">len</span>(per_q_score)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_q, size<span class="op">=</span>(N_BOOTSTRAPS, n_q))</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    replicate_acc <span class="op">=</span> per_q_score[idx].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> per_q_score.mean()</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> replicate_acc.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean, mean <span class="op">-</span> Z <span class="op">*</span> se, mean <span class="op">+</span> Z <span class="op">*</span> se</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ci_run_bootstrap_fixed(s: np.ndarray, rng: np.random.Generator) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>, <span class="bu">float</span>]:</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""(2) Run-bootstrap with honest SE = stdev(replicates). Resamples runs instead of questions,</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">    so it measures only decoding noise, not question-sampling variability."""</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    n_runs, n_q <span class="op">=</span> s.shape</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_runs, size<span class="op">=</span>(N_BOOTSTRAPS, n_q))</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    replicate_acc <span class="op">=</span> s[idx, np.arange(n_q)].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> replicate_acc.mean()</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> replicate_acc.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean, mean <span class="op">-</span> Z <span class="op">*</span> se, mean <span class="op">+</span> Z <span class="op">*</span> se</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ci_run_bootstrap_sqrt_b(s: np.ndarray, rng: np.random.Generator) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>, <span class="bu">float</span>]:</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""(3) Run-bootstrap with SE = stdev(replicates) / sqrt(B). The method in the wild.</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co">    Numerator is an 8-run average; denominator pretends to be the SE of a 30-run average."""</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    n_runs, n_q <span class="op">=</span> s.shape</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_runs, size<span class="op">=</span>(N_BOOTSTRAPS, n_q))</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    replicate_acc <span class="op">=</span> s[idx, np.arange(n_q)].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> replicate_acc.mean()</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> replicate_acc.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(N_BOOTSTRAPS)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean, mean <span class="op">-</span> Z <span class="op">*</span> se, mean <span class="op">+</span> Z <span class="op">*</span> se</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>method_order <span class="op">=</span> [</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"(1) Question-bootstrap"</span>,</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"(2) Run-bootstrap, SE honest"</span>,</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"(3) Run-bootstrap, SE / sqrt(B)"</span>,</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>method_fns <span class="op">=</span> {</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    method_order[<span class="dv">0</span>]: ci_question_bootstrap,</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    method_order[<span class="dv">1</span>]: ci_run_bootstrap_fixed,</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    method_order[<span class="dv">2</span>]: ci_run_bootstrap_sqrt_b,</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> m_idx, name <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>]):</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> scores_d[name]</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k_idx, method <span class="kw">in</span> <span class="bu">enumerate</span>(method_order):</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Deterministic per-(model, method) seed so the plot is stable across runs.</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>        rng_m <span class="op">=</span> np.random.default_rng(DISPLAY_SEED <span class="op">+</span> <span class="dv">1000</span> <span class="op">*</span> m_idx <span class="op">+</span> k_idx)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>        m, lo, hi <span class="op">=</span> method_fns[method](s, rng_m)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>        rows.append({</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>            <span class="st">"model"</span>: name,</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>            <span class="st">"method"</span>: method,</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>            <span class="st">"mean"</span>: m <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>            <span class="st">"lo"</span>: lo <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>            <span class="st">"hi"</span>: hi <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>            <span class="st">"half_width"</span>: (hi <span class="op">-</span> m) <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>ci_df <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>ci_df[<span class="st">"± (95% CI)"</span>] <span class="op">=</span> ci_df[<span class="st">"half_width"</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"±</span><span class="sc">{</span>x<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>ci_df[<span class="st">"accuracy"</span>] <span class="op">=</span> ci_df[<span class="st">"mean"</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.2f}</span><span class="ss">%"</span>)</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>display_df <span class="op">=</span> ci_df.pivot(index<span class="op">=</span><span class="st">"method"</span>, columns<span class="op">=</span><span class="st">"model"</span>, values<span class="op">=</span>[<span class="st">"accuracy"</span>, <span class="st">"± (95% CI)"</span>])</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>display_df <span class="op">=</span> display_df.reindex(method_order)</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>display_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">accuracy</th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">± (95% CI)</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">model</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+</tr>
+<tr class="header">
+<th data-quarto-table-cell-role="th">method</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">(1) Question-bootstrap</th>
+<td>55.30%</td>
+<td>55.85%</td>
+<td>56.79%</td>
+<td>±1.58</td>
+<td>±1.60</td>
+<td>±1.47</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">(2) Run-bootstrap, SE honest</th>
+<td>55.36%</td>
+<td>55.79%</td>
+<td>56.71%</td>
+<td>±0.81</td>
+<td>±0.77</td>
+<td>±0.85</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">(3) Run-bootstrap, SE / sqrt(B)</th>
+<td>55.20%</td>
+<td>55.80%</td>
+<td>56.75%</td>
+<td>±0.12</td>
+<td>±0.12</td>
+<td>±0.13</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="9ded630e" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ci_df[<span class="st">"method"</span>] <span class="op">=</span> pd.Categorical(ci_df[<span class="st">"method"</span>], categories<span class="op">=</span>method_order, ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ci_df[<span class="st">"model"</span>] <span class="op">=</span> pd.Categorical(ci_df[<span class="st">"model"</span>], categories<span class="op">=</span>[<span class="st">"C"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>plot <span class="op">=</span> (</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    ggplot(ci_df, aes(x<span class="op">=</span><span class="st">"mean"</span>, y<span class="op">=</span><span class="st">"model"</span>, color<span class="op">=</span><span class="st">"model"</span>))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_errorbarh(aes(xmin<span class="op">=</span><span class="st">"lo"</span>, xmax<span class="op">=</span><span class="st">"hi"</span>), height<span class="op">=</span><span class="fl">0.25</span>, size<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> geom_point(size<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> facet_wrap(<span class="st">"~method"</span>, ncol<span class="op">=</span><span class="dv">1</span>, scales<span class="op">=</span><span class="st">"free_x"</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> scale_color_brewer(<span class="bu">type</span><span class="op">=</span><span class="st">"qual"</span>, palette<span class="op">=</span><span class="st">"Set1"</span>, guide<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> labs(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="st">"Benchmark accuracy (%)"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="st">"Model"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"Same data, four confidence intervals"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme_bw()</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme(</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        strip_text<span class="op">=</span>element_text(size<span class="op">=</span><span class="dv">10</span>),</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        axis_title<span class="op">=</span>element_text(size<span class="op">=</span><span class="dv">10</span>),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        plot_title<span class="op">=</span>element_text(size<span class="op">=</span><span class="dv">12</span>, weight<span class="op">=</span><span class="st">"bold"</span>),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" width="672" height="480" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Method (1): question-bootstrap.</strong> We resample questions with replacement, using the mean of 30 runs as each question’s score. The resampling directly simulates drawing a different 4,000-question benchmark from the same distribution, which is exactly the uncertainty we care about when we claim “the finetune is better on XX language/domain”. The CI lands around ±1pp on single-model accuracy. A, B, and C overlap heavily, which correctly reflects that on a 4,000-question benchmark with 87% consistency, resolving a 1pp difference is nearly impossible.</p>
+<p><strong>Method (2): run-bootstrap with honest SE.</strong> Instead of resampling questions, we resample the 8 runs <em>per question</em>: for every bootstrap replicate, each question independently picks one of its 8 observed answers, and the replicate’s accuracy is the mean of those 4,000 picks. This produces a distribution of <strong>“what accuracy would we have gotten on these same 4,000 questions if we had drawn a different decoding seed?”</strong> Note the weirdness baked into the procedure alreadyーFrankenstein run whose question 17 comes from seed 3 and question 42 comes from seed 7ーbut this is exactly the recipe that shows up in the wild, so we faithfully reproduce it.</p>
+<blockquote class="blockquote">
+<p>Now, I would like readers to pause here for a second and think about if we really care about decoding noise so much we would need to engage in this statistical wizardry; the answer is most likely no. But people who are trying to advertise this as a legitimate method either wants you to think so or hopes you would confuse this with what method (1) is trying to do.</p>
+</blockquote>
+<p>Because 87%-consistent models give near-identical answers across runs, the decoding-only CI narrows significantly compared to method (1). A and B still overlap here (correctly), but C at least should outperform A in a statistically significant manner more often. The method has not cheated mathematically, BUT it is misrepresenting decoding noise as variation in the models’ ability to answer questions in the language/domain.</p>
+<p><strong>Method (3): run-bootstrap with SE / √B.</strong> Now what do you do if you want to be EXTRA sure your failed finetuning would still look decent? Same resampling as method (2), but instead of calculating the bootstrapped standard error as standard deviation of the 30 observed accuracies, we further divide it by √B (B=30), as though the 30 bootstrap replicates were 30 independent runs, inflating the test statistics by <span class="math inline">\(\sqrt{30}\)</span>. The CI drops to ±0.10-0.13pp, about 10x tighter than method (1). The procedure declares the failed finetuned model B significantly better than A. If you glance at it, you may conclude the method can resolve differences at a fraction-of-a-percentage-point scale, but the apparent precision is a product of a fabrication, not of the data.</p>
+</section>
+<section id="the-honest-fix-more-independent-runs-or-paired-t-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-honest-fix-more-independent-runs-or-paired-t-test">The Honest Fix: More Independent Runs or Paired t-Test</h2>
+<p>The three bootstrap methods above span the range from “honest but blunt” (question-bootstrap, wide CI) to “badly miscalibrated” (run-bootstrap /√B, fake precision). None of them delivers a sharp, well-calibrated answer to the question anyone cares about. Two honest alternatives do.</p>
+<p><strong>More Independent Runs.</strong> The most obvious fix is the one the run-bootstrap-with-/√B is dishonestly pretending to simulate: just run the evaluation more times. With 30 real decoding seeds per model on the same 4,000 questions, the SE-of-the-mean across runs gives a properly calibrated CI. Ironically, this is the same CI as the miscalibrated method (3) in the bootstrap section, but now the 30 replicates are actually independent rather than synthesized from 8. Therefore, if your finetuned model really does outperform the baseline, this is the most obvious path to take.</p>
+<div id="ffa72fdd" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ci_n_independent(p_q: np.ndarray, rng: np.random.Generator) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>, <span class="bu">float</span>]:</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""What n_indep fresh independent runs + SE of the mean actually looks like."""</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    n_indep <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    extra <span class="op">=</span> (rng.random((n_indep, <span class="bu">len</span>(p_q))) <span class="op">&lt;</span> p_q).astype(<span class="bu">int</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    acc_per_run <span class="op">=</span> extra.mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> acc_per_run.mean()</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> acc_per_run.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(n_indep)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean, mean <span class="op">-</span> Z <span class="op">*</span> se, mean <span class="op">+</span> Z <span class="op">*</span> se</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>rng_indep <span class="op">=</span> np.random.default_rng(DISPLAY_SEED <span class="op">+</span> <span class="dv">99</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name <span class="kw">in</span> [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>]:</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    m, lo, hi <span class="op">=</span> ci_n_independent(p_truth_d[name], rng_indep)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"model"</span>: name,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"accuracy"</span>: <span class="ss">f"</span><span class="sc">{</span>m<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%"</span>,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"95% CI"</span>: <span class="ss">f"±</span><span class="sc">{</span>(hi<span class="op">-</span>m)<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">model</th>
+<th data-quarto-table-cell-role="th">accuracy</th>
+<th data-quarto-table-cell-role="th">95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A</td>
+<td>55.57%</td>
+<td>±0.12pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>B</td>
+<td>55.65%</td>
+<td>±0.13pp</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>C</td>
+<td>56.61%</td>
+<td>±0.13pp</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><strong>Paired t-Test on 8-run Means.</strong> If 30 runs is not within budget and 8 is all we have, there is still a simple honest test on exactly the same data. For each question <span class="math inline">\(q\)</span>, compute the mean score across the 8 runs for each model and take the per-question difference:</p>
+<p><span class="math display">\[d_q = \bar{y}_q - \bar{x}_q\]</span></p>
+<p>where <span class="math inline">\(\bar{x}_q\)</span> and <span class="math inline">\(\bar{y}_q\)</span> are A’s and B/C’s 8-run-mean accuracies on question <span class="math inline">\(q\)</span>. The paired t-test then estimates the overall uplift and its standard error as:</p>
+<p><span class="math display">\[\hat{\delta} = \frac{1}{N_{\text{questions}}}\sum_q d_q, \qquad \text{SE}(\hat{\delta}) = \frac{\text{sd}(d_q)}{\sqrt{N_{\text{questions}}}}\]</span></p>
+<p>Two things conspire to make this powerful. First, ~70% of questions sit in the shared easy/hard buckets where both models answer identically on every run, so <span class="math inline">\(d_q = 0\)</span> exactly and contributes zero variance; pairing annihilates the common difficulty signal instead of carrying it around. Second, on the ~30% of middle questions where decoding noise actually lives, each <span class="math inline">\(d_q\)</span> already averages 8 runs, so its variance shrinks by a factor of <span class="math inline">\(N_{\text{runs}}\)</span> before it even enters the per-question average. Combined with the <span class="math inline">\(\sqrt{N_{\text{questions}}}\)</span> shrinkage from treating each question as independent, this tightens the CI to around ±0.4–0.52pp. Power jumps from ~40% (single-run McNemar’s test) to ~97% on the same 4,000-question, 8-run dataset.</p>
+<div id="46582364" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> paired_t_over_runs(s_x: np.ndarray, s_y: np.ndarray) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Paired t-test on per-question mean scores across N_RUNS runs."""</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    d_per_q <span class="op">=</span> s_y.mean(axis<span class="op">=</span><span class="dv">0</span>) <span class="op">-</span> s_x.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> d_per_q.mean() <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> d_per_q.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(<span class="bu">len</span>(d_per_q)) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> diff <span class="op">/</span> se</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> stats.norm.cdf(<span class="bu">abs</span>(z)))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"diff"</span>: diff, <span class="st">"se"</span>: se, <span class="st">"ci95"</span>: Z <span class="op">*</span> se, <span class="st">"z"</span>: z, <span class="st">"p"</span>: p}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, x, y <span class="kw">in</span> [(<span class="st">"A vs B (true diff = 0)"</span>, scores[<span class="st">"A"</span>], scores[<span class="st">"B"</span>]), (<span class="st">"A vs C (true diff = +1pp)"</span>, scores[<span class="st">"A"</span>], scores[<span class="st">"C"</span>])]:</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> paired_t_over_runs(x, y)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"comparison"</span>: label,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"obs diff"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'diff'</span>]<span class="sc">:+.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"95% CI on diff"</span>: <span class="ss">f"±</span><span class="sc">{</span>r[<span class="st">'ci95'</span>]<span class="sc">:.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"z"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'z'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"p-value"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'p'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comparison</th>
+<th data-quarto-table-cell-role="th">obs diff</th>
+<th data-quarto-table-cell-role="th">95% CI on diff</th>
+<th data-quarto-table-cell-role="th">z</th>
+<th data-quarto-table-cell-role="th">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A vs B (true diff = 0)</td>
+<td>-0.01pp</td>
+<td>±0.40pp</td>
+<td>-0.05</td>
+<td>0.9635</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>A vs C (true diff = +1pp)</td>
+<td>+1.17pp</td>
+<td>±0.52pp</td>
+<td>4.43</td>
+<td>0.0000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="6b42aeb8" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>E_var_per_q <span class="op">=</span> p_middle <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> E_u_1_minus_u <span class="op">/</span> N_RUNS</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Var_between_q <span class="op">=</span> UPLIFT <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> UPLIFT)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>total_var <span class="op">=</span> E_var_per_q <span class="op">+</span> Var_between_q</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>se_paired_t <span class="op">=</span> np.sqrt(total_var <span class="op">/</span> N_QUESTIONS)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>z_H1_t <span class="op">=</span> UPLIFT <span class="op">/</span> se_paired_t</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>paired_t_power <span class="op">=</span> stats.norm.cdf(z_H1_t <span class="op">-</span> Z) <span class="op">+</span> stats.norm.cdf(<span class="op">-</span>z_H1_t <span class="op">-</span> Z)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SE of 8-run paired-t: </span><span class="sc">{</span>se_paired_t<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp, 95% CI: ±</span><span class="sc">{</span>Z<span class="op">*</span>se_paired_t<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp"</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected z under H1: </span><span class="sc">{</span>z_H1_t<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Analytical power to detect +1pp uplift: </span><span class="sc">{</span>paired_t_power<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical power: paired-t on 8-run means, A vs C</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>N_POWER_SIMS <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>rejections <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>power_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> <span class="dv">43</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(N_POWER_SIMS):</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    p_A_sim <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, power_rng)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    p_C_sim <span class="op">=</span> derive_finetune(p_A_sim, UPLIFT, power_rng)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    s_A_sim <span class="op">=</span> simulate_runs(p_A_sim, N_RUNS, power_rng)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    s_C_sim <span class="op">=</span> simulate_runs(p_C_sim, N_RUNS, power_rng)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> paired_t_over_runs(s_A_sim, s_C_sim)[<span class="st">"p"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span>:</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        rejections <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Empirical power over </span><span class="sc">{</span>N_POWER_SIMS<span class="sc">}</span><span class="ss"> simulated benchmarks: </span><span class="sc">{</span>rejections <span class="op">/</span> N_POWER_SIMS <span class="op">*</span> <span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SE of 8-run paired-t: 0.257pp, 95% CI: ±0.504pp
+Expected z under H1: 3.89
+Analytical power to detect +1pp uplift: 97.3%
+Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
+</div>
+</div>
+<p>Any bootstrap method that claims tighter CIs than these on an 8-run dataset is not finding extra information; it is either answering a different question (as with the decoding-only methods (2) and (3) above), or miscalibrated in exactly the way method (3) is.</p>
+</section>
+<section id="calibration-power-and-false-positive-across-500-runs" class="level2">
+<h2 class="anchored" data-anchor-id="calibration-power-and-false-positive-across-500-runs">Calibration: Power and False Positive across 500 Runs</h2>
+<p>To judge whether each method is actually honest, we measure its false-positive rate and its power across 500 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).</p>
+<div id="729bc677" class="cell" data-cache="true" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>N_SIMS <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>N_B <span class="op">=</span> <span class="dv">30</span>             <span class="co"># same bootstrap replicate count across all methods</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff_ci_run_bootstrap_sqrt_b(s_x, s_y, rng):</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    n_runs, n_q <span class="op">=</span> s_x.shape</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    idx_x <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_runs, size<span class="op">=</span>(N_B, n_q))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    idx_y <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_runs, size<span class="op">=</span>(N_B, n_q))</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    d_b <span class="op">=</span> s_y[idx_y, np.arange(n_q)].mean(axis<span class="op">=</span><span class="dv">1</span>) <span class="op">-</span> s_x[idx_x, np.arange(n_q)].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d_b.mean(), d_b.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(N_B)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff_ci_n_independent(p_x, p_y, rng):</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    n_indep <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    ex <span class="op">=</span> (rng.random((n_indep, <span class="bu">len</span>(p_x))) <span class="op">&lt;</span> p_x).astype(<span class="bu">int</span>).mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    ey <span class="op">=</span> (rng.random((n_indep, <span class="bu">len</span>(p_y))) <span class="op">&lt;</span> p_y).astype(<span class="bu">int</span>).mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> ey <span class="op">-</span> ex</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d.mean(), d.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(n_indep)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff_ci_run_bootstrap_fixed(s_x, s_y, rng):</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    n_runs, n_q <span class="op">=</span> s_x.shape</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    idx_x <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_runs, size<span class="op">=</span>(N_B, n_q))</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    idx_y <span class="op">=</span> rng.integers(<span class="dv">0</span>, n_runs, size<span class="op">=</span>(N_B, n_q))</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    d_b <span class="op">=</span> s_y[idx_y, np.arange(n_q)].mean(axis<span class="op">=</span><span class="dv">1</span>) <span class="op">-</span> s_x[idx_x, np.arange(n_q)].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d_b.mean(), d_b.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff_ci_question_bootstrap(s_x, s_y, rng):</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    per_q_x <span class="op">=</span> s_x.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    per_q_y <span class="op">=</span> s_y.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(per_q_x)</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    idx_x <span class="op">=</span> rng.integers(<span class="dv">0</span>, n, size<span class="op">=</span>(N_B, n))</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    idx_y <span class="op">=</span> rng.integers(<span class="dv">0</span>, n, size<span class="op">=</span>(N_B, n))</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>    d_b <span class="op">=</span> per_q_y[idx_y].mean(axis<span class="op">=</span><span class="dv">1</span>) <span class="op">-</span> per_q_x[idx_x].mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (per_q_y.mean() <span class="op">-</span> per_q_x.mean()), d_b.std(ddof<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff_ci_mcnemar_single_run(s_x, s_y, rng):</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    x, y <span class="op">=</span> s_x[<span class="dv">0</span>], s_y[<span class="dv">0</span>]</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>    n10 <span class="op">=</span> <span class="bu">int</span>(((x <span class="op">==</span> <span class="dv">1</span>) <span class="op">&amp;</span> (y <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">sum</span>())</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>    n01 <span class="op">=</span> <span class="bu">int</span>(((x <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (y <span class="op">==</span> <span class="dv">1</span>)).<span class="bu">sum</span>())</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (y.mean() <span class="op">-</span> x.mean()), np.sqrt(n10 <span class="op">+</span> n01) <span class="op">/</span> <span class="bu">len</span>(x)</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff_ci_paired_t_over_runs(s_x, s_y, rng):</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> paired_t_over_runs(s_x, s_y)</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> r[<span class="st">"diff"</span>] <span class="op">/</span> <span class="dv">100</span>, r[<span class="st">"se"</span>] <span class="op">/</span> <span class="dv">100</span></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>methods <span class="op">=</span> [</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"McNemar (1 run, honest baseline)"</span>,    <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_mcnemar_single_run(sx, sy, rng)),</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Paired-t on 8-run means (honest)"</span>,    <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_paired_t_over_runs(sx, sy, rng)),</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"30 independent runs (honest)"</span>,        <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_n_independent(px, py, rng)),</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"(1) Question-bootstrap"</span>,              <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_question_bootstrap(sx, sy, rng)),</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"(2) Run-bootstrap, SE honest"</span>,        <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_run_bootstrap_fixed(sx, sy, rng)),</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"(3) Run-bootstrap, SE / sqrt(B)"</span>,     <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_run_bootstrap_sqrt_b(sx, sy, rng)),</span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>power_hits <span class="op">=</span> {m[<span class="dv">0</span>]: <span class="dv">0</span> <span class="cf">for</span> m <span class="kw">in</span> methods}</span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>type1_hits <span class="op">=</span> {m[<span class="dv">0</span>]: <span class="dv">0</span> <span class="cf">for</span> m <span class="kw">in</span> methods}</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>ci_half_widths <span class="op">=</span> {m[<span class="dv">0</span>]: [] <span class="cf">for</span> m <span class="kw">in</span> methods}</span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> time.time()</span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sim <span class="kw">in</span> <span class="bu">range</span>(N_SIMS):</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>    sim_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> sim)</span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>    p_A_sim <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, sim_rng)</span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>    p_B_sim <span class="op">=</span> p_A_sim.copy()</span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>    p_C_sim <span class="op">=</span> derive_finetune(p_A_sim, UPLIFT, sim_rng)</span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a>    s_A_sim <span class="op">=</span> simulate_runs(p_A_sim, N_RUNS, sim_rng)</span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>    s_B_sim <span class="op">=</span> simulate_runs(p_B_sim, N_RUNS, sim_rng)</span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a>    s_C_sim <span class="op">=</span> simulate_runs(p_C_sim, N_RUNS, sim_rng)</span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>    method_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> sim <span class="op">+</span> <span class="dv">10_000_000</span>)</span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, fn <span class="kw">in</span> methods:</span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a>        m, se <span class="op">=</span> fn(s_A_sim, s_C_sim, p_A_sim, p_C_sim, method_rng)</span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a>        ci_half_widths[name].append(Z <span class="op">*</span> se <span class="op">*</span> <span class="dv">100</span>)</span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> se <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="bu">abs</span>(m) <span class="op">/</span> se <span class="op">&gt;</span> Z:</span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a>            power_hits[name] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a>        m, se <span class="op">=</span> fn(s_A_sim, s_B_sim, p_A_sim, p_B_sim, method_rng)</span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> se <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="bu">abs</span>(m) <span class="op">/</span> se <span class="op">&gt;</span> Z:</span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>            type1_hits[name] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Completed </span><span class="sc">{</span>N_SIMS<span class="sc">}</span><span class="ss"> simulations in </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> t0<span class="sc">:.1f}</span><span class="ss">s</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a>power_df <span class="op">=</span> pd.DataFrame([</span>
+<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>        <span class="st">"method"</span>: name,</span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>        <span class="st">"power (1pp uplift)"</span>: <span class="ss">f"</span><span class="sc">{</span>power_hits[name] <span class="op">/</span> N_SIMS <span class="op">*</span> <span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>,</span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>        <span class="st">"false positive (0pp)"</span>: <span class="ss">f"</span><span class="sc">{</span>type1_hits[name] <span class="op">/</span> N_SIMS <span class="op">*</span> <span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>,</span>
+<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a>        <span class="st">"median 95% CI on diff"</span>: <span class="ss">f"±</span><span class="sc">{</span>np<span class="sc">.</span>median(ci_half_widths[name])<span class="sc">:.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, _ <span class="kw">in</span> methods</span>
+<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>power_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Completed 500 simulations in 5.1s
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">method</th>
+<th data-quarto-table-cell-role="th">power (1pp uplift)</th>
+<th data-quarto-table-cell-role="th">false positive (0pp)</th>
+<th data-quarto-table-cell-role="th">median 95% CI on diff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>McNemar (1 run, honest baseline)</td>
+<td>35.8%</td>
+<td>5.8%</td>
+<td>±1.17pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>Paired-t on 8-run means (honest)</td>
+<td>99.4%</td>
+<td>5.8%</td>
+<td>±0.50pp</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>30 independent runs (honest)</td>
+<td>100.0%</td>
+<td>6.8%</td>
+<td>±0.20pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>(1) Question-bootstrap</td>
+<td>0.4%</td>
+<td>0.0%</td>
+<td>±1.89pp</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>(2) Run-bootstrap, SE honest</td>
+<td>42.8%</td>
+<td>0.0%</td>
+<td>±1.04pp</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>(3) Run-bootstrap, SE / sqrt(B)</td>
+<td>100.0%</td>
+<td>42.0%</td>
+<td>±0.19pp</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The calibration table turns the earlier “these bars look too narrow” intuition into a concrete indictment. <strong>Method (3), run-bootstrap with /√B rejects the null at over 40% when the two models are truly identical.</strong> If we run it on a finetuned model with zero real improvement and repeat the experiment 100 times with fresh decoding seeds, you will declare “significant uplift over base model” in more than 40 of them. This is not a subtle bias; the test is actively making up differences that are not there. Once fixed in Method (2), the CI becomes too conservative and power significantly drops to the level of a single-run McNemar’s test (~44%).</p>
+<p>Method (1) question-bootstrap lands at the opposite extreme: it resamples A’s per-question scores <span class="math inline">\(\bar{x}_q\)</span> and B/C’s per-question scores <span class="math inline">\(\bar{y}_q\)</span> with independent question indices, so the difference <span class="math inline">\(\bar{y}_q - \bar{x}_q\)</span> is no longer computed on paired questions. The bimodal between-question variance (easy-vs-hard buckets) is carried into the difference on both sides instead of cancelling through pairing, producing a CI wider than the 1pp signal. That is why it has near-zero power despite being conceptually the “right kind of” bootstrap.</p>
+<p>The pragmatic takeaway is that the only methods which are honest AND useful are the paired t-test which exploits pairing to shrink CI and more independent runs which achieve the same thing by increasing the number of samples. Both deliver ~6% false positive rate and power at almost 100% for a 1pp uplift. If you must bootstrap, apply it to the per-question differences <span class="math inline">\(d_q\)</span> directlyーthat is, a paired question-bootstrapーwhich reduces to the same calculation as the paired t-test.</p>
+</section>
+<section id="the-bike-shed-effect" class="level2">
+<h2 class="anchored" data-anchor-id="the-bike-shed-effect"><a href="https://en.wikipedia.org/wiki/Law_of_triviality">The Bike-Shed Effect</a></h2>
+<p>Large corporations can afford a few million USD of extremely-high-upside, low-probability investments that a small nation cannot. For instance, Walmart’s annual revenue of <a href="https://www.gurufocus.com/stock/WMT/financials">713 billion USD in 2025</a> is 1.2x times Thailand’s GDP. Unfortunately, small nations like Thailand are often the place where government investments are greenlit by the statistical hocus pocus mentioned in this article. I believe the Bike-shed Effect plays an important role. The concept was satirically proposed by Cyril Northcote Parkinson in 1957. He gave an example of a fictional committee whose job was to approve the plans for a nuclear power plant. He posited that they would spend most of their time debating minor but easy-to-understand issues such as what color the bike shed should be, and little on the more important but complex topics such as the systems of the power plant itself. For most government grant committees, or dare I say academic reviewers these days, the nuances of how confidence intervals are derived are akin to the nuclear reactor’s cooling system; technically critical, but opaque and easy to nod along to. What gets the attention instead is the bike shed: a clean bar chart with non-overlapping error bars, a round number like “2.3% uplift over base model”, a story about national AI sovereignty. Reviewers read the headline, check that the CI does not cross zero, and move on. Nobody asks whether the CI came from resampling decoding seeds or questions, let alone whether an extra <span class="math inline">\(\sqrt{30}\)</span> was slipped into the denominator along the way.</p>
+<p>The asymmetry is brutal. A team that spends six months building a finetune and papering over its 0.5pp uplift with bootstrap shenanigans walks out with a multi-million-dollar grant; a reviewer who flags the <span class="math inline">\(\sqrt{B}\)</span> misuse spends two hours explaining it, gets labeled “difficult”, and gets dropped from the next panel. The incentives point in exactly one direction, and so do the grants.</p>
+<p>This is not really a statistics problem; the statistics have been sorted for decades. McNemar’s test (1947), <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">bootstrap</a> (1979), <a href="https://www.york.ac.uk/depts/maths/histstat/student.pdf">Paired t-tests</a> (1908) are all part of undergraduate-level statistics classes. What is missing is a review culture that treats these tools as load-bearing rather than decorative, and a willingness to say “your 1pp uplift is within the CI of a well-specified test” without the conversation ending there. Until then, the bike shed gets painted on schedule, the reactor keeps leaking, and the taxpayers pay for both.</p>
+</section>
+<section id="appendix" class="level2">
+<h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
+<ol type="1">
+<li><p>To give more contexts on <a href="https://arxiv.org/pdf/2101.09635">WangchanBERTa</a>, we DID claim that “our model wangchanberta-baseatt-spm-uncased trained on the 78.5GB dataset outperforms strong baselines (NBSVM, CRF and ULMFit) and multi-lingual models (XLMR and mBERT) on both sequence classification and token classification tasks in human-annotated, mono-lingual context”, and specifically “outperfroms both strong baselines and other transformer-based architecture on all downstream tasks except Generated Reviews (EN-TH)” and “achieves the highest micro-averaged F1 score in all tasks except POS tagging in ThaiNER dataset”. In hindsight, I would have worded it much more carefully; you live and you learn. Nonetheless, these were task-level descriptions of the empirical results. Unlike some of these recent localizers, we DID NOT use random aggregation magic across 1,000-example or even 100-example test sets to claim to be “the top performing model overall on XX domain”. Our test sets were also reasonably sized, smallest at 621 and largest at 17,453, whereas median is about 5,000 examples, so a McNemar’s or paired t/z-test might also give confidence intervals that arrive at the same conclusion as the point estimates anyways. And last but most importantly, we DID NOT ask for millions of USD in funding off of 1% uplifts in point estimates.</p></li>
+<li><p>Exceptions are sovereign AI labs who DO train foundational models such as <a href="https://arxiv.org/pdf/2308.16149">G42</a> and <a href="https://arxiv.org/abs/2311.16867">TII</a>.</p></li>
+<li><p>This may seem outdated for LLM evaluation but since these localization projects are only interested in adapting to a new language/domain, they treat more advanced capabilities like guardrails rather than objectives and focus on more traditional benchmarks such as <a href="https://huggingface.co/datasets/cais/mmlu">MMLU</a>.</p></li>
+<li><p>The hand-rolled McNemar’s z-test used in the main text is algebraically equivalent to the canonical chi-squared version without continuity correction: <span class="math inline">\(z^2 = \chi^2\)</span> and the two-sided p-values match exactly. Quick sanity check against <code>statsmodels.stats.contingency_tables.mcnemar</code>:</p></li>
+</ol>
+<div id="46413e84" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.contingency_tables <span class="im">import</span> mcnemar <span class="im">as</span> sm_mcnemar</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>sanity_rows <span class="op">=</span> []</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, x, y <span class="kw">in</span> [(<span class="st">"A vs B"</span>, a0, b0), (<span class="st">"A vs C"</span>, a0, c0)]:</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> mcnemar_test(x, y)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># statsmodels expects the 2x2 contingency table:</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#                       y=0     y=1</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">#               x=0  [ n00  ,  n01 ]</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#               x=1  [ n10  ,  n11 ]</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    n00 <span class="op">=</span> <span class="bu">int</span>(((x <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (y <span class="op">==</span> <span class="dv">0</span>)).<span class="bu">sum</span>())</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    n11 <span class="op">=</span> <span class="bu">int</span>(((x <span class="op">==</span> <span class="dv">1</span>) <span class="op">&amp;</span> (y <span class="op">==</span> <span class="dv">1</span>)).<span class="bu">sum</span>())</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    sm <span class="op">=</span> sm_mcnemar([[n00, r[<span class="st">"n01"</span>]], [r[<span class="st">"n10"</span>], n11]], exact<span class="op">=</span><span class="va">False</span>, correction<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    sanity_rows.append({</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"comparison"</span>: label,</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"hand z²"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'z'</span>]<span class="op">**</span><span class="dv">2</span><span class="sc">:.4f}</span><span class="ss">"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"statsmodels χ²"</span>: <span class="ss">f"</span><span class="sc">{</span>sm<span class="sc">.</span>statistic<span class="sc">:.4f}</span><span class="ss">"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"hand p"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'p'</span>]<span class="sc">:.6f}</span><span class="ss">"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"statsmodels p"</span>: <span class="ss">f"</span><span class="sc">{</span>sm<span class="sc">.</span>pvalue<span class="sc">:.6f}</span><span class="ss">"</span>,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(sanity_rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comparison</th>
+<th data-quarto-table-cell-role="th">hand z²</th>
+<th data-quarto-table-cell-role="th">statsmodels χ²</th>
+<th data-quarto-table-cell-role="th">hand p</th>
+<th data-quarto-table-cell-role="th">statsmodels p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>A vs B</td>
+<td>2.6896</td>
+<td>2.6896</td>
+<td>0.101006</td>
+<td>0.101006</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>A vs C</td>
+<td>12.0071</td>
+<td>12.0071</td>
+<td>0.000530</td>
+<td>0.000530</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The z-form is preferred in the main text because we also need a directional SE on the accuracy difference to build the CIs plotted in the figures. Chi-squared gives only a non-negative test statistic with no natural SE attached, so we would end up recomputing <span class="math inline">\(\sqrt{n_{01} + n_{10}}/n\)</span> by hand anyway.</p>
+<ol start="5" type="1">
+<li>You may notice that the per-run standard deviations printed for A, B, and C in the display-seed setup cell come out visibly different, despite A and B being structurally identical. This is a sampling artifact of estimating a standard deviation from only 8 observations, not a property of the models. The true per-run standard deviation is the same for all three models because it only depends on the distribution of <span class="math inline">\(p_q\)</span>, and C’s derivation only swaps a 1% fraction of <code>p_q = 0</code> questions to <code>p_q = 1</code>, both of which contribute zero variance.</li>
+</ol>
+<div id="b24195cb" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># True per-run standard deviation: sqrt(sum_q p_q(1-p_q)) / n</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>true_stdev_A <span class="op">=</span> np.sqrt((p_A_d <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_A_d)).<span class="bu">sum</span>()) <span class="op">/</span> N_QUESTIONS <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>true_stdev_B <span class="op">=</span> np.sqrt((p_B_d <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_B_d)).<span class="bu">sum</span>()) <span class="op">/</span> N_QUESTIONS <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>true_stdev_C <span class="op">=</span> np.sqrt((p_C_d <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_C_d)).<span class="bu">sum</span>()) <span class="op">/</span> N_QUESTIONS <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"True per-run stdev A: </span><span class="sc">{</span>true_stdev_A<span class="sc">:.4f}</span><span class="ss">pp"</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"True per-run stdev B: </span><span class="sc">{</span>true_stdev_B<span class="sc">:.4f}</span><span class="ss">pp"</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"True per-run stdev C: </span><span class="sc">{</span>true_stdev_C<span class="sc">:.4f}</span><span class="ss">pp"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical 5-95% range of sample stdev at n=8, from 200 fresh 8-run replications of A</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>sample_stdevs <span class="op">=</span> []</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> trial <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">200</span>):</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> (np.random.default_rng(DISPLAY_SEED <span class="op">+</span> <span class="dv">9000</span> <span class="op">+</span> trial).random((N_RUNS, N_QUESTIONS)) <span class="op">&lt;</span> p_A_d).astype(<span class="bu">int</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    sample_stdevs.append(s.mean(axis<span class="op">=</span><span class="dv">1</span>).std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">*</span> <span class="dv">100</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>sample_stdevs <span class="op">=</span> np.array(sample_stdevs)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Sample stdev at n=</span><span class="sc">{</span>N_RUNS<span class="sc">}</span><span class="ss"> (200 replications of A):"</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  median=</span><span class="sc">{</span>np<span class="sc">.</span>median(sample_stdevs)<span class="sc">:.3f}</span><span class="ss">pp, "</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"5–95% range=[</span><span class="sc">{</span>np<span class="sc">.</span>percentile(sample_stdevs, <span class="dv">5</span>)<span class="sc">:.3f}</span><span class="ss">, </span><span class="sc">{</span>np<span class="sc">.</span>percentile(sample_stdevs, <span class="dv">95</span>)<span class="sc">:.3f}</span><span class="ss">]pp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>True per-run stdev A: 0.4123pp
+True per-run stdev B: 0.4123pp
+True per-run stdev C: 0.4123pp
+
+Sample stdev at n=8 (200 replications of A):
+  median=0.395pp, 5–95% range=[0.217, 0.580]pp</code></pre>
+</div>
+</div>
+<p>At <span class="math inline">\(n=8\)</span> the sample standard deviation has a coefficient of variation of roughly <span class="math inline">\(1 / \sqrt{2(n-1)} \approx 0.27\)</span>, so any single 8-run evaluation will produce a sample standard deviation anywhere in a fairly wide band around the true value. Reading meaningful differences into the standard deviations of A, B, and C under this kind of sample size is itself a small benchmaxxing trap worth avoiding.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/cstorm125\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
