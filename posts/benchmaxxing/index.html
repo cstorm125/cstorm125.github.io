@@ -193,7 +193,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -232,16 +232,14 @@ window.Quarto = {
 <blockquote class="blockquote">
 <p>This series document statistical tomfooleries in AI evaluation that I may or may not have witnessed from “academic researches” and “technical works” in the wild. For educational purposes only. All characters appearing in this work are fictions. Any resemblance to real persons, living or dead, is purely coincidental. Do not try this at home.</p>
 </blockquote>
-<section id="background-on-benchmaxxing-in-the-finetuning-game" class="level2 page-columns page-full">
+<section id="background-on-benchmaxxing-in-the-finetuning-game" class="level2">
 <h2 class="anchored" data-anchor-id="background-on-benchmaxxing-in-the-finetuning-game">Background on Benchmaxxing in the Finetuning Game</h2>
 <p>Statistical robustness has taken somewhat of a back seat in modern LLM evaluation, and perhaps reasonably so. Frontier benchmarks such as <a href="https://www.swebench.com/original.html#:~:text=SWE%2Dbench%20was%20released%20in,12.47%25%20on%20SWE%2Dbench.">SWE-Bench</a> and <a href="https://epoch.ai/benchmarks/gdpval?view=graph&amp;tab=release-date&amp;metric=win_rate">GDPEval</a> often start near 0% then subsequently jump with new model iterations; for example, 9.9%→30.8% from GPT-4o to o3 medium on GDPEval. We do not need a hypothesis test to tell us that these uplifts are statistically significant at <code>p-value = 0.0000...</code>. Nonetheless, in the shadow of corporate juggernauts vying for foundational model supremacy, the 2nd/3rd-tier players are engaged in more incremental improvements (0.5-1%), one of which is <strong>localizing frontier models</strong>.</p>
-<div class="page-columns page-full">
-<div class="quarto-figure quarto-figure-center page-columns page-full">
-<figure class="figure page-columns page-full">
-<p class="page-columns page-full"><img src="point_estimate_benchmark.png" class="img-fluid figure-img column-screen"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="point_estimate_benchmark.png" class="img-fluid figure-img"></p>
 <figcaption>Figure 1: GDPEval needs no hypothesis testing (Left); Yours truly is also not totally innocent about reporting only point estimates (Right)<sup>1</sup></figcaption>
 </figure>
-</div>
 </div>
 <p>The playbook usually goes like this:</p>
 <ol type="1">
@@ -263,7 +261,7 @@ window.Quarto = {
 <p>To simulate decoding stochasticity between runs, we draw each question’s latent probability of being answered correctly, <span class="math inline">\(p_q\)</span>, from a three-component mixture: a fraction of “easy” questions the model always gets right (<span class="math inline">\(p_q = 1\)</span>), a fraction of “hard” questions it always gets wrong (<span class="math inline">\(p_q = 0\)</span>), and a “middle” fraction where <span class="math inline">\(p_q \sim \text{Uniform}(0.2, 0.8)\)</span>.</p>
 <p>Each indepedent run for each question is then an independent draw from <span class="math inline">\(\text{Bernoulli}(p_q)\)</span>. Crucially, B and C inherit A’s latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A’s “hard” questions into “easy” ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.</p>
 <p>Below are mean observed accuracies, per-run standard deviations and pairwise consistency (how many percentage of 4,000 answers are the same on average) across 8 simulated runs.</p>
-<div id="4587a032" class="cell" data-execution_count="1">
+<div id="d148d815" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -346,7 +344,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <h2 class="anchored" data-anchor-id="the-honest-way-mcnemars-test-on-one-run">The Honest Way: McNemar’s Test on One Run</h2>
 <p>Before reaching for any bootstrap machinery, let us ask the simpler question: if we ran each model <em>once</em> on the same 4,000 questions and applied a proper test, could we detect a 1pp uplift?</p>
 <p>The test for binary-scored paired data is <a href="https://en.wikipedia.org/wiki/McNemar%27s_test">McNemar’s test</a><sup>4</sup>. It looks at the questions where the two models disagreed, called discordant pairs, and asks whether the disagreements lean systematically one way. Questions where both models got the same answer cancel out of the difference, so they contribute nothing to the test statistic, which is exactly why pairing gives tighter confidence intervals than treating the two runs as independent samples. For the single-run case with <span class="math inline">\(n_{01}\)</span> questions where B beat A and <span class="math inline">\(n_{10}\)</span> questions where A beat B, the observed difference in accuracies is <span class="math inline">\(\hat{\delta} = (n_{01} - n_{10})/n\)</span> with standard error <span class="math inline">\(\text{SE}(\hat{\delta}) = \sqrt{(n_{01} + n_{10})/n^2}\)</span>.</p>
-<div id="9a0e82d5" class="cell" data-execution_count="2">
+<div id="79b81196" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mcnemar_test(x: np.ndarray, y: np.ndarray) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
@@ -384,7 +382,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="28">
 <div>
 
 
@@ -423,7 +421,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 </div>
 </div>
 <p>In this particular simulation the 1pp uplift (A-vs-C) lands at z = 3.47 with p = 0.001, which looks convincing. But that is a single draw of the benchmark. With a different seed, the observed gap will land somewhere else, and that somewhere-else determines whether the test rejects the null or not. To build intuition, let us repeat the single-run comparison five times with different seeds and see what happens.</p>
-<div id="f702fb78" class="cell" data-execution_count="3">
+<div id="df914454" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>trial_rows <span class="op">=</span> []</span>
@@ -449,7 +447,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(trial_rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="29">
 <div>
 
 
@@ -526,7 +524,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <p>Look at what happened. On the A-vs-B comparison (the two models are identical, true difference = 0), all five trials gave non-significant p-values; no false positives, which is what a calibrated 5% test should deliver most of the time. The observed differences bounced around ±0.3pp from pure decoding noise, but they stayed within the ±1.1pp McNemar’s band so nothing looked like a win.</p>
 <p>The A-vs-C comparison is more interesting. Only 2 of the 5 trials rejected the null at p &lt; 0.05. Trials 1 and 2 happened to catch the +1pp effect, but they overshot; the observed differences were +2.08pp and +1.95pp, roughly twice the true effect, inflated by favorable decoding noise. Trial 3 undershot to +0.48pp and missed entirely (p = 0.43). Trials 4 and 5 landed close to the true +1pp effect but just short of the p&lt;0.05 threshold.</p>
 <p>This is how statistical power works in practice. In this particular case, the signal you are trying to detect is buried in enough noise that you see it clearly only about 40% of the time, even with the correct test. This is not a failing of the McNemar’s test; 4,000 questions is simply too few detect 1pp uplift reliably. No amount of statistical cleverness will change that fundamental limit. This is the uncomfortable truth that drives people toward bootstrap shenanigans.</p>
-<div id="fbeb6c70" class="cell" data-execution_count="4">
+<div id="030ab58d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>E_u_1_minus_u <span class="op">=</span> <span class="fl">0.5</span> <span class="op">-</span> <span class="fl">0.28</span>                         <span class="co"># E[U(1-U)] for U ~ Uniform(0.2, 0.8)</span></span>
@@ -576,7 +574,7 @@ Empirical power over 2000 simulated benchmarks: 37.8%</code></pre>
 <h2 class="anchored" data-anchor-id="bootstrapping-for-narrower-confidence-intervals-no-jutsu">Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu</h2>
 <p>With a 1pp effect sitting at ~40% single-run detection power, the temptation is obvious: pad the story with more statistical smoke and mirrors until the CI looks small. This is where bootstrap procedures start creeping into localization papers. Instead of running a McNemar’s test once and gambling your multi-million government contract with worse odds than a coin flip, why not run it 8 times (just small enough to cherry-pick) and bootstrap (sample with replacement) each question’s answer for 30 hypothetical runs? If you have any exposure to <em>Introduction to Statistics</em>ーor I do not know, common senseーyou would intuitively question how one can infer variations from just 8 independent runs, no matter how many times they re-sample with replacement.</p>
 <p>We walk through three, increasingly more degenerate bootstrap flavors below, each introducing one more shortcut that shrinks the CI without actually adding information. To make the visual differences obvious, we pick a seed<sup>5</sup> where the narrowest method happens to land in its failure mode, one of the parallel-universe benchmarks where it flags the failed finetune model B as significantly different from A even though the two models are structurally identical. This is not to cherry-pick to be unfair; the 500-simulation calibration in the later section confirms that ~40% is the method’s typical false-positive rate (poetically trading off 40% power for 40% false positive rate), not an edge case.</p>
-<div id="78839861" class="cell" data-execution_count="5">
+<div id="dbd3c1e6" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>DISPLAY_SEED <span class="op">=</span> <span class="dv">20260508</span></span>
@@ -599,7 +597,7 @@ Display seed model B: true 55.60%, obs 55.85%, per-run stdev 0.355pp
 Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre>
 </div>
 </div>
-<div id="9e7c20b3" class="cell" data-execution_count="6">
+<div id="4ca0bce4" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>N_BOOTSTRAPS <span class="op">=</span> <span class="dv">30</span>            <span class="co"># same B across all bootstrap flavors below</span></span>
@@ -672,7 +670,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>display_df <span class="op">=</span> display_df.reindex(method_order)</span>
 <span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>display_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="32">
 <div>
 
 
@@ -736,7 +734,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 </div>
 </div>
 </div>
-<div id="9ded630e" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="7">
+<div id="e9a8a018" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ci_df[<span class="st">"method"</span>] <span class="op">=</span> pd.Categorical(ci_df[<span class="st">"method"</span>], categories<span class="op">=</span>method_order, ordered<span class="op">=</span><span class="va">True</span>)</span>
@@ -782,7 +780,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <h2 class="anchored" data-anchor-id="the-honest-fix-more-independent-runs-or-paired-t-test">The Honest Fix: More Independent Runs or Paired t-Test</h2>
 <p>The three bootstrap methods above span the range from “honest but blunt” (question-bootstrap, wide CI) to “badly miscalibrated” (run-bootstrap /√B, fake precision). None of them delivers a sharp, well-calibrated answer to the question anyone cares about. Two honest alternatives do.</p>
 <p><strong>More Independent Runs.</strong> The most obvious fix is the one the run-bootstrap-with-/√B is dishonestly pretending to simulate: just run the evaluation more times. With 30 real decoding seeds per model on the same 4,000 questions, the SE-of-the-mean across runs gives a properly calibrated CI. Ironically, this is the same CI as the miscalibrated method (3) in the bootstrap section, but now the 30 replicates are actually independent rather than synthesized from 8. Therefore, if your finetuned model really does outperform the baseline, this is the most obvious path to take.</p>
-<div id="ffa72fdd" class="cell" data-execution_count="8">
+<div id="5c699c3c" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ci_n_independent(p_q: np.ndarray, rng: np.random.Generator) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>, <span class="bu">float</span>]:</span>
@@ -806,7 +804,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="34">
 <div>
 
 
@@ -849,7 +847,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <p>where <span class="math inline">\(\bar{x}_q\)</span> and <span class="math inline">\(\bar{y}_q\)</span> are A’s and B/C’s 8-run-mean accuracies on question <span class="math inline">\(q\)</span>. The paired t-test then estimates the overall uplift and its standard error as:</p>
 <p><span class="math display">\[\hat{\delta} = \frac{1}{N_{\text{questions}}}\sum_q d_q, \qquad \text{SE}(\hat{\delta}) = \frac{\text{sd}(d_q)}{\sqrt{N_{\text{questions}}}}\]</span></p>
 <p>Two things conspire to make this powerful. First, ~70% of questions sit in the shared easy/hard buckets where both models answer identically on every run, so <span class="math inline">\(d_q = 0\)</span> exactly and contributes zero variance; pairing annihilates the common difficulty signal instead of carrying it around. Second, on the ~30% of middle questions where decoding noise actually lives, each <span class="math inline">\(d_q\)</span> already averages 8 runs, so its variance shrinks by a factor of <span class="math inline">\(N_{\text{runs}}\)</span> before it even enters the per-question average. Combined with the <span class="math inline">\(\sqrt{N_{\text{questions}}}\)</span> shrinkage from treating each question as independent, this tightens the CI to around ±0.4–0.52pp. Power jumps from ~40% (single-run McNemar’s test) to ~97% on the same 4,000-question, 8-run dataset.</p>
-<div id="46582364" class="cell" data-execution_count="9">
+<div id="27e0eeb3" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> paired_t_over_runs(s_x: np.ndarray, s_y: np.ndarray) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
@@ -874,7 +872,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="35">
 <div>
 
 
@@ -912,7 +910,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 </div>
 </div>
 </div>
-<div id="6b42aeb8" class="cell" data-execution_count="10">
+<div id="f5d8c4e3" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>E_var_per_q <span class="op">=</span> p_middle <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> E_u_1_minus_u <span class="op">/</span> N_RUNS</span>
@@ -951,7 +949,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <section id="calibration-power-and-false-positive-across-500-runs" class="level2">
 <h2 class="anchored" data-anchor-id="calibration-power-and-false-positive-across-500-runs">Calibration: Power and False Positive across 500 Runs</h2>
 <p>To judge whether each method is actually honest, we measure its false-positive rate and its power across 500 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).</p>
-<div id="729bc677" class="cell" data-cache="true" data-execution_count="11">
+<div id="b19acac6" class="cell" data-cache="true" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
@@ -1053,10 +1051,10 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>power_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Completed 500 simulations in 5.1s
+<pre><code>Completed 500 simulations in 6.2s
 </code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="37">
 <div>
 
 
@@ -1137,7 +1135,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <li><p>This may seem outdated for LLM evaluation but since these localization projects are only interested in adapting to a new language/domain, they treat more advanced capabilities like guardrails rather than objectives and focus on more traditional benchmarks such as <a href="https://huggingface.co/datasets/cais/mmlu">MMLU</a>.</p></li>
 <li><p>The hand-rolled McNemar’s z-test used in the main text is algebraically equivalent to the canonical chi-squared version without continuity correction: <span class="math inline">\(z^2 = \chi^2\)</span> and the two-sided p-values match exactly. Quick sanity check against <code>statsmodels.stats.contingency_tables.mcnemar</code>:</p></li>
 </ol>
-<div id="46413e84" class="cell" data-execution_count="12">
+<div id="d56385c6" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.contingency_tables <span class="im">import</span> mcnemar <span class="im">as</span> sm_mcnemar</span>
@@ -1161,7 +1159,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(sanity_rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="38">
 <div>
 
 
@@ -1203,7 +1201,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <ol start="5" type="1">
 <li>You may notice that the per-run standard deviations printed for A, B, and C in the display-seed setup cell come out visibly different, despite A and B being structurally identical. This is a sampling artifact of estimating a standard deviation from only 8 observations, not a property of the models. The true per-run standard deviation is the same for all three models because it only depends on the distribution of <span class="math inline">\(p_q\)</span>, and C’s derivation only swaps a 1% fraction of <code>p_q = 0</code> questions to <code>p_q = 1</code>, both of which contribute zero variance.</li>
 </ol>
-<div id="b24195cb" class="cell" data-execution_count="13">
+<div id="9f5943d6" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># True per-run standard deviation: sqrt(sum_q p_q(1-p_q)) / n</span></span>
