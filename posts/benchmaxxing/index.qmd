@@ -18,7 +18,9 @@ jupyter: python3
 
 Statistical robustness has taken somewhat of a back seat in modern LLM evaluation, and perhaps reasonably so. Frontier benchmarks such as [SWE-Bench](https://www.swebench.com/original.html#:~:text=SWE%2Dbench%20was%20released%20in,12.47%25%20on%20SWE%2Dbench.) and [GDPEval](https://epoch.ai/benchmarks/gdpval?view=graph&tab=release-date&metric=win_rate) often start near 0% then subsequently jump with new model iterations; for example, 9.9%→30.8% from GPT-4o to o3 medium on GDPEval. We do not need a hypothesis test to tell us that these uplifts are statistically significant at `p-value = 0.0000...`. Nonetheless, in the shadow of corporate juggernauts vying for foundational model supremacy, the 2nd/3rd-tier players are engaged in more incremental improvements (0.5-1%), one of which is **localizing frontier models**. 
 
+::: {.column-page}
 ![Figure 1: GDPEval needs no hypothesis testing (Left); Yours truly is also not totally innocent about reporting only point estimates (Right)^1^](point_estimate_benchmark.png)
+:::
 
 The playbook usually goes like this: 
 
@@ -384,7 +386,7 @@ plot
 
 Because 87%-consistent models give near-identical answers across runs, the decoding-only CI narrows significantly compared to method (1). A and B still overlap here (correctly), but C at least should outperform A in a statistically significant manner more often. The method has not cheated mathematically, BUT it is misrepresenting decoding noise as variation in the models' ability to answer questions in the language/domain.
 
-**Method (3): run-bootstrap with SE / √B.** Now what do you do if you want to be EXTRA sure your failed finetuning would still look decent? Same resampling as method (2), but instead of calculating the bootstrapped standard error as standard deviation of the 30 observed accuracies, we further divide it by √B (B=30), as though the 30 bootstrap replicates were 30 independent runs, inflating the test statistics by $\sqrt{30}$. The CI drops to ±0.10-0.13pp, about 10x tighter than method (1). The procedure declares the failed finetuned model B significantly better than A. If you glance at it, you may conclude the method can resolve differences at a fraction-of-a-percentage-point scale, but the apparent precision is a product of a fabrication, not of the data.
+**Method (3): run-bootstrap with SE / √B.** Now what do you do if you want to be EXTRA sure your failed finetuning would still look decent? Same resampling as method (2), but instead of calculating the bootstrapped standard error as standard deviation of the 30 observed accuracies, we further divide it by √B (B=30), as though the 30 bootstrap replicates were 30 independent runs, inflating the test statistics by $\sqrt{30}$. The CI drops to ±0.1X, about 10x tighter than method (1). The procedure declares the failed finetuned model B significantly better than A. If you glance at it, you may conclude the method can resolve differences at a fraction-of-a-percentage-point scale, but the apparent precision is a product of a fabrication, not of the data.
 
 ## The Honest Fix: More Independent Runs or Paired t-Test
 
