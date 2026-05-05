@@ -9,7 +9,7 @@
 <meta name="author" content="cstorm125">
 <meta name="dcterms.date" content="2026-05-05">
 
-<title>Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu – chariblog</title>
+<title>Benchmaxxing Series: Abuse-Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu – chariblog</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -197,7 +197,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Benchmaxxing Series: Abuse-Boostrapping-for-Narrower-Confidence-Intervals no Jutsu</h1>
+<h1 class="title">Benchmaxxing Series: Abuse-Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu</h1>
   <div class="quarto-categories">
     <div class="quarto-category">evaluation</div>
   </div>
@@ -261,9 +261,9 @@ window.Quarto = {
 <li><p><strong>Answer consistency across runs is high.</strong> <a href="https://arxiv.org/abs/2509.09705">Cavalin et al.&nbsp;(2025)</a> report that medium-sized models like Llama-3.3-70B give the same answer to the same question in 96–98% of repetitions on MMLU at low temperature, with per-run accuracy standard deviations as low as 0.1pp. A ~32B model at low temperature should live in a similar regime on pure MMLU-style tasks, but aggregated multi-task benchmarks typically mix in higher-variance metrics such as ROUGE and win-rate, which pull effective consistency down. We target ~87% pairwise answer consistency so that methods below match reported “confidence intervals” in the wild.</p></li>
 </ol>
 <p>To simulate decoding stochasticity between runs, we draw each question’s latent probability of being answered correctly, <span class="math inline">\(p_q\)</span>, from a three-component mixture: a fraction of “easy” questions the model always gets right (<span class="math inline">\(p_q = 1\)</span>), a fraction of “hard” questions it always gets wrong (<span class="math inline">\(p_q = 0\)</span>), and a “middle” fraction where <span class="math inline">\(p_q \sim \text{Uniform}(0.2, 0.8)\)</span>.</p>
-<p>Each indepedent run for each question is then an independent draw from <span class="math inline">\(\text{Bernoulli}(p_q)\)</span>. Crucially, B and C inherit A’s latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A’s “hard” questions into “easy” ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.</p>
+<p>Each independent run for each question is then an independent draw from <span class="math inline">\(\text{Bernoulli}(p_q)\)</span>. Crucially, B and C inherit A’s latent per-question difficulty where B is a clone of A (identical true accuracy, same difficulty profile), and C promotes 1% of A’s “hard” questions into “easy” ones for a clean +1pp uplift. This mirrors how a finetune of a base model typically shares most of its correct/incorrect behavior with the base and differs on only a small fraction of questions.</p>
 <p>Below are mean observed accuracies, per-run standard deviations and pairwise consistency (how many percentage of 4,000 answers are the same on average) across 8 simulated runs.</p>
-<div id="a7637f8f" class="cell" data-execution_count="1">
+<div id="fdf4bac4" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -346,7 +346,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <h2 class="anchored" data-anchor-id="the-honest-way-mcnemars-test-on-one-run">The Honest Way: McNemar’s Test on One Run</h2>
 <p>Before reaching for any bootstrap machinery, let us ask the simpler question: if we ran each model <em>once</em> on the same 4,000 questions and applied a proper test, could we detect a 1pp uplift?</p>
 <p>The test for binary-scored paired data is <a href="https://en.wikipedia.org/wiki/McNemar%27s_test">McNemar’s test</a><sup>4</sup>. It looks at the questions where the two models disagreed, called discordant pairs, and asks whether the disagreements lean systematically one way. Questions where both models got the same answer cancel out of the difference, so they contribute nothing to the test statistic, which is exactly why pairing gives tighter confidence intervals than treating the two runs as independent samples. For the single-run case with <span class="math inline">\(n_{01}\)</span> questions where B beat A and <span class="math inline">\(n_{10}\)</span> questions where A beat B, the observed difference in accuracies is <span class="math inline">\(\hat{\delta} = (n_{01} - n_{10})/n\)</span> with standard error <span class="math inline">\(\text{SE}(\hat{\delta}) = \sqrt{(n_{01} + n_{10})/n^2}\)</span>.</p>
-<div id="ccdd1109" class="cell" data-execution_count="2">
+<div id="b18d95fc" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mcnemar_test(x: np.ndarray, y: np.ndarray) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
@@ -384,7 +384,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="28">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -423,7 +423,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 </div>
 </div>
 <p>In this particular simulation the 1pp uplift (A-vs-C) lands at z = 3.47 with p = 0.001, which looks convincing. But that is a single draw of the benchmark. With a different seed, the observed gap will land somewhere else, and that somewhere-else determines whether the test rejects the null or not. To build intuition, let us repeat the single-run comparison five times with different seeds and see what happens.</p>
-<div id="28203528" class="cell" data-execution_count="3">
+<div id="46974d89" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>trial_rows <span class="op">=</span> []</span>
@@ -449,7 +449,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(trial_rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -526,7 +526,7 @@ Model C: true acc 58.06%, obs acc 58.04%, per-run stdev 0.411pp, pairwise consis
 <p>Look at what happened. On the A-vs-B comparison (the two models are identical, true difference = 0), all five trials gave non-significant p-values; no false positives, which is what a calibrated 5% test should deliver most of the time. The observed differences bounced around ±0.3pp from pure decoding noise, but they stayed within the ±1.1pp McNemar’s band so nothing looked like a win.</p>
 <p>The A-vs-C comparison is more interesting. Only 2 of the 5 trials rejected the null at p &lt; 0.05. Trials 1 and 2 happened to catch the +1pp effect, but they overshot; the observed differences were +2.08pp and +1.95pp, roughly twice the true effect, inflated by favorable decoding noise. Trial 3 undershot to +0.48pp and missed entirely (p = 0.43). Trials 4 and 5 landed close to the true +1pp effect but just short of the p&lt;0.05 threshold.</p>
 <p>This is how statistical power works in practice. In this particular case, the signal you are trying to detect is buried in enough noise that you see it clearly only about 40% of the time, even with the correct test. This is not a failing of the McNemar’s test; 4,000 questions is simply too few detect 1pp uplift reliably. No amount of statistical cleverness will change that fundamental limit. This is the uncomfortable truth that drives people toward bootstrap shenanigans.</p>
-<div id="24feaf92" class="cell" data-execution_count="4">
+<div id="6753f3c9" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>E_u_1_minus_u <span class="op">=</span> <span class="fl">0.5</span> <span class="op">-</span> <span class="fl">0.28</span>                         <span class="co"># E[U(1-U)] for U ~ Uniform(0.2, 0.8)</span></span>
@@ -576,7 +576,7 @@ Empirical power over 2000 simulated benchmarks: 37.8%</code></pre>
 <h2 class="anchored" data-anchor-id="bootstrapping-for-narrower-confidence-intervals-no-jutsu">Bootstrapping-for-Narrower-Confidence-Intervals no Jutsu</h2>
 <p>With a 1pp effect sitting at ~40% single-run detection power, the temptation is obvious: pad the story with more statistical smoke and mirrors until the CI looks small. This is where bootstrap procedures start creeping into localization papers. Instead of running a McNemar’s test once and gambling your multi-million government contract with worse odds than a coin flip, why not run it 8 times (just small enough to cherry-pick) and bootstrap (sample with replacement) each question’s answer for 30 hypothetical runs? If you have any exposure to <em>Introduction to Statistics</em>ーor I do not know, common senseーyou would intuitively question how one can infer variations from just 8 independent runs, no matter how many times they re-sample with replacement.</p>
 <p>We walk through three, increasingly more degenerate bootstrap flavors below, each introducing one more shortcut that shrinks the CI without actually adding information. To make the visual differences obvious, we pick a seed<sup>5</sup> where the narrowest method happens to land in its failure mode, one of the parallel-universe benchmarks where it flags the failed finetune model B as significantly different from A even though the two models are structurally identical. This is not to cherry-pick to be unfair; the 500-simulation calibration in the later section confirms that ~40% is the method’s typical false-positive rate (poetically trading off 40% power for 40% false positive rate), not an edge case.</p>
-<div id="595e87be" class="cell" data-execution_count="5">
+<div id="1c28027d" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>DISPLAY_SEED <span class="op">=</span> <span class="dv">20260508</span></span>
@@ -599,7 +599,7 @@ Display seed model B: true 55.60%, obs 55.85%, per-run stdev 0.355pp
 Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre>
 </div>
 </div>
-<div id="dcbd0b6d" class="cell" data-execution_count="6">
+<div id="aedce833" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>N_BOOTSTRAPS <span class="op">=</span> <span class="dv">30</span>            <span class="co"># same B across all bootstrap flavors below</span></span>
@@ -672,7 +672,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>display_df <span class="op">=</span> display_df.reindex(method_order)</span>
 <span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>display_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
 
@@ -736,7 +736,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 </div>
 </div>
 </div>
-<div id="1e4152af" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="7">
+<div id="f33f189a" class="cell" data-fig-height="5" data-fig-width="9" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ci_df[<span class="st">"method"</span>] <span class="op">=</span> pd.Categorical(ci_df[<span class="st">"method"</span>], categories<span class="op">=</span>method_order, ordered<span class="op">=</span><span class="va">True</span>)</span>
@@ -751,7 +751,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> labs(</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="st">"Benchmark accuracy (%)"</span>,</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="st">"Model"</span>,</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"Same data, four confidence intervals"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"Same data, three confidence intervals"</span>,</span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme_bw()</span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> theme(</span>
@@ -782,7 +782,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <h2 class="anchored" data-anchor-id="the-honest-fix-more-independent-runs-or-paired-t-test">The Honest Fix: More Independent Runs or Paired t-Test</h2>
 <p>The three bootstrap methods above span the range from “honest but blunt” (question-bootstrap, wide CI) to “badly miscalibrated” (run-bootstrap /√B, fake precision). None of them delivers a sharp, well-calibrated answer to the question anyone cares about. Two honest alternatives do.</p>
 <p><strong>More Independent Runs.</strong> The most obvious fix is the one the run-bootstrap-with-/√B is dishonestly pretending to simulate: just run the evaluation more times. With 30 real decoding seeds per model on the same 4,000 questions, the SE-of-the-mean across runs gives a properly calibrated CI. Ironically, this is the same CI as the miscalibrated method (3) in the bootstrap section, but now the 30 replicates are actually independent rather than synthesized from 8. Therefore, if your finetuned model really does outperform the baseline, this is the most obvious path to take.</p>
-<div id="5c493ff8" class="cell" data-execution_count="8">
+<div id="33991e12" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ci_n_independent(p_q: np.ndarray, rng: np.random.Generator) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>, <span class="bu">float</span>]:</span>
@@ -806,7 +806,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -849,32 +849,35 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <p>where <span class="math inline">\(\bar{x}_q\)</span> and <span class="math inline">\(\bar{y}_q\)</span> are A’s and B/C’s 8-run-mean accuracies on question <span class="math inline">\(q\)</span>. The paired t-test then estimates the overall uplift and its standard error as:</p>
 <p><span class="math display">\[\hat{\delta} = \frac{1}{N_{\text{questions}}}\sum_q d_q, \qquad \text{SE}(\hat{\delta}) = \frac{\text{sd}(d_q)}{\sqrt{N_{\text{questions}}}}\]</span></p>
 <p>Two things conspire to make this powerful. First, ~70% of questions sit in the shared easy/hard buckets where both models answer identically on every run, so <span class="math inline">\(d_q = 0\)</span> exactly and contributes zero variance; pairing annihilates the common difficulty signal instead of carrying it around. Second, on the ~30% of middle questions where decoding noise actually lives, each <span class="math inline">\(d_q\)</span> already averages 8 runs, so its variance shrinks by a factor of <span class="math inline">\(N_{\text{runs}}\)</span> before it even enters the per-question average. Combined with the <span class="math inline">\(\sqrt{N_{\text{questions}}}\)</span> shrinkage from treating each question as independent, this tightens the CI to around ±0.4–0.52pp. Power jumps from ~40% (single-run McNemar’s test) to ~97% on the same 4,000-question, 8-run dataset.</p>
-<div id="bc957524" class="cell" data-execution_count="9">
+<div id="55d4f3a3" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> paired_t_over_runs(s_x: np.ndarray, s_y: np.ndarray) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Paired t-test on per-question mean scores across N_RUNS runs."""</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    d_per_q <span class="op">=</span> s_y.mean(axis<span class="op">=</span><span class="dv">0</span>) <span class="op">-</span> s_x.mean(axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> d_per_q.mean() <span class="op">*</span> <span class="dv">100</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> d_per_q.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(<span class="bu">len</span>(d_per_q)) <span class="op">*</span> <span class="dv">100</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> diff <span class="op">/</span> se</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> stats.norm.cdf(<span class="bu">abs</span>(z)))</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"diff"</span>: diff, <span class="st">"se"</span>: se, <span class="st">"ci95"</span>: Z <span class="op">*</span> se, <span class="st">"z"</span>: z, <span class="st">"p"</span>: p}</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, x, y <span class="kw">in</span> [(<span class="st">"A vs B (true diff = 0)"</span>, scores[<span class="st">"A"</span>], scores[<span class="st">"B"</span>]), (<span class="st">"A vs C (true diff = +1pp)"</span>, scores[<span class="st">"A"</span>], scores[<span class="st">"C"</span>])]:</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> paired_t_over_runs(x, y)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"comparison"</span>: label,</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"obs diff"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'diff'</span>]<span class="sc">:+.2f}</span><span class="ss">pp"</span>,</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"95% CI on diff"</span>: <span class="ss">f"±</span><span class="sc">{</span>r[<span class="st">'ci95'</span>]<span class="sc">:.2f}</span><span class="ss">pp"</span>,</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"z"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'z'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"p-value"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'p'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>,</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(d_per_q)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> d_per_q.mean() <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    se <span class="op">=</span> d_per_q.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(n) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    t_stat <span class="op">=</span> diff <span class="op">/</span> se <span class="cf">if</span> se <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> stats.t.cdf(<span class="bu">abs</span>(t_stat), df<span class="op">=</span>df))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    t_crit <span class="op">=</span> stats.t.ppf(<span class="dv">1</span> <span class="op">-</span> <span class="fl">0.05</span> <span class="op">/</span> <span class="dv">2</span>, df<span class="op">=</span>df)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"diff"</span>: diff, <span class="st">"se"</span>: se, <span class="st">"ci95"</span>: t_crit <span class="op">*</span> se, <span class="st">"t"</span>: t_stat, <span class="st">"df"</span>: df, <span class="st">"p"</span>: p}</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, x, y <span class="kw">in</span> [(<span class="st">"A vs B (true diff = 0)"</span>, scores[<span class="st">"A"</span>], scores[<span class="st">"B"</span>]), (<span class="st">"A vs C (true diff = +1pp)"</span>, scores[<span class="st">"A"</span>], scores[<span class="st">"C"</span>])]:</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> paired_t_over_runs(x, y)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    rows.append({</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"comparison"</span>: label,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"obs diff"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'diff'</span>]<span class="sc">:+.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"95% CI on diff"</span>: <span class="ss">f"±</span><span class="sc">{</span>r[<span class="st">'ci95'</span>]<span class="sc">:.2f}</span><span class="ss">pp"</span>,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"t"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'t'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"p-value"</span>: <span class="ss">f"</span><span class="sc">{</span>r[<span class="st">'p'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="35">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
@@ -885,7 +888,7 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 <th data-quarto-table-cell-role="th">comparison</th>
 <th data-quarto-table-cell-role="th">obs diff</th>
 <th data-quarto-table-cell-role="th">95% CI on diff</th>
-<th data-quarto-table-cell-role="th">z</th>
+<th data-quarto-table-cell-role="th">t</th>
 <th data-quarto-table-cell-role="th">p-value</th>
 </tr>
 </thead>
@@ -912,51 +915,53 @@ Display seed model C: true 56.60%, obs 56.79%, per-run stdev 0.526pp</code></pre
 </div>
 </div>
 </div>
-<div id="daae6689" class="cell" data-execution_count="10">
+<div id="f73b7a2e" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>E_var_per_q <span class="op">=</span> p_middle <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> E_u_1_minus_u <span class="op">/</span> N_RUNS</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Var_between_q <span class="op">=</span> UPLIFT <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> UPLIFT)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>total_var <span class="op">=</span> E_var_per_q <span class="op">+</span> Var_between_q</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>se_paired_t <span class="op">=</span> np.sqrt(total_var <span class="op">/</span> N_QUESTIONS)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>z_H1_t <span class="op">=</span> UPLIFT <span class="op">/</span> se_paired_t</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>paired_t_power <span class="op">=</span> stats.norm.cdf(z_H1_t <span class="op">-</span> Z) <span class="op">+</span> stats.norm.cdf(<span class="op">-</span>z_H1_t <span class="op">-</span> Z)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SE of 8-run paired-t: </span><span class="sc">{</span>se_paired_t<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp, 95% CI: ±</span><span class="sc">{</span>Z<span class="op">*</span>se_paired_t<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp"</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected z under H1: </span><span class="sc">{</span>z_H1_t<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Analytical power to detect +1pp uplift: </span><span class="sc">{</span>paired_t_power<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical power: paired-t on 8-run means, A vs C</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>N_POWER_SIMS <span class="op">=</span> <span class="dv">2000</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>rejections <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>power_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> <span class="dv">43</span>)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(N_POWER_SIMS):</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    p_A_sim <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, power_rng)</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    p_C_sim <span class="op">=</span> derive_finetune(p_A_sim, UPLIFT, power_rng)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    s_A_sim <span class="op">=</span> simulate_runs(p_A_sim, N_RUNS, power_rng)</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    s_C_sim <span class="op">=</span> simulate_runs(p_C_sim, N_RUNS, power_rng)</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> paired_t_over_runs(s_A_sim, s_C_sim)[<span class="st">"p"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span>:</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        rejections <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Empirical power over </span><span class="sc">{</span>N_POWER_SIMS<span class="sc">}</span><span class="ss"> simulated benchmarks: </span><span class="sc">{</span>rejections <span class="op">/</span> N_POWER_SIMS <span class="op">*</span> <span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>df_paired_t <span class="op">=</span> N_QUESTIONS <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>t_crit <span class="op">=</span> stats.t.ppf(<span class="dv">1</span> <span class="op">-</span> <span class="fl">0.05</span> <span class="op">/</span> <span class="dv">2</span>, df<span class="op">=</span>df_paired_t)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>t_H1 <span class="op">=</span> UPLIFT <span class="op">/</span> se_paired_t</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>paired_t_power <span class="op">=</span> stats.t.cdf(t_H1 <span class="op">-</span> t_crit, df<span class="op">=</span>df_paired_t) <span class="op">+</span> stats.t.cdf(<span class="op">-</span>t_H1 <span class="op">-</span> t_crit, df<span class="op">=</span>df_paired_t)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"SE of 8-run paired-t: </span><span class="sc">{</span>se_paired_t<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp, 95% CI: ±</span><span class="sc">{</span>t_crit<span class="op">*</span>se_paired_t<span class="op">*</span><span class="dv">100</span><span class="sc">:.3f}</span><span class="ss">pp"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Expected t under H1: </span><span class="sc">{</span>t_H1<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Analytical power to detect +1pp uplift: </span><span class="sc">{</span>paired_t_power<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical power: paired-t on 8-run means, A vs C</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>N_POWER_SIMS <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>rejections <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>power_rng <span class="op">=</span> np.random.default_rng(SEED <span class="op">+</span> <span class="dv">43</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(N_POWER_SIMS):</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    p_A_sim <span class="op">=</span> sample_p_q(N_QUESTIONS, A_EASY, A_HARD, power_rng)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    p_C_sim <span class="op">=</span> derive_finetune(p_A_sim, UPLIFT, power_rng)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    s_A_sim <span class="op">=</span> simulate_runs(p_A_sim, N_RUNS, power_rng)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    s_C_sim <span class="op">=</span> simulate_runs(p_C_sim, N_RUNS, power_rng)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> paired_t_over_runs(s_A_sim, s_C_sim)[<span class="st">"p"</span>] <span class="op">&lt;</span> <span class="fl">0.05</span>:</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        rejections <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Empirical power over </span><span class="sc">{</span>N_POWER_SIMS<span class="sc">}</span><span class="ss"> simulated benchmarks: </span><span class="sc">{</span>rejections <span class="op">/</span> N_POWER_SIMS <span class="op">*</span> <span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>SE of 8-run paired-t: 0.257pp, 95% CI: ±0.504pp
-Expected z under H1: 3.89
+Expected t under H1: 3.89
 Analytical power to detect +1pp uplift: 97.3%
 Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 </div>
 </div>
 <p>Any bootstrap method that claims tighter CIs than these on an 8-run dataset is not finding extra information; it is either answering a different question (as with the decoding-only methods (2) and (3) above), or miscalibrated in exactly the way method (3) is.</p>
 </section>
-<section id="calibration-power-and-false-positive-across-500-runs" class="level2">
-<h2 class="anchored" data-anchor-id="calibration-power-and-false-positive-across-500-runs">Calibration: Power and False Positive across 500 Runs</h2>
-<p>To judge whether each method is actually honest, we measure its false-positive rate and its power across 500 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).</p>
-<div id="caf1ccaa" class="cell" data-cache="true" data-execution_count="11">
+<section id="calibration-power-and-false-positive-across-2000-runs" class="level2">
+<h2 class="anchored" data-anchor-id="calibration-power-and-false-positive-across-2000-runs">Calibration: Power and False Positive across 2000 Runs</h2>
+<p>To judge whether each method is actually honest, we measure its false-positive rate and its power across 2000 hypothetical benchmarks. In each, B is an exact copy of A (true difference = 0, used to measure false positive) and C has a +1pp true uplift (used to measure power).</p>
+<div id="80c99fd1" class="cell" data-cache="true" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>N_SIMS <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>N_SIMS <span class="op">=</span> <span class="dv">2000</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>N_B <span class="op">=</span> <span class="dv">30</span>             <span class="co"># same bootstrap replicate count across all methods</span></span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -1007,9 +1012,9 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>methods <span class="op">=</span> [</span>
-<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"McNemar (1 run, honest baseline)"</span>,    <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_mcnemar_single_run(sx, sy, rng)),</span>
-<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Paired-t on 8-run means (honest)"</span>,    <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_paired_t_over_runs(sx, sy, rng)),</span>
-<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"30 independent runs (honest)"</span>,        <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_n_independent(px, py, rng)),</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"McNemar's"</span>,    <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_mcnemar_single_run(sx, sy, rng)),</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Paired t-test"</span>,    <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_paired_t_over_runs(sx, sy, rng)),</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"30 independent runs"</span>,        <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_n_independent(px, py, rng)),</span>
 <span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"(1) Question-bootstrap"</span>,              <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_question_bootstrap(sx, sy, rng)),</span>
 <span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"(2) Run-bootstrap, SE honest"</span>,        <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_run_bootstrap_fixed(sx, sy, rng)),</span>
 <span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"(3) Run-bootstrap, SE / sqrt(B)"</span>,     <span class="kw">lambda</span> sx, sy, px, py, rng: diff_ci_run_bootstrap_sqrt_b(sx, sy, rng)),</span>
@@ -1053,10 +1058,10 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>power_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Completed 500 simulations in 6.1s
+<pre><code>Completed 2000 simulations in 19.0s
 </code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="37">
+<div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
 
@@ -1073,44 +1078,44 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>McNemar (1 run, honest baseline)</td>
-<td>35.8%</td>
-<td>5.8%</td>
+<td>McNemar's</td>
+<td>38.5%</td>
+<td>4.9%</td>
 <td>±1.17pp</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>Paired-t on 8-run means (honest)</td>
-<td>99.4%</td>
-<td>5.8%</td>
+<td>Paired t-test</td>
+<td>99.5%</td>
+<td>4.8%</td>
 <td>±0.50pp</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>30 independent runs (honest)</td>
+<td>30 independent runs</td>
 <td>100.0%</td>
-<td>6.8%</td>
+<td>6.1%</td>
 <td>±0.20pp</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
 <td>(1) Question-bootstrap</td>
-<td>0.4%</td>
+<td>0.3%</td>
 <td>0.0%</td>
-<td>±1.89pp</td>
+<td>±1.88pp</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
 <td>(2) Run-bootstrap, SE honest</td>
-<td>42.8%</td>
+<td>42.6%</td>
 <td>0.0%</td>
-<td>±1.04pp</td>
+<td>±1.05pp</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
 <td>(3) Run-bootstrap, SE / sqrt(B)</td>
 <td>100.0%</td>
-<td>42.0%</td>
+<td>40.2%</td>
 <td>±0.19pp</td>
 </tr>
 </tbody>
@@ -1122,6 +1127,13 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <p>The calibration table turns the earlier “these bars look too narrow” intuition into a concrete indictment. <strong>Method (3), run-bootstrap with /√B rejects the null at over 40% when the two models are truly identical.</strong> If we run it on a finetuned model with zero real improvement and repeat the experiment 100 times with fresh decoding seeds, you will declare “significant uplift over base model” in more than 40 of them. This is not a subtle bias; the test is actively making up differences that are not there. Once fixed in Method (2), the CI becomes too conservative and power significantly drops to the level of a single-run McNemar’s test (~44%).</p>
 <p>Method (1) question-bootstrap lands at the opposite extreme: it resamples A’s per-question scores <span class="math inline">\(\bar{x}_q\)</span> and B/C’s per-question scores <span class="math inline">\(\bar{y}_q\)</span> with independent question indices, so the difference <span class="math inline">\(\bar{y}_q - \bar{x}_q\)</span> is no longer computed on paired questions. The bimodal between-question variance (easy-vs-hard buckets) is carried into the difference on both sides instead of cancelling through pairing, producing a CI wider than the 1pp signal. That is why it has near-zero power despite being conceptually the “right kind of” bootstrap.</p>
 <p>The pragmatic takeaway is that the only methods which are honest AND useful are the paired t-test which exploits pairing to shrink CI and more independent runs which achieve the same thing by increasing the number of samples. Both deliver ~6% false positive rate and power at almost 100% for a 1pp uplift. If you must bootstrap, apply it to the per-question differences <span class="math inline">\(d_q\)</span> directlyーthat is, a paired question-bootstrapーwhich reduces to the same calculation as the paired t-test.</p>
+</section>
+<section id="two-sneakier-jutsu-multiple-comparisons-and-aggregation" class="level2">
+<h2 class="anchored" data-anchor-id="two-sneakier-jutsu-multiple-comparisons-and-aggregation">Two Sneakier Jutsu: Multiple Comparisons and Aggregation</h2>
+<p>Even if the hypothesis test is honestly specified, two further traps can manufacture a headline uplift out of thin air. Both are worth naming because they travel under the same cover of “we followed best practice”.</p>
+<p><strong>Multiple Comparisons no Jutsu</strong> A typical localization benchmark reports accuracy across many slices: languages, subtasks, domains, prompt formats, and so on. If each slice is tested at <span class="math inline">\(\alpha = 0.05\)</span> independently, the family-wise probability of at least one false positive is <span class="math inline">\(1 - (1 - 0.05)^k\)</span>; as few as k=5 will return at least one false positive 22.6% of the time. The fix is standard: apply <a href="https://en.wikipedia.org/wiki/Bonferroni_correction">Bonferroni</a> (<span class="math inline">\(\alpha / k\)</span>) or <a href="https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method">Holm-Bonferroni</a> if you want more power, or <a href="https://en.wikipedia.org/wiki/False_discovery_rate#Controlling_procedures">Benjamini-Hochberg</a> if you are willing to control false discovery rate instead of family-wise error.</p>
+<p><strong>Selective Aggregation no Jutsu</strong> Suppose a finetuned model is evaluated on 5 languages: English, Mandarin, Japanese, Korean, and Burmese. The base model already handles the four major languages well and the finetuned one makes no real difference on them. But the finetuned model sees a +5pp uplift on Burmese, a small low-resource language with a 200-example test set. The macro-averaged score across the 5 languages is then +1pp, which sounds like a broad win. Under a micro-average (pooling all questions), the ~200 Burmese examples out of a weighted total are even more diluted and the headline reverses to ~0pp. Neither number tells the real story, which is “the finetuning helps on Burmese, does nothing elsewhere, and the Burmese evaluation set is too small to resolve 5pp anyway”.</p>
+<p>The deception works in both directions. Macro-average lets a single narrow slice carry the narrative; micro-average does the opposite when the improvement is concentrated in one large slice. An honest report states 1) the per-slice effect with its own CI and multiple-comparison correction, 2) the aggregated effect with the weighting scheme specified, and 3) which slices drive the aggregate. If a paper claims “+1pp macro-average” without the per-slice breakdown, assume the aggregate is hiding something until shown otherwise.</p>
 </section>
 <section id="the-bike-shed-effect" class="level2">
 <h2 class="anchored" data-anchor-id="the-bike-shed-effect"><a href="https://en.wikipedia.org/wiki/Law_of_triviality">The Bike-Shed Effect</a></h2>
@@ -1137,7 +1149,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <li><p>This may seem outdated for LLM evaluation but since these localization projects are only interested in adapting to a new language/domain, they treat more advanced capabilities like guardrails rather than objectives and focus on more traditional benchmarks such as <a href="https://huggingface.co/datasets/cais/mmlu">MMLU</a>.</p></li>
 <li><p>The hand-rolled McNemar’s z-test used in the main text is algebraically equivalent to the canonical chi-squared version without continuity correction: <span class="math inline">\(z^2 = \chi^2\)</span> and the two-sided p-values match exactly. Quick sanity check against <code>statsmodels.stats.contingency_tables.mcnemar</code>:</p></li>
 </ol>
-<div id="33c18298" class="cell" data-execution_count="12">
+<div id="d9405159" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.contingency_tables <span class="im">import</span> mcnemar <span class="im">as</span> sm_mcnemar</span>
@@ -1161,7 +1173,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(sanity_rows)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -1203,7 +1215,7 @@ Empirical power over 2000 simulated benchmarks: 99.2%</code></pre>
 <ol start="5" type="1">
 <li>You may notice that the per-run standard deviations printed for A, B, and C in the display-seed setup cell come out visibly different, despite A and B being structurally identical. This is a sampling artifact of estimating a standard deviation from only 8 observations, not a property of the models. The true per-run standard deviation is the same for all three models because it only depends on the distribution of <span class="math inline">\(p_q\)</span>, and C’s derivation only swaps a 1% fraction of <code>p_q = 0</code> questions to <code>p_q = 1</code>, both of which contribute zero variance.</li>
 </ol>
-<div id="4c3fccef" class="cell" data-execution_count="13">
+<div id="23f3501e" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># True per-run standard deviation: sqrt(sum_q p_q(1-p_q)) / n</span></span>
